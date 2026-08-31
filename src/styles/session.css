@@ -1,0 +1,72 @@
+/* The bench index uses the same ruled-row language as the specimens index —
+   one record per row, hairline between records — rather than a second visual
+   language for a second collection. Kept in its own file because sessions and
+   specimens are independent collections whose styling can otherwise drift
+   apart without warning. */
+.session-register {
+  margin-block: var(--at-spacing-lg);
+  padding: 0;
+  border-block-start: 1px solid var(--at-divider);
+  list-style: none;
+}
+
+.session-record {
+  padding-block: var(--at-spacing-md);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.session-record-week {
+  margin: 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.session-record-heading {
+  margin: var(--at-spacing-xs) 0 0;
+  font-size: var(--at-font-size-h4, 1.15rem);
+  font-weight: 600;
+}
+
+/* Fields within one record are not separately ruled — the hairline belongs to
+   the record, not the field — same reasoning as .specimen-record-fields. */
+.session-record-fields {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  column-gap: 0;
+  row-gap: var(--at-spacing-xs);
+  margin-block: var(--at-spacing-sm) 0;
+}
+
+.session-record-fields dt {
+  margin: 0;
+  padding-inline-end: var(--at-spacing-md);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.session-record-fields dd {
+  margin: 0;
+  color: var(--at-text);
+}
+
+@media (max-width: 30rem) {
+  .session-record-fields {
+    grid-template-columns: 1fr;
+    row-gap: 0;
+  }
+
+  .session-record-fields dt {
+    padding-inline-end: 0;
+    margin-block-start: var(--at-spacing-xs);
+  }
+
+  .session-record-fields dt:first-child {
+    margin-block-start: 0;
+  }
+}

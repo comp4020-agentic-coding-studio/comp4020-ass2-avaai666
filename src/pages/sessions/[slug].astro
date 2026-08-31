@@ -7,6 +7,7 @@ import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
+import "../../styles/specimen.css";
 
 export async function getStaticPaths() {
   const sessions = await getPublishedCollection("sessions");
@@ -23,6 +24,15 @@ const { Content } = await render(session);
   {...siteConfig}
 >
   <p><strong>{formatCourseDate(session.data.date)}</strong></p>
+  <p class="specimen-provenance-caption">Bench</p>
+  <dl class="specimen-provenance">
+    <dt>Material</dt>
+    <dd>{session.data.material}</dd>
+    <dt>Operation</dt>
+    <dd>{session.data.operation}</dd>
+    <dt>Leaves</dt>
+    <dd>{session.data.leaves}</dd>
+  </dl>
   <Content />
   <SpecList spec={session.data.spec}>
     What you bring to the session. Written so a reader can tell whether it has
