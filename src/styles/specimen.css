@@ -26,3 +26,56 @@ blockquote[data-specimen] p {
 blockquote[data-specimen] p + p {
   margin-block-start: var(--at-spacing-sm);
 }
+
+/* The provenance block is the label on the exhibit, not a definition list in
+   the dictionary sense — field names read as a fixed left column, not as
+   terms being defined. A fixed left column narrow enough to look tidy on
+   desktop (Verification, Mechanism) is too narrow for Source, whose values
+   are full sentences, so narrow viewports stack instead of squeezing. */
+.specimen-provenance-caption,
+.specimen-provenance dt {
+  margin: 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.specimen-provenance-caption {
+  margin-block-end: var(--at-spacing-xs);
+}
+
+.specimen-provenance {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  column-gap: var(--at-spacing-md);
+  margin-block: var(--at-spacing-lg);
+  border-block-start: 1px solid var(--at-divider);
+}
+
+.specimen-provenance dd {
+  margin: 0;
+  color: var(--at-text);
+}
+
+.specimen-provenance dt,
+.specimen-provenance dd {
+  padding-block: var(--at-spacing-sm);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+@media (max-width: 30rem) {
+  .specimen-provenance {
+    grid-template-columns: 1fr;
+  }
+
+  .specimen-provenance dt {
+    border-block-end: none;
+    padding-block-end: 0;
+  }
+
+  .specimen-provenance dd {
+    padding-block-start: 0;
+  }
+}
