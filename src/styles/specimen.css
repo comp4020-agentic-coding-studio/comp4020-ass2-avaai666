@@ -79,3 +79,56 @@ blockquote[data-specimen] p + p {
     padding-block-start: 0;
   }
 }
+
+/* Verification is the course's central device, so it gets a visual language
+   of its own rather than reading as one more field. Dashed reuses the home
+   page artwork's meaning for a dashed line — attached to nothing — for the
+   one level with no primary source, instead of inventing a second signal for
+   the same idea. */
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15em 0.6em;
+  border-radius: var(--at-border-radius);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+.verification-badge--primary {
+  color: var(--at-accent);
+  background: var(--at-accent-soft);
+  border: 1px solid var(--at-accent);
+}
+
+.verification-badge--secondary,
+.verification-badge--apocryphal {
+  color: var(--at-text-secondary);
+  background: transparent;
+  border: 1px solid var(--at-border);
+}
+
+.verification-badge--apocryphal {
+  border-style: dashed;
+}
+
+.specimen-verification {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-sm);
+}
+
+.specimen-verification-gloss {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+}
+
+.specimen-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-sm);
+}

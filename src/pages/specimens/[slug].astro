@@ -36,7 +36,12 @@ const verificationNote = verificationNotes[specimen.data.verification];
     <dt>Recorded</dt>
     <dd>{specimen.data.sourceDate}</dd>
     <dt>Verification</dt>
-    <dd>{specimen.data.verification} — {verificationNote}</dd>
+    <dd class="specimen-verification">
+      <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+        {specimen.data.verification}
+      </span>
+      <span class="specimen-verification-gloss">{verificationNote}</span>
+    </dd>
     <dt>Mechanism</dt>
     <dd>{specimen.data.mechanism}</dd>
   </dl>
