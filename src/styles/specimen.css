@@ -46,12 +46,20 @@ blockquote[data-specimen] p + p {
   margin-block-end: var(--at-spacing-xs);
 }
 
+/* column-gap leaves a strip of dead space no border can cross, which cut each
+   row's rule into two segments. The columns now touch (gap: 0) so a row's dt
+   and dd borders land on one continuous line; the breathing room between
+   label and value moves onto dt's own padding instead of the gap. */
 .specimen-provenance {
   display: grid;
   grid-template-columns: 9rem 1fr;
-  column-gap: var(--at-spacing-md);
+  column-gap: 0;
   margin-block: var(--at-spacing-lg);
   border-block-start: 1px solid var(--at-divider);
+}
+
+.specimen-provenance dt {
+  padding-inline-end: var(--at-spacing-md);
 }
 
 .specimen-provenance dd {
@@ -73,6 +81,7 @@ blockquote[data-specimen] p + p {
   .specimen-provenance dt {
     border-block-end: none;
     padding-block-end: 0;
+    padding-inline-end: 0;
   }
 
   .specimen-provenance dd {
