@@ -5,33 +5,46 @@ import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import heroImage from "../assets/images/hero-home.avif";
 import { courseMeta } from "../course-config";
 import { sessionLabels, siteConfig } from "../site-config";
-
-// STARTER_CONTENT: replace the hero artwork and its alt text below, then
-// remove this comment.
 ---
 
 <ContentLayout
   title={`${courseMeta.code}: ${courseMeta.title}`}
   description={courseMeta.description}
   heroImage={heroImage}
-  heroImageAlt="A lecture theatre reduced to flat gold and black shapes, rows of seats sweeping past the frame, in a two-ink risograph print"
+  heroImageAlt="Two rows of solid blocks stand in for a sentence and its translation, joined by thin curved lines. Two of the lines cross each other, and one block at the end of the top row is dashed and joined to nothing. Flat gold and black on warm cream."
   {...siteConfig}
 >
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}
   </ul>
 
-  <!-- STARTER_CONTENT: replace the authored page below, then remove this comment. -->
   <h2>What you will do</h2>
   <p>
-    Say what a student spends their time on — the making, reading, arguing or
-    measuring that fills the weeks. Name the artefact they walk out with.
+    Every week you bring one artefact — a menu, a sign, a subtitle, a manual —
+    that claims to say something in a language it does not speak. You record
+    where it came from and when. Then you work backwards from the error to the
+    process that produced it: a dictionary entry, a grammar rule, a phrase
+    table, a network, or a workflow that could not tell a translation request
+    from an email.
+  </p>
+  <p>
+    By week twelve you have a catalogued corpus and one argument you can defend
+    about a system you never had access to.
   </p>
 
   <h2>Who it is for</h2>
   <p>
-    Say who this is aimed at and what they need to already know. Be specific
-    enough that someone can rule themselves in or out without emailing you.
+    Postgraduate students who read a second language well enough to tell a bad
+    translation from an unfamiliar one. You do not need to build translation
+    systems and you will not be asked to. You do need to be willing to say
+    <em>I cannot source this</em> in front of other people.
+  </p>
+
+  <h2>What this course does not do</h2>
+  <p>
+    It does not teach you to translate. It does not rank languages by
+    difficulty. It does not treat a mistranslation as a joke about the person
+    who made it: the machine is the subject, not the speaker.
   </p>
 
   <h2>Where to go next</h2>
