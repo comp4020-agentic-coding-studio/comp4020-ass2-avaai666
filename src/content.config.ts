@@ -3,6 +3,14 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { courseNodeSchema } from "astro-course-university/schemas";
 
+// Provenance can be coarser than a day. "2008-10" and "2008" are honest
+// answers when that is all the record supports; a fabricated day is not.
+const specimenDate = z.string().regex(/^\d{4}(-\d{2}(-\d{2})?)?$/, {
+  message: "use YYYY, YYYY-MM or YYYY-MM-DD",
+});
+
+const specimenVerification = z.enum(["primary", "secondary", "apocryphal"]);
+
 const weekSchema = z.coerce.number().int().min(1).max(12);
 const courseNodeLoader = (dir: string) =>
   glob({ pattern: ["**/*.{md,mdx}", "!**/CLAUDE.md"], base: `src/content/${dir}` });
@@ -39,6 +47,19 @@ export const collections = {
         week: weekSchema,
         date: z.coerce.date(),
         teachers: teacherRefs.optional(),
+      })
+      .loose(),
+  }),
+
+    specimens: defineCollection({
+    loader: courseNodeLoader("specimens"),
+    schema: courseNodeSchema
+      .extend({
+        source: z.string().trim().min(1),
+        sourceDate: specimenDate,
+        verification: specimenVerification,
+        languages: z.string().trim().min(1),
+        mechanism: z.string().trim().min(1),
       })
       .loose(),
   }),

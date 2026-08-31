@@ -38,25 +38,17 @@ export const slopCourseMetaSchema = z
     }
   });
 
-// The single source of truth for the course record. The generated homepage,
-// navigation label and /api/index.json all read this object.
-// Replace every placeholder value, but keep the shape: the catalogue ingests
-// this API contract when the course is published.
-//
-// The code's last three digits were assigned to this repo when it was
-// provisioned, and no other course in the cohort has them. Change the first
-// digit to your course's level (and `level` to match); keep the other three.
-// STARTER_CONTENT: replace this course record, then remove this comment.
 export const courseMeta = slopCourseMetaSchema.parse({
-  code: "SLOP1217",
-  title: "Course Title Goes Here",
+  code: "SLOP8217",
+  title: "Wrong in Public",
   session: "Semester 1",
   year: 2027,
-  level: 1,
+  level: 8,
   startDate: "2027-02-22",
   endDate: "2027-05-28",
   description:
-    "One concise paragraph explaining what this course is, who it is for, " +
-    "and why somebody would choose to spend a semester taking it.",
-  tags: ["replace me"],
+    "A mistranslation is not a failure to be corrected. It is the only " +
+    "visible seam in a system that is otherwise invisible. Twelve weeks " +
+    "reconstructing the machines that made the errors we read in public.",
+  tags: ["translation", "forensics", "evidence"],
 }) satisfies CourseMetaInput;

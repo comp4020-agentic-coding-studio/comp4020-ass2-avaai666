@@ -2,14 +2,20 @@ import { defineSiteConfig } from "astro-theme-university/types";
 import { slopBranding } from "astro-theme-slop";
 import { courseMeta } from "./course-config";
 
-// The underlying collection and URL remain `sessions`; these labels are the
-// language students see. Change them to Studios, Tutorials, Expeditions, etc.
+// Students meet at a bench, not in a lab or a seminar. The word is doing real
+// work: a bench is where you put an object down and take it apart.
 export const sessionLabels = {
-  singular: "Session",
-  plural: "Sessions",
+  singular: "Bench",
+  plural: "Benches",
 } as const;
 
-export const graphCollections = ["sessions", "assessments", "lectures", "people"];
+export const graphCollections = [
+  "sessions",
+  "assessments",
+  "lectures",
+  "people",
+  "specimens",
+];
 
 export const courseApiCollections = [
   ...graphCollections.map((key) => ({ key })),
@@ -23,6 +29,7 @@ export const siteConfig = defineSiteConfig({
   links: [
     { text: "Lectures", href: "/lectures/" },
     { text: sessionLabels.plural, href: "/sessions/" },
+    { text: "Specimens", href: "/specimens/" },
     { text: "Assessment", href: "/assessments/" },
     { text: "People", href: "/people/" },
     { text: "Policies", href: "/policies/" },
