@@ -1,0 +1,28 @@
+/* A specimen blockquote is physical evidence, not a pull-quote: nobody said
+   this, it was printed, painted or installed. A heavy left rule reads as a
+   margin annotation on an exhibit rather than a rhetorical flourish, so the
+   theme's default top-rule quotation styling is switched off here rather
+   than layered underneath it. Colours come from the theme's own tokens,
+   which already carry their dark-mode values, so this reads correctly in
+   both without a separate dark rule. */
+blockquote[data-specimen] {
+  margin-inline: 0;
+  padding: var(--at-spacing-md) var(--at-spacing-lg);
+  border-inline-start: 0.35rem solid var(--at-accent);
+  background: var(--at-bg-alt);
+  color: var(--at-text);
+  font-size: 1.1em;
+  font-weight: 400;
+}
+
+blockquote[data-specimen]::before {
+  content: none;
+}
+
+blockquote[data-specimen] p {
+  margin-block: 0;
+}
+
+blockquote[data-specimen] p + p {
+  margin-block-start: var(--at-spacing-sm);
+}

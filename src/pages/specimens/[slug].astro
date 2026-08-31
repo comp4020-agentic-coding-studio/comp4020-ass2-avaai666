@@ -1,0 +1,46 @@
+---
+import { render } from "astro:content";
+import { getPublishedCollection } from "astro-course-university/content";
+import RelatedContent from "astro-course-university/components/RelatedContent.astro";
+import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import { graphCollections, siteConfig } from "../../site-config";
+import "../../styles/specimen.css";
+
+export async function getStaticPaths() {
+  const specimens = await getPublishedCollection("specimens");
+  return specimens.map((specimen) => ({ params: { slug: specimen.id }, props: { specimen } }));
+}
+
+const { specimen } = Astro.props;
+const { Content } = await render(specimen);
+
+const verificationNotes: Record<string, string> = {
+  primary: "Recorded from the artefact, or from a report that reproduces it.",
+  secondary: "Reported by others. This course has not seen the artefact itself.",
+  apocryphal: "Widely repeated. No primary source has been found.",
+};
+const verificationNote = verificationNotes[specimen.data.verification];
+---
+
+<ContentLayout
+  title={specimen.data.title}
+  description={specimen.data.description}
+  {...siteConfig}
+>
+  <dl>
+    <dt>Languages</dt>
+    <dd>{specimen.data.languages}</dd>
+    <dt>Source</dt>
+    <dd>{specimen.data.source}</dd>
+    <dt>Recorded</dt>
+    <dd>{specimen.data.sourceDate}</dd>
+    <dt>Verification</dt>
+    <dd>{specimen.data.verification} — {verificationNote}</dd>
+    <dt>Mechanism</dt>
+    <dd>{specimen.data.mechanism}</dd>
+  </dl>
+
+  <Content />
+
+  <RelatedContent entry={specimen} collections={graphCollections} />
+</ContentLayout>

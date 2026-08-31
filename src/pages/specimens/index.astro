@@ -1,0 +1,20 @@
+---
+import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import SpecimensGrid from "../../components/SpecimensGrid.astro";
+import { siteConfig } from "../../site-config";
+---
+
+<ContentLayout
+  title="Specimens"
+  description="Every artefact this course argues from, with the provenance that makes it usable as evidence."
+  {...siteConfig}
+>
+  <p>
+    Every specimen carries where it came from, when it was recorded, and how
+    far the record can be trusted. Three levels: primary, secondary,
+    apocryphal. Nothing here is deleted for being unsourceable — a corpus
+    that quietly drops what it cannot verify is teaching the opposite of what
+    this course is for.
+  </p>
+  <SpecimensGrid />
+</ContentLayout>
