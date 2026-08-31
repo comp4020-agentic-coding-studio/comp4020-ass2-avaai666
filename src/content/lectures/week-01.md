@@ -1,30 +1,32 @@
 ---
-title: Opening lecture
-description:
-  The first lecture — what the course is, why it is shaped this way, and what
-  happens in week 1
+title: What makes it wrong
+description: >-
+  An error needs a claim behind it — establishing the contract before we argue
+  about the evidence
 week: 1
 date: 2027-02-22
 teachers:
-  - marisol-quaye
-slides: /decks/week-01/
+  - ines-barrantes
 related:
-  - sessions/01-getting-started
+  - sessions/01-the-specimen
+  - specimens/chukou-export
 ---
 
-<!-- STARTER_CONTENT: replace this lecture, then remove this comment. -->
+A wall with nothing written on it cannot be wrong. A sign reading
+<span lang="zh-Hans">出口</span> and nothing else cannot be wrong in English,
+because it never offered any English. A sign reading
+<span lang="zh-Hans">出口</span> EXPORT can, because somewhere a promise was
+made that the second line carries the first.
 
-Replace this page. A lecture entry says what was covered and links to the pages
-that own the detail, so the lecture stays short and nothing is explained twice.
-
-The `related:` ref above is a graph edge: it renders on this page and on the
-session's, so declare a connection once, on whichever side is convenient.
-
-The page renders its `slides:` link automatically. Decks are markdown too,
-under `src/decks/`; the path is part of the lecture's API metadata.
+That promise is where every specimen in this course begins, and half of what
+looks like a mistranslation turns out on inspection to be a promise nobody
+actually made.
 
 ## Outline
 
-- what the course is for
-- how the weeks are shaped
-- what to do before the first session
+- the contract: who promised what, to whom, and how you establish that they did
+- three verification levels, and why `apocryphal` is a finding rather than a
+  failure
+- what a record has to contain for someone else to re-check it
+- <span lang="zh-Hans">出口</span> EXPORT, read twice: once as a joke, once as
+  evidence
