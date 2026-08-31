@@ -5,6 +5,9 @@ description: >-
   no longer looks wrong, and recording how far it gets
 week: 11
 date: 2027-05-12
+material: fluent output
+operation: reconstructing, and failing
+leaves: the exact sentence where the method stops working
 teachers:
   - ines-barrantes
   - aurel-marchetti

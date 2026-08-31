@@ -5,6 +5,9 @@ description: >-
   willing to display and why
 week: 9
 date: 2027-04-28
+material: the whole corpus
+operation: excluding
+leaves: a list of what stays out, with reasons
 teachers:
   - ines-barrantes
 spec:

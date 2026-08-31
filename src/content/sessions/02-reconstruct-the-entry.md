@@ -5,6 +5,9 @@ description: >-
   printed to what it must have contained
 week: 2
 date: 2027-03-03
+material: three outputs from one lookup
+operation: reconstructing the entry
+leaves: a dictionary entry someone else can break
 teachers:
   - aurel-marchetti
 spec:

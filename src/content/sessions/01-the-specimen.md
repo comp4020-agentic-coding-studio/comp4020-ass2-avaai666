@@ -5,6 +5,9 @@ description: >-
   provenance record has to contain before anyone argues about meaning
 week: 1
 date: 2027-02-24
+material: one artefact each, unsorted
+operation: establishing the claim
+leaves: a provenance record in the shared corpus
 teachers:
   - ines-barrantes
   - aurel-marchetti

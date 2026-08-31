@@ -5,6 +5,9 @@ description: >-
   the provenance the semester has been arguing about
 week: 12
 date: 2027-05-19
+material: the corpus, curated
+operation: exhibiting
+leaves: a wall a stranger can read without me
 teachers:
   - ines-barrantes
   - aurel-marchetti

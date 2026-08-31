@@ -5,6 +5,9 @@ description: >-
   where a chain of translations stops changing
 week: 10
 date: 2027-05-05
+material: one sentence
+operation: chaining to a fixed point
+leaves: a numbered log and the iteration it settled at
 teachers:
   - aurel-marchetti
 spec:

@@ -5,6 +5,9 @@ description: >-
   stop — and a written record of where they stopped
 week: 3
 date: 2027-03-10
+material: a citation chain
+operation: tracing it to the source
+leaves: a written record of where the chain stopped
 teachers:
   - ines-barrantes
 spec:

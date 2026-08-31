@@ -5,6 +5,9 @@ description: >-
   and then does not
 week: 4
 date: 2027-03-17
+material: signage from before 2016
+operation: locating the join
+leaves: a dated estimate and the reasoning behind it
 teachers:
   - aurel-marchetti
 spec:

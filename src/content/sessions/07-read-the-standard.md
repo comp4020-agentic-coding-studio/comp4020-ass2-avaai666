@@ -5,6 +5,9 @@ description: >-
   on the other, and the question of who is answerable
 week: 7
 date: 2027-04-14
+material: a clause and a sign
+operation: reading one against the other
+leaves: the workflow step where the two parted
 teachers:
   - ines-barrantes
 spec:

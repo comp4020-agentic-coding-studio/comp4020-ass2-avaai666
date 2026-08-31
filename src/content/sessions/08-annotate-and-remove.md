@@ -5,6 +5,9 @@ description: >-
   to what a commercial release would allow
 week: 8
 date: 2027-04-21
+material: forty seconds of video
+operation: annotating, then stripping
+leaves: two subtitle tracks and an account of what the clean one lost
 teachers:
   - aurel-marchetti
 spec:

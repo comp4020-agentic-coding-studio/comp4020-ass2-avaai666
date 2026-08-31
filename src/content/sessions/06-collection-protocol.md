@@ -5,6 +5,9 @@ description: >-
   goes out and uses it
 week: 6
 date: 2027-03-31
+material: the street
+operation: collecting
+leaves: four specimens and a notebook filled in at the scene
 teachers:
   - ines-barrantes
 spec:

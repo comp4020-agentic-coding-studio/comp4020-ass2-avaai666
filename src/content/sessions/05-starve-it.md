@@ -5,6 +5,9 @@ description: >-
   produces instead of nothing
 week: 5
 date: 2027-03-24
+material: input with no content
+operation: probing a closed system
+leaves: a dated log of what a system invents
 teachers:
   - aurel-marchetti
   - ines-barrantes
