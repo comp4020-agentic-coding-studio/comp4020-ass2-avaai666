@@ -1,25 +1,68 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
-import Card from "astro-theme-university/components/Card.astro";
-import CardGrid from "astro-theme-university/components/CardGrid.astro";
+import { withBase } from "astro-theme-university/url";
 import "../styles/specimen.css";
 
 const specimens = await getPublishedCollection("specimens");
+const sessions = await getPublishedCollection("sessions");
+const lectures = await getPublishedCollection("lectures");
+
 const visible = specimens.sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+function usedIn(specimenId: string) {
+  const ref = `specimens/${specimenId}`;
+  const byWeek = new Map<number, { week: number; href: string }>();
+
+  for (const session of sessions) {
+    if (session.data.related.includes(ref)) {
+      byWeek.set(session.data.week, { week: session.data.week, href: `/sessions/${session.id}/` });
+    }
+  }
+
+  for (const lecture of lectures) {
+    if (lecture.data.related.includes(ref) && !byWeek.has(lecture.data.week)) {
+      byWeek.set(lecture.data.week, { week: lecture.data.week, href: `/lectures/${lecture.id}/` });
+    }
+  }
+
+  return [...byWeek.values()].sort((a, b) => a.week - b.week);
+}
 ---
 
-<CardGrid columns={2}>
+<ul class="specimen-register">
   {
-    visible.map((specimen) => (
-      <Card headingLevel="h2" title={specimen.data.title} href={`/specimens/${specimen.id}/`}>
-        {specimen.data.description && <p>{specimen.data.description}</p>}
-        <p class="specimen-card-meta">
-          <small>{specimen.data.languages}</small>
-          <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
-            {specimen.data.verification}
-          </span>
-        </p>
-      </Card>
-    ))
+    visible.map((specimen) => {
+      const weeks = usedIn(specimen.id);
+      return (
+        <li class="specimen-record">
+          <p class="specimen-record-heading">
+            <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
+            <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+              {specimen.data.verification}
+            </span>
+          </p>
+          <p class="specimen-record-languages">{specimen.data.languages}</p>
+          <dl class="specimen-record-fields">
+            <dt>Recorded</dt>
+            <dd>{specimen.data.sourceDate}</dd>
+            <dt>Mechanism</dt>
+            <dd>{specimen.data.mechanism}</dd>
+            {weeks.length > 0 && (
+              <Fragment>
+                <dt>Used in</dt>
+                <dd>
+                  {weeks.map((w, i) => (
+                    <Fragment>
+                      {i > 0 && ", "}
+                      <a href={withBase(w.href)}>Week {w.week}</a>
+                    </Fragment>
+                  ))}
+                </dd>
+              </Fragment>
+            )}
+          </dl>
+        </li>
+      );
+    })
   }
-</CardGrid>
+</ul>
