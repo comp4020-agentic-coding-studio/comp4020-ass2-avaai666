@@ -51,6 +51,40 @@ produced it.**
 12. Adding is allowed: a new collection, a page outside the collections, a
     component the theme does not have.
 
+## Platform routing, measured
+
+README.md says `src/layouts/PageLayout.astro` is "the layout every page
+renders through." Measured against this repo by building the site and reading
+`dist/`, that is false, and it has cost three separate turns of work assuming
+it was true. What is actually true, as observed:
+
+- Every hand-written `.astro` route under `src/pages/` that calls the theme's
+  `ContentLayout` directly — as of this writing: `index.astro`,
+  `sessions/index.astro`, `sessions/[slug].astro`, `specimens/index.astro`,
+  `specimens/[slug].astro`, `lectures/[slug].astro`, `assessments/[slug].astro`,
+  `people/[slug].astro` — never touches `PageLayout.astro`. It renders through
+  `ContentLayout.astro` → `BaseLayout.astro` only.
+- Only a bare `.md`/`.mdx` file under `src/pages/` with no `layout:`
+  frontmatter of its own goes through `PageLayout.astro`, via the theme
+  integration's `defaultLayout` option (`astro.config.ts`) and its
+  `remark-default-layout.ts` plugin. As of this writing: `404.md`,
+  `policies/index.mdx`, `people/index.mdx`, `assessments/index.mdx`,
+  `lectures/index.mdx`.
+- Both paths converge on `BaseLayout.astro`, which renders
+  `<nav class="at-nav">` on every page except deck pages (astromotion, which
+  render their own chrome). `<nav class="at-nav">` in the built HTML is
+  therefore the reliable marker of "a page on this site," not
+  `PageLayout.astro`.
+
+The rule that follows: a site-wide style has two places it must be imported —
+every `ContentLayout` call site, and `PageLayout.astro` — and no single import
+point reaches every page. Nothing in the build enforces that list; add a page
+that calls `ContentLayout` and forget the import, and the style silently does
+not reach it. `spec/layout-styling.test.ts` is the check: it finds every built
+page carrying `<nav class="at-nav">` and asserts the style's selector is in
+its loaded CSS. Extend that spec when adding another site-wide style; do not
+rely on remembering the import list.
+
 ## ★ Checks
 
 13. Do not weaken, skip or delete a failing assertion in `spec/`. If a test is
