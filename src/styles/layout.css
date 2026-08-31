@@ -1,0 +1,14 @@
+/* On a page with no hero image, the theme's page title renders as the first
+   child of <main>, directly under the sticky nav. Its generic heading margin
+   (1.5em, meant for headings deep in body prose) stacks with <main>'s own top
+   padding into a band with no content in it. Scoped to "nav immediately
+   followed by main" so a page with a hero — which puts its own title inside
+   the hero, not in <main> — is untouched; the home page always has a hero and
+   never matches either rule. */
+.at-nav + .at-main {
+  padding-block-start: var(--at-spacing-md);
+}
+
+.at-nav + .at-main > h1:first-child {
+  margin-block-start: var(--at-spacing-md);
+}
