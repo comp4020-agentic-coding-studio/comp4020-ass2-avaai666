@@ -8,7 +8,7 @@ due: 2027-05-19T17:00:00+10:00
 weight: 15
 marking:
   mode: holistic
-  description:
+  description: >-
     Marked across the twelve benches as a whole rather than week by week. The
     question is whether the room worked better because you were in it: did you
     arrive with an artefact, did you challenge a verification level that
