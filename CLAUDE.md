@@ -12,7 +12,10 @@ produced it.**
 1. Before you write any week page, state in one sentence what that week adds to
    the claim that the previous eleven do not. If you cannot, say so and stop.
    Do not pad.
-2. Never write more than one week page per turn.
+2. No two week pages — of the same kind, sessions or lectures — may open with
+   the same first sentence, and no two may reach 0.15 word-trigram Jaccard
+   similarity in body text. `spec/week-distinctness.test.ts` is the check; do
+   not add week content that would turn it red.
 
 ## Evidence
 
