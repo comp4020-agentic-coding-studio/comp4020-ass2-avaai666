@@ -1,10 +1,16 @@
 ---
+import { getEntry } from "astro:content";
 import Card from "astro-theme-university/components/Card.astro";
 import CardGrid from "astro-theme-university/components/CardGrid.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import { withBase } from "astro-theme-university/url";
 import heroImage from "../assets/images/hero-home.avif";
 import { courseMeta } from "../course-config";
 import { sessionLabels, siteConfig } from "../site-config";
+import "../styles/specimen.css";
+
+const swansea = await getEntry("specimens", "swansea-out-of-office");
+const swanseaQuote = swansea?.body?.match(/<blockquote\s+data-specimen[^>]*>[\s\S]*?<\/blockquote>/)?.[0];
 ---
 
 <ContentLayout
@@ -31,6 +37,33 @@ import { sessionLabels, siteConfig } from "../site-config";
     By week twelve you have a catalogued corpus and one argument you can defend
     about a system you never had access to.
   </p>
+
+  <p>
+    One of seven in the corpus. It is the only entry with a primary source, and
+    no translation system was involved in making it.
+  </p>
+  {
+    swansea && swanseaQuote ? (
+      <div class="specimen-record specimen-record--standalone">
+        <p class="specimen-provenance-caption">Specimen</p>
+        <p class="specimen-record-heading">
+          <span>{swansea.data.title}</span>
+          <span class={`verification-badge verification-badge--${swansea.data.verification}`}>
+            {swansea.data.verification}
+          </span>
+        </p>
+        <p class="specimen-record-languages">{swansea.data.languages}</p>
+        <dl class="specimen-record-fields">
+          <dt>Mechanism</dt>
+          <dd>{swansea.data.mechanism}</dd>
+        </dl>
+        <Fragment set:html={swanseaQuote} />
+        <p>
+          <a href={withBase(`/specimens/${swansea.id}/`)}>→ Read the record</a>
+        </p>
+      </div>
+    ) : null
+  }
 
   <h2>Who it is for</h2>
   <p>

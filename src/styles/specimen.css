@@ -159,6 +159,13 @@ blockquote[data-specimen] p + p {
   border-block-end: 1px solid var(--at-divider);
 }
 
+/* A record shown alone, outside a .specimen-register list, has no list
+   container to supply the top rule — so it needs its own, or it would read
+   as the bottom half of a list that isn't there. */
+.specimen-record--standalone {
+  border-block-start: 1px solid var(--at-divider);
+}
+
 .specimen-record-heading {
   display: flex;
   align-items: baseline;
