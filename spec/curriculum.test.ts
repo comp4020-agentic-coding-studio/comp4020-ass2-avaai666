@@ -31,6 +31,16 @@ describe("curriculum", () => {
     }
   });
 
+  // The live assertion here is the first one: at least one lecture declares
+  // a `slides` path. Nothing else in the build enforces that — if every
+  // lecture dropped its slides line, the build would succeed and the spec's
+  // "at least one lecture carries a real deck" requirement would fail silently.
+  // The second assertion, that the declared deck exists under dist/decks/, is
+  // a backstop this test can rarely reach: astro-broken-links-checker runs on
+  // the astro:build:done hook and throws when a lecture links a deck that
+  // isn't in the build, which exits `astro build` before `vitest run spec`
+  // ever starts. Its silence here is not coverage — the build already caught
+  // it, earlier and harder, by failing outright.
   it("carries a real deck for at least one lecture's slides", () => {
     const withSlides = lectures.filter((node) => typeof node.meta?.slides === "string");
     expect(withSlides.length, "no lecture declares a slides path").toBeGreaterThan(0);
