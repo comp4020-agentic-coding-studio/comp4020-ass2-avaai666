@@ -1,0 +1,62 @@
+/* Same ruled-row language as sessions and specimens: one record per row,
+   hairline between records, no card. The left column holds the weight for
+   every row — including the final Total row, whose value sits in that same
+   column so the percentages can be read straight down the left edge. */
+.assessment-register {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  column-gap: 0;
+  margin-block: var(--at-spacing-lg);
+  border-block-start: 1px solid var(--at-divider);
+}
+
+.assessment-register dt {
+  margin: 0;
+  padding-inline-end: var(--at-spacing-md);
+  padding-block: var(--at-spacing-md);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.assessment-register dd {
+  margin: 0;
+  padding-block: var(--at-spacing-md);
+  color: var(--at-text);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.assessment-register-title {
+  margin: 0;
+  font-size: var(--at-font-size-h4, 1.15rem);
+  font-weight: 600;
+}
+
+.assessment-register-description {
+  margin: var(--at-spacing-xs) 0 0;
+}
+
+.assessment-register-due {
+  margin: var(--at-spacing-xs) 0 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+}
+
+@media (max-width: 30rem) {
+  .assessment-register {
+    grid-template-columns: 1fr;
+  }
+
+  .assessment-register dt {
+    border-block-end: none;
+    padding-block-end: 0;
+    padding-inline-end: 0;
+  }
+
+  .assessment-register dd {
+    padding-block-start: 0;
+  }
+}
