@@ -15,7 +15,11 @@
   margin-block: var(--at-spacing-lg);
 }
 
-.corpus-timeline svg {
+/* A class selector here, not ".corpus-timeline svg": that descendant form
+   carries a type selector, which outranks the single-class modifier rules
+   below it regardless of source order, so display: none on the modifiers
+   never took effect and both variants stayed visible at every width. */
+.corpus-timeline-svg {
   display: block;
   width: 100%;
   height: auto;
