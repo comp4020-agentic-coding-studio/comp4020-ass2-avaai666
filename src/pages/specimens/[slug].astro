@@ -4,6 +4,7 @@ import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import { graphCollections, siteConfig } from "../../site-config";
+import { verificationNotes } from "../../lib/verification";
 import "../../styles/layout.css";
 import "../../styles/specimen.css";
 
@@ -15,11 +16,6 @@ export async function getStaticPaths() {
 const { specimen } = Astro.props;
 const { Content } = await render(specimen);
 
-const verificationNotes: Record<string, string> = {
-  primary: "Recorded from the artefact, or from a report that reproduces it.",
-  secondary: "Reported by others. This course has not seen the artefact itself.",
-  apocryphal: "Widely repeated. No primary source has been found.",
-};
 const verificationNote = verificationNotes[specimen.data.verification];
 ---
 
