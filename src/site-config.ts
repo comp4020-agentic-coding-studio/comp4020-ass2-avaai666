@@ -1,5 +1,6 @@
 import { defineSiteConfig } from "astro-theme-university/types";
 import { slopBranding } from "astro-theme-slop";
+import { cardImageAlt } from "./lib/artwork";
 
 // Students meet at a bench, not in a lab or a seminar. The word is doing real
 // work: a bench is where you put an object down and take it apart.
@@ -36,8 +37,5 @@ export const siteConfig = defineSiteConfig({
 
   licence: "CC-BY-NC-SA-4.0",
   socialImage: "/src/assets/images/card.png",
-  socialImageAlt:
-    "Two rows of solid blocks stand in for a sentence and its translation, " +
-    "joined by thin curved lines. Two of the lines cross, and one block at " +
-    "the end of the top row is dashed and joined to nothing.",
+  socialImageAlt: cardImageAlt,
 });
