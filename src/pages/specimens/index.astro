@@ -2,7 +2,7 @@
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import SpecimensGrid from "../../components/SpecimensGrid.astro";
 import { siteConfig } from "../../site-config";
-import { VERIFICATION_LEVELS, verificationNotes } from "../../lib/verification";
+import { VERIFICATION_LEVELS, verificationLegendNotes } from "../../lib/verification";
 import "../../styles/layout.css";
 import "../../styles/specimen.css";
 ---
@@ -17,14 +17,14 @@ import "../../styles/specimen.css";
     drops what it cannot verify is teaching the opposite of what this course
     is for.
   </p>
-  <dl class="specimen-provenance">
+  <dl class="specimen-provenance specimen-provenance--legend">
     {
       VERIFICATION_LEVELS.map((level) => (
         <>
           <dt>
             <span class={`verification-badge verification-badge--${level}`}>{level}</span>
           </dt>
-          <dd>{verificationNotes[level]}</dd>
+          <dd>{verificationLegendNotes[level]}</dd>
         </>
       ))
     }

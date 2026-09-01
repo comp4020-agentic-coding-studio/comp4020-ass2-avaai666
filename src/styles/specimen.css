@@ -90,6 +90,29 @@ blockquote[data-specimen] p + p {
   }
 }
 
+/* The legend's left cell is a fixed-width badge and its right cell a short
+   phrase, not a label word beside a full sentence, so it stays comfortable
+   in two columns well past the width where .specimen-provenance itself
+   needs to stack. This modifier overrides the stacking query above for the
+   legend only — .specimen-provenance without it (the specimen and bench
+   detail pages) keeps stacking exactly as before. Same specificity as the
+   rules above, so this must stay below them in the file to win. */
+@media (max-width: 30rem) {
+  .specimen-provenance--legend {
+    grid-template-columns: 6.25rem 1fr;
+  }
+
+  .specimen-provenance--legend dt,
+  .specimen-provenance--legend dd {
+    padding-block: var(--at-spacing-xs);
+  }
+
+  .specimen-provenance--legend dt {
+    padding-inline-end: var(--at-spacing-md);
+    border-block-end: 1px solid var(--at-divider);
+  }
+}
+
 /* Verification is the course's central device, so it gets a visual language
    of its own rather than reading as one more field. Dashed reuses the home
    page artwork's meaning for a dashed line — attached to nothing — for the
