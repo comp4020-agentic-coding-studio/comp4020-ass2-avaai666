@@ -96,10 +96,17 @@ blockquote[data-specimen] p + p {
    needs to stack. This modifier overrides the stacking query above for the
    legend only — .specimen-provenance without it (the specimen and bench
    detail pages) keeps stacking exactly as before. Same specificity as the
-   rules above, so this must stay below them in the file to win. */
+   rules above, so this must stay below them in the file to win.
+
+   The column is min-content, not a fixed rem value: a fixed width has to
+   guess the widest badge (apocryphal) and a guess is what overhung its
+   column. min-content sizes to whatever the badge actually needs, and
+   white-space: nowrap on dt stops the badge itself from wrapping and
+   collapsing that measurement. Breathing room moves onto dt's own
+   padding — not column-gap, which would cut the row's hairline in two. */
 @media (max-width: 30rem) {
   .specimen-provenance--legend {
-    grid-template-columns: 6.25rem 1fr;
+    grid-template-columns: min-content 1fr;
   }
 
   .specimen-provenance--legend dt,
@@ -108,7 +115,8 @@ blockquote[data-specimen] p + p {
   }
 
   .specimen-provenance--legend dt {
-    padding-inline-end: var(--at-spacing-md);
+    padding-inline-end: var(--at-spacing-sm);
+    white-space: nowrap;
     border-block-end: 1px solid var(--at-divider);
   }
 }
