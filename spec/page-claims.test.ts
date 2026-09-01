@@ -4,7 +4,7 @@
 // Benches index page does not tell the reader the opposite in its own words.
 // The two files check the same fact from two different directions — the data
 // and the prose describing it — and neither is redundant with the other.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -38,9 +38,41 @@ const sessionsIndexHtml = readFileSync(resolve("dist/sessions/index.html"), "utf
 const sessionsIndexText = extractText(sessionsIndexHtml);
 const homeHtml = readFileSync(resolve("dist/index.html"), "utf8");
 
+// The site navigation is what makes a page a content page: every page built
+// through BaseLayout renders <nav class="at-nav">, and nothing else does
+// (see spec/layout-styling.test.ts, which established this marker first).
+// Deck pages render their own chrome and are correctly out of scope.
+const DIST = resolve("dist");
+const NAV_MARKER = /<nav\s+class="at-nav"/;
+const H1_TAG = /<h1\b[^>]*>/g;
+
+function findHtmlFiles(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = resolve(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...findHtmlFiles(full));
+    } else if (entry.isFile() && entry.name.endsWith(".html")) {
+      files.push(full);
+    }
+  }
+  return files;
+}
+
+const pagesWithNav = findHtmlFiles(DIST)
+  .filter((file) => NAV_MARKER.test(readFileSync(file, "utf8")))
+  .map((file) => ({ path: file, html: readFileSync(file, "utf8") }));
+
 describe("page claims", () => {
   it("does not tell the reader every bench is the same operation", () => {
     expect(sessionsIndexText).not.toMatch(/the same operation/i);
+  });
+
+  it("gives every page carrying the site navigation exactly one h1", () => {
+    for (const page of pagesWithNav) {
+      const count = [...page.html.matchAll(H1_TAG)].length;
+      expect(count, `${page.path} has ${count} <h1> element(s), expected exactly 1`).toBe(1);
+    }
   });
 
   // Regression guard, not a fix: the sentence pointing at the Swansea
