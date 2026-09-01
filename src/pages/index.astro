@@ -39,30 +39,32 @@ const swanseaQuote = swansea?.body?.match(/<blockquote\s+data-specimen[^>]*>[\s\
     about a system you never had access to.
   </p>
 
-  <p>
-    One of seven in the corpus. It is the only entry with a primary source, and
-    no translation system was involved in making it.
-  </p>
   {
     swansea && swanseaQuote ? (
-      <div class="specimen-record specimen-record--standalone">
-        <p class="specimen-provenance-caption">Specimen</p>
-        <p class="specimen-record-heading">
-          <span>{swansea.data.title}</span>
-          <span class={`verification-badge verification-badge--${swansea.data.verification}`}>
-            {swansea.data.verification}
-          </span>
-        </p>
-        <p class="specimen-record-languages">{swansea.data.languages}</p>
-        <dl class="specimen-record-fields">
-          <dt>Mechanism</dt>
-          <dd>{swansea.data.mechanism}</dd>
-        </dl>
-        <Fragment set:html={swanseaQuote} />
+      <>
         <p>
-          <a href={withBase(`/specimens/${swansea.id}/`)}>→ Read the record</a>
+          One of seven in the corpus. It is the only entry with a primary
+          source, and no translation system was involved in making it.
         </p>
-      </div>
+        <div class="specimen-record specimen-record--standalone">
+          <p class="specimen-provenance-caption">Specimen</p>
+          <p class="specimen-record-heading">
+            <span>{swansea.data.title}</span>
+            <span class={`verification-badge verification-badge--${swansea.data.verification}`}>
+              {swansea.data.verification}
+            </span>
+          </p>
+          <p class="specimen-record-languages">{swansea.data.languages}</p>
+          <dl class="specimen-record-fields">
+            <dt>Mechanism</dt>
+            <dd>{swansea.data.mechanism}</dd>
+          </dl>
+          <Fragment set:html={swanseaQuote} />
+          <p>
+            <a href={withBase(`/specimens/${swansea.id}/`)}>→ Read the record</a>
+          </p>
+        </div>
+      </>
     ) : null
   }
 
