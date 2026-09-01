@@ -192,7 +192,10 @@ function resolvedValue(
   for (const rule of rules) {
     if (!(property in rule.declarations)) continue;
     if (rule.media) {
-      const match = rule.media.match(/max-width:\s*([\d.]+)rem/);
+      // A minifier may rewrite "(max-width: 30rem)" as the equivalent range
+      // syntax "(width<=30rem)" — both must resolve to the same condition.
+      const match =
+        rule.media.match(/max-width:\s*([\d.]+)rem/) ?? rule.media.match(/width\s*<=\s*([\d.]+)rem/);
       if (!match) continue;
       const maxWidthPx = Number.parseFloat(match[1]!) * 16;
       if (widthPx > maxWidthPx) continue;
