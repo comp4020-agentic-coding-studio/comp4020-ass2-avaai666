@@ -34,7 +34,8 @@ blockquote[data-specimen] p + p {
    are full sentences, so narrow viewports stack instead of squeezing. */
 .specimen-provenance-caption,
 .specimen-provenance dt,
-.specimen-record-fields dt {
+.specimen-record-fields dt,
+.specimen-group-heading {
   margin: 0;
   color: var(--at-text-secondary);
   font-size: var(--at-font-size-xs);
@@ -188,6 +189,27 @@ blockquote[data-specimen] p + p {
 .specimen-record {
   padding-block: var(--at-spacing-md);
   border-block-end: 1px solid var(--at-divider);
+}
+
+/* One heading per verification group, in the register's own uppercase
+   label idiom (see the shared selector above), with its own hairline
+   standing in for the list's top rule below — so a group reads as one
+   ruled block: heading, rule, records, rule. */
+.specimen-group-heading {
+  margin-block: var(--at-spacing-lg) 0;
+  padding-block-end: var(--at-spacing-xs);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.specimen-group-heading:first-child {
+  margin-block-start: 0;
+}
+
+/* The heading above already supplies the rule a plain .specimen-register
+   would draw at its own top, so a grouped list does not draw a second one
+   immediately underneath it. */
+.specimen-register--grouped {
+  border-block-start: none;
 }
 
 /* A record shown alone, outside a .specimen-register list, has no list
