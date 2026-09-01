@@ -1,20 +1,46 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
-import Card from "astro-theme-university/components/Card.astro";
-import CardGrid from "astro-theme-university/components/CardGrid.astro";
-import { formatCourseDate } from "../lib/dates";
+import { withBase } from "astro-theme-university/url";
+import { formatCourseDateShort } from "../lib/dates";
+import "../styles/lecture.css";
 
 const lectures = await getPublishedCollection("lectures");
-const visible = lectures.sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+const sessions = await getPublishedCollection("sessions");
+
+const lecturesByWeek = new Map(lectures.map((lecture) => [lecture.data.week, lecture]));
+const sessionsByWeek = new Map(sessions.map((session) => [session.data.week, session]));
+const weeks = [...new Set([...lecturesByWeek.keys(), ...sessionsByWeek.keys()])].sort(
+  (a, b) => a - b,
+);
 ---
 
-<CardGrid columns={2}>
+<ul class="lecture-register">
   {
-    visible.map((lecture) => (
-      <Card headingLevel="h2" title={lecture.data.title} href={`/lectures/${lecture.id}/`}>
-        {lecture.data.description && <p>{lecture.data.description}</p>}
-        <p><small>Week {lecture.data.week} · {formatCourseDate(lecture.data.date)}</small></p>
-      </Card>
-    ))
+    weeks.map((week) => {
+      const lecture = lecturesByWeek.get(week);
+      const session = sessionsByWeek.get(week);
+      const date = lecture ? lecture.data.date : session!.data.date;
+      const eyebrow = `Week ${String(week).padStart(2, "0")} · ${formatCourseDateShort(date)}`;
+
+      return (
+        <li class="lecture-record">
+          <p class="lecture-record-week">{eyebrow}</p>
+          {lecture ? (
+            <>
+              <p class="lecture-record-heading">
+                <a href={withBase(`/lectures/${lecture.id}/`)}>{lecture.data.title}</a>
+              </p>
+              {lecture.data.description && (
+                <p class="lecture-record-description">{lecture.data.description}</p>
+              )}
+            </>
+          ) : (
+            <p class="lecture-record-description">
+              <a href={withBase(`/sessions/${session!.id}/`)}>{session!.data.description}</a>
+            </p>
+          )}
+        </li>
+      );
+    })
   }
-</CardGrid>
+</ul>

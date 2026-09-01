@@ -1,0 +1,36 @@
+/* Same ruled-row language as sessions and specimens: one record per row,
+   hairline between records, no card. A row is a plain vertical stack —
+   eyebrow, then either a title link and description, or (a week with no
+   lecture) the bench's own description used as the link — so there is no
+   grid to collapse at narrow widths. */
+.lecture-register {
+  margin-block: var(--at-spacing-lg);
+  padding: 0;
+  border-block-start: 1px solid var(--at-divider);
+  list-style: none;
+}
+
+.lecture-record {
+  padding-block: var(--at-spacing-md);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.lecture-record-week {
+  margin: 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.lecture-record-heading {
+  margin: var(--at-spacing-xs) 0 0;
+  font-size: var(--at-font-size-h4, 1.15rem);
+  font-weight: 600;
+}
+
+.lecture-record-description {
+  margin: var(--at-spacing-xs) 0 0;
+  color: var(--at-text);
+}
