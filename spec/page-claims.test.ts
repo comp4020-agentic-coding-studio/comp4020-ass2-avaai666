@@ -36,9 +36,19 @@ function extractText(html: string): string {
 
 const sessionsIndexHtml = readFileSync(resolve("dist/sessions/index.html"), "utf8");
 const sessionsIndexText = extractText(sessionsIndexHtml);
+const homeHtml = readFileSync(resolve("dist/index.html"), "utf8");
 
 describe("page claims", () => {
   it("does not tell the reader every bench is the same operation", () => {
     expect(sessionsIndexText).not.toMatch(/the same operation/i);
+  });
+
+  // Regression guard, not a fix: the sentence pointing at the Swansea
+  // specimen and the specimen record itself are now rendered from the same
+  // condition (index.astro), so this is expected to pass as soon as it is
+  // added. It exists to catch a future edit that separates them again.
+  it("shows the specimen record and a verification badge together on the home page", () => {
+    expect(homeHtml).toContain("specimen-record specimen-record--standalone");
+    expect(homeHtml).toMatch(/verification-badge verification-badge--(primary|secondary|apocryphal)/);
   });
 });
