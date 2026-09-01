@@ -1,0 +1,154 @@
+---
+import { getPublishedCollection } from "astro-course-university/content";
+import { withBase } from "astro-theme-university/url";
+import "../styles/timeline.css";
+
+// Week 5's slides are the one deck this course has, and they open on
+// "# 2016" (src/decks/week-05.deck.mdx) — the lecture's own body reads
+// "what changed in 2016, in one diagram." 2016 is therefore not invented:
+// it is the year that deck already argues, given directly by the task that
+// asked for this line. What is NOT hardcoded is which lecture that is: the
+// only current way to find "the lecture with a deck" from data alone is the
+// `slides` field on the lectures collection, so that is what is read here.
+const MARKED_YEAR = 2016;
+
+const specimens = await getPublishedCollection("specimens");
+const lectures = await getPublishedCollection("lectures");
+const deckLecture = lectures.find((lecture) => lecture.data.slides);
+const markedLabel = deckLecture ? `${MARKED_YEAR} · ${deckLecture.data.title}` : String(MARKED_YEAR);
+
+function yearOf(sourceDate: string): number {
+  return Number(sourceDate.slice(0, 4));
+}
+
+const specimenYears = specimens.map((specimen) => yearOf(specimen.data.sourceDate));
+const axisMinYear = Math.min(...specimenYears);
+const axisMaxYear = Math.max(...specimenYears, MARKED_YEAR);
+const latestSpecimenYear = Math.max(...specimenYears);
+const axisSpan = axisMaxYear - axisMinYear;
+
+// One shared linear map from year to a position along whichever axis a
+// layout uses; start/end are in that layout's own viewBox units.
+function positionOnAxis(year: number, start: number, end: number): number {
+  return start + ((year - axisMinYear) / axisSpan) * (end - start);
+}
+
+const sortedSpecimens = [...specimens].sort((a, b) => {
+  const diff = yearOf(a.data.sourceDate) - yearOf(b.data.sourceDate);
+  return diff !== 0 ? diff : a.data.title.localeCompare(b.data.title);
+});
+
+const AXIS_START = 16;
+const AXIS_END = 184;
+
+// Specimens that share a year would otherwise draw the same mark twice;
+// each later one in a year steps back along the cross-axis instead.
+const stackIndexByYear = new Map<number, number>();
+const marks = sortedSpecimens.map((specimen) => {
+  const year = yearOf(specimen.data.sourceDate);
+  const stackIndex = stackIndexByYear.get(year) ?? 0;
+  stackIndexByYear.set(year, stackIndex + 1);
+  const along = positionOnAxis(year, AXIS_START, AXIS_END);
+  return {
+    id: `specimens/${specimen.id}`,
+    title: specimen.data.title,
+    year,
+    verification: specimen.data.verification,
+    href: withBase(`/specimens/${specimen.id}/`),
+    // horizontal layout: along the x axis, stacked upward off the baseline
+    xh: along,
+    yh: 44 - stackIndex * 10,
+    // vertical layout: along the y axis, stacked left of the baseline
+    xv: 34 - stackIndex * 10,
+    yv: along,
+  };
+});
+
+const markedAt = positionOnAxis(MARKED_YEAR, AXIS_START, AXIS_END);
+const axisMinAt = AXIS_START;
+const showAxisMaxLabel = axisMaxYear !== MARKED_YEAR;
+const axisMaxAt = AXIS_END;
+
+const descriptionText =
+  `A timeline of the corpus from ${axisMinYear} to ${axisMaxYear}, ` +
+  `one mark per specimen by verification level: ` +
+  sortedSpecimens
+    .map((specimen) => `${specimen.data.title} (${yearOf(specimen.data.sourceDate)}, ${specimen.data.verification})`)
+    .join("; ") +
+  `. One marked line at ${MARKED_YEAR}${deckLecture ? `, labelled "${deckLecture.data.title}"` : ""}.`;
+---
+
+<figure class="corpus-timeline">
+  <svg
+    class="corpus-timeline-svg corpus-timeline-svg--horizontal"
+    viewBox="0 0 200 90"
+    role={"graphics-document" as unknown as "img"}
+    aria-labelledby="corpus-timeline-title-h corpus-timeline-desc-h"
+  >
+    <title id="corpus-timeline-title-h">Timeline of the corpus</title>
+    <desc id="corpus-timeline-desc-h">{descriptionText}</desc>
+
+    <rect class="timeline-axis" x={AXIS_START} y="53" width={AXIS_END - AXIS_START} height="2" />
+    <rect class="timeline-marked-tick" x={markedAt - 1} y="38" width="2" height="20" />
+    <text class="timeline-marked-label" x={markedAt} y="70" text-anchor="end">{markedLabel}</text>
+    <text class="timeline-axis-label" x={axisMinAt} y="70" text-anchor="start">{axisMinYear}</text>
+    {
+      showAxisMaxLabel && (
+        <text class="timeline-axis-label" x={axisMaxAt} y="70" text-anchor="end">
+          {axisMaxYear}
+        </text>
+      )
+    }
+    {
+      marks.map((mark) => (
+        <a href={mark.href} data-specimen-id={mark.id} aria-label={`${mark.title}, ${mark.year}, ${mark.verification}`}>
+          <circle class={`timeline-mark timeline-mark--${mark.verification}`} cx={mark.xh} cy={mark.yh} r="4">
+            <title>{`${mark.title}, ${mark.year}, ${mark.verification}`}</title>
+          </circle>
+        </a>
+      ))
+    }
+  </svg>
+
+  <svg
+    class="corpus-timeline-svg corpus-timeline-svg--vertical"
+    viewBox="0 0 90 200"
+    role={"graphics-document" as unknown as "img"}
+    aria-labelledby="corpus-timeline-title-v corpus-timeline-desc-v"
+  >
+    <title id="corpus-timeline-title-v">Timeline of the corpus</title>
+    <desc id="corpus-timeline-desc-v">{descriptionText}</desc>
+
+    <rect class="timeline-axis" x="44" y={AXIS_START} width="2" height={AXIS_END - AXIS_START} />
+    <rect class="timeline-marked-tick" x="30" y={markedAt - 1} width="16" height="2" />
+    <text class="timeline-marked-label" x="50" y={markedAt} dominant-baseline="middle" text-anchor="start">
+      {markedLabel}
+    </text>
+    <text class="timeline-axis-label" x="50" y={axisMinAt} dominant-baseline="middle" text-anchor="start">
+      {axisMinYear}
+    </text>
+    {
+      showAxisMaxLabel && (
+        <text class="timeline-axis-label" x="50" y={axisMaxAt} dominant-baseline="middle" text-anchor="start">
+          {axisMaxYear}
+        </text>
+      )
+    }
+    {
+      marks.map((mark) => (
+        <a href={mark.href} data-specimen-id={mark.id} aria-label={`${mark.title}, ${mark.year}, ${mark.verification}`}>
+          <circle class={`timeline-mark timeline-mark--${mark.verification}`} cx={mark.xv} cy={mark.yv} r="4">
+            <title>{`${mark.title}, ${mark.year}, ${mark.verification}`}</title>
+          </circle>
+        </a>
+      ))
+    }
+  </svg>
+
+  <figcaption>
+    <p>
+      {sortedSpecimens.length} specimens, {axisMinYear}–{latestSpecimenYear}.
+    </p>
+    <p>Nothing in this corpus is more recent than the change week five describes. That is the finding, not a gap in the collection.</p>
+  </figcaption>
+</figure>

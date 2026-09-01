@@ -1,0 +1,86 @@
+/* Two complete SVGs, not one stretched with preserveAspectRatio="none": a
+   single viewBox scaled non-uniformly to fit both a wide desktop box and a
+   tall phone box would distort text and stroke width by different amounts
+   on each axis, and there is no way to check that distortion without seeing
+   the render. Two viewBoxes, each scaled uniformly by its own default
+   preserveAspectRatio, cost some duplicated markup but stay legible for
+   certain. display: none removes the hidden one from the accessibility
+   tree, so only one figure is ever announced.
+
+   Colour and dash logic on the marks is not new: it is
+   .verification-badge's own tokens (specimen.css) applied to fill/stroke
+   instead of background/border, so a specimen's mark and its badge always
+   agree without a second place to keep them in sync. */
+.corpus-timeline {
+  margin-block: var(--at-spacing-lg);
+}
+
+.corpus-timeline svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.corpus-timeline-svg--vertical {
+  display: none;
+}
+
+@media (max-width: 30rem) {
+  .corpus-timeline-svg--horizontal {
+    display: none;
+  }
+
+  .corpus-timeline-svg--vertical {
+    display: block;
+  }
+}
+
+.timeline-axis {
+  fill: var(--at-divider);
+}
+
+.timeline-marked-tick {
+  fill: var(--at-accent);
+}
+
+.timeline-mark--primary {
+  fill: var(--at-accent-soft);
+  stroke: var(--at-accent);
+  stroke-width: 2;
+}
+
+.timeline-mark--secondary,
+.timeline-mark--apocryphal {
+  fill: var(--at-bg);
+  stroke: var(--at-border);
+  stroke-width: 2;
+}
+
+.timeline-mark--apocryphal {
+  stroke-dasharray: 3 2.2;
+}
+
+.timeline-marked-label {
+  fill: var(--at-accent);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.timeline-axis-label {
+  fill: var(--at-text-secondary);
+  font-size: 9px;
+}
+
+.corpus-timeline figcaption {
+  margin-block-start: var(--at-spacing-sm);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+}
+
+.corpus-timeline figcaption p {
+  margin-block: var(--at-spacing-xs) 0;
+}
+
+.corpus-timeline figcaption p:first-child {
+  margin-block-start: 0;
+}
