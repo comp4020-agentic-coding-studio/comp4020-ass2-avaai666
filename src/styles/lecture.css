@@ -1,8 +1,8 @@
 /* Same ruled-row language as sessions and specimens: one record per row,
    hairline between records, no card. A row is a plain vertical stack —
    eyebrow, then either a title link and description, or (a week with no
-   lecture) the bench's own description used as the link — so there is no
-   grid to collapse at narrow widths. */
+   lecture) the bench's own description as plain text followed by a link to
+   its bench — so there is no grid to collapse at narrow widths. */
 .lecture-register {
   margin-block: var(--at-spacing-lg);
   padding: 0;
@@ -33,4 +33,13 @@
 .lecture-record-description {
   margin: var(--at-spacing-xs) 0 0;
   color: var(--at-text);
+}
+
+/* The no-lecture rows' link, so it reads as a link after the description
+   rather than the description itself being the link. Same spacing rhythm
+   as .lecture-record-description; colour and focus style are left to the
+   theme's default link/:focus-visible rules, same as every other link on
+   this page. */
+.lecture-record-link {
+  margin: var(--at-spacing-xs) 0 0;
 }

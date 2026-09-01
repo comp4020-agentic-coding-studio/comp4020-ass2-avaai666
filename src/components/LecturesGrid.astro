@@ -35,9 +35,12 @@ const weeks = [...new Set([...lecturesByWeek.keys(), ...sessionsByWeek.keys()])]
               )}
             </>
           ) : (
-            <p class="lecture-record-description">
-              <a href={withBase(`/sessions/${session!.id}/`)}>{session!.data.description}</a>
-            </p>
+            <>
+              <p class="lecture-record-description">{session!.data.description}</p>
+              <p class="lecture-record-link">
+                <a href={withBase(`/sessions/${session!.id}/`)}>→ {session!.data.title}</a>
+              </p>
+            </>
           )}
         </li>
       );
