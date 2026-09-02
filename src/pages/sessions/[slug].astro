@@ -5,6 +5,7 @@ import RelatedContent from "astro-course-university/components/RelatedContent.as
 import SpecList from "astro-course-university/components/SpecList.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
+import ThisWeek from "../../components/ThisWeek.astro";
 import WeekStrip from "../../components/WeekStrip.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
@@ -26,6 +27,7 @@ const { Content } = await render(session);
   {...siteConfig}
 >
   <WeekStrip current={session.data.week} kind="sessions" />
+  <ThisWeek week={session.data.week} self="sessions" />
   <p><strong>{formatCourseDate(session.data.date)}</strong></p>
   <p class="specimen-provenance-caption">Bench</p>
   <dl class="specimen-provenance">
