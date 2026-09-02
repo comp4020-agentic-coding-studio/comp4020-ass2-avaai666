@@ -7,6 +7,7 @@ week: 2
 date: 2027-03-01
 teachers:
   - aurel-marchetti
+slides: /decks/week-02/
 related:
   - sessions/02-reconstruct-the-entry
   - specimens/gan-the-merged-character

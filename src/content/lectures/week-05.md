@@ -31,4 +31,4 @@ to see.
 - what changed in 2016, in one diagram
 - fluency and accuracy as separate axes
 - hallucination as evidence: reading the training distribution off the output
-- why this week has a deck and the others do not
+- why this week is the turning point

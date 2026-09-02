@@ -7,6 +7,7 @@ week: 9
 date: 2027-04-26
 teachers:
   - ines-barrantes
+slides: /decks/week-09/
 related:
   - sessions/09-what-stays-out
   - specimens/intoxicado

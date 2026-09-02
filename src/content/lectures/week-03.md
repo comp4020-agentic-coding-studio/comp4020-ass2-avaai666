@@ -7,6 +7,7 @@ week: 3
 date: 2027-03-08
 teachers:
   - ines-barrantes
+slides: /decks/week-03/
 related:
   - sessions/03-trace-it-back
   - specimens/the-vodka-and-the-meat

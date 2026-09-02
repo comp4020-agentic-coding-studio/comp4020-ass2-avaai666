@@ -6,6 +6,7 @@ week: 10
 date: 2027-05-03
 teachers:
   - aurel-marchetti
+slides: /decks/week-10/
 related:
   - sessions/10-round-trip
 ---

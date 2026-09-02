@@ -7,6 +7,7 @@ week: 4
 date: 2027-03-15
 teachers:
   - aurel-marchetti
+slides: /decks/week-04/
 related:
   - sessions/04-find-the-seam
   - assessments/the-reconstruction
