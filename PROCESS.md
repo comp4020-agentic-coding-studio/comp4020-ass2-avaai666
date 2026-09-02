@@ -1,73 +1,74 @@
 # Process
 
-SLOP8217 asks students to treat a mistranslation as evidence of the machine
-that produced it — to distrust a text and go looking for what made it
-wrong. Building it changed what I accepted back from the agent: a green
-check stopped counting as evidence unless I had seen it fail. Four times
-it had been green and meaningless.
+SLOP8217 teaches students to read a mistranslation as evidence of the
+machine that produced it. Before the agent wrote a page I took three
+positions on what a good course is, from the brief's examples and from
+Biggs. From *Calling Bullshit*: a course is one claim, stated in the title
+and held for a semester. From constructive alignment: what is marked is
+what is learned, so each assessment must be that claim at a different scale.
+And one of my own: a course about the standard of evidence has to meet that
+standard on its own pages.
 
-Rule 7 bans "delve", "tapestry", and more; `spec/voice.test.ts` checks
-the built HTML. One entry, "in today's", never fired: the renderer curls
-a straight apostrophe, and the list kept it straight — green, and proved
-nothing. The obvious fix was a curly-quote copy of the phrase in the list.
+Each became a rule or a check, and my first attempt at each was wrong.
 
-I normalised the extracted text instead, so the list stays a list of words,
-not typographic variants
-([70d5904](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/70d5904d8b415c1676b96b6477fed0d0e86f9844)).
-The same commit also made the check too loose: a head-word-plus-suffix
-match let "dive" catch "divided" and "division". The obvious move was
-another
-named exception. Instead I replaced the wildcard with a table of regular
-English inflections and added a second block testing the matcher against fixtures it must catch
-and must not — "diving into the corpus" against "the semester is divided
-into three parts"
+The claim went in as rule 1 of CLAUDE.md — say in one sentence what this
+week adds, or stop
+([f0848ab](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f0848abfcf305e1f0cef1fbf741add14df45617c)).
+My first rule against twelve weeks repeating one another was a proxy:
+"never more than one week page per turn". I replaced it with a measurement
+— no shared opening sentence, trigram similarity under 0.15
+([7db6317](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/7db6317eeaeabe8295c9ca1ffa3eb0c6c70dedb6))
+— then saw that a measurement of wording passes a bench that repeats another
+in different words. So every bench declares its `material`, `operation` and
+what `leaves` the room, and a check asserts no two operations match
+([e9ee529...eae0e70](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/e9ee52923089a1b242182dc317a8d185066f9cad...eae0e7011d08b36b684cbb52ea1d6bf3e130847f)).
+The obvious move was a tighter threshold. A declared field is a claim about
+the curriculum, not about the prose.
+
+Alignment: four assessments are one corpus at three scales plus the room,
+summing to 100 by assertion
+([ad6a6f6](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/ad6a6f66c3ee8b1d0e6f39d02b4c935462205b3a)).
+When my tutor read the home page as "an information page", I made the
+structure visible instead of adding prose: three specimens and the three
+things a student will be able to do
+([d50786f](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/d50786fdfc8625ed0230e08b48572f5457d3fca4)),
+a semester table generated from the collections, a week strip, and a "This
+week" block that makes the Monday lecture and the Wednesday bench name each
+other — each with its spec
+committed red first
+([0aa030a](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/0aa030a47f7f7958d768b1d57e28e712d861f1ab),
+[3939f36](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3939f36aa018b14682b42bd57721fd45462a6bc2)).
+
+The evidence standard: every quoted mistranslation carries a source, a date
+and a verification level, and an `apocryphal` page must say so in its body
+([0982dca](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/0982dcae329fe354deef64dd4ba7b0b08e32d7b4)).
+The obvious call was to delete the two anecdotes I could not source. Keeping
+them, labelled, is the course's argument. The printed line itself became a
+`printed` field, with a check that the body's blockquote still equals it
+([2cdb592](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/2cdb592aa1196973dae971968d7e8997e3fade6a)).
+
+Deliberately not encoded: the 400-word cap and the deadpan register are
+rules, not tests. A word count makes an agent trim to a number, and deadpan
+cannot be measured.
+
+How I knew a check was right: rule 18 forbids a commit that adds an
+assertion and satisfies it, so I never accepted green without seeing red.
+Twice a green check meant nothing. The banned-phrase list never fired on
+"in today's" because the build curls the apostrophe; normalising the text
+then let `dive` catch `divided`, so the matcher now runs against fixtures it
+must and must not catch
 ([70d5904...c5e8516](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/70d5904d8b415c1676b96b6477fed0d0e86f9844...c5e8516a345c51c41a1dacd2f2fd3b944aff24df)).
+The corpus timeline passed four assertions while rendering twice; the
+replacement resolves the cascade as a browser does, and was itself inert
+until it learned the minifier's range syntax
+([fdad3d4...c6147d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/fdad3d4512886690f1704a8ae74b4cf3a2a98abf...c6147d44b25968b5eedf9c9bbdf0adc68b10f9db)).
 
-README.md calls `PageLayout.astro` "the layout every page renders through."
-Reading `dist/` found the opposite: only bare `.md`/`.mdx` pages without
-`layout:` frontmatter reach it, not `ContentLayout` routes — and that
-claim cost three turns on a wrong spacing fix. The obvious move was to
-fix my import and move on.
-
-Instead I recorded the measured, false claim in CLAUDE.md, where the next
-turn reads it before repeating the mistake
-([bd680e2](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/bd680e23bf9960f0c5ac78e0e1e3e4a5bbf4c592)),
-and wrote `spec/layout-styling.test.ts` to assert the layout style's selector
-reaches every built page carrying the site navigation, not just an import
-list I could remember. To test it, I removed the import from
-`specimens/index.astro` and rebuilt; it went red on exactly that page, and I
-restored it before committing
-([0263441...3ea97f8](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/026344188ef9201293b66dff10e31964fac02aac...3ea97f85b31da006a1277c144b7e087d9212dc1b)).
-
-The hero alt text drifted from the picture, twice, fixed by hand each time
-([1740ea1](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/1740ea1f3d030a4ba5b0d962d318d72e8f9b7856),
-[3703f25](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3703f25e2ef1e24fd1cedf700f0917276c97f93e)).
-The third time it was the card's description, naming artwork two versions
-back, while every check stayed green: axe checks existence, not truth. The
-obvious move was to rewrite the sentence again.
-
-Instead I wrote a module that is the only place either picture is described,
-wired the hero and the card through its exports, and asserted that the built
-page's alt text matches exactly what the module exports — red before the
-wiring, against the stale copy in `site-config.ts`, green after
-([f0f425e...057fe86](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/f0f425e3a91d88b2097df7f05424039a3914023f...057fe86a39a9aca8d30dd7290739212a54cda487)).
-The first two fixes treated the sentence; the third removed how it recurred.
-
-The corpus timeline passed four assertions — every specimen has a mark,
-the caption's numbers match, the marked line names a real lecture — while
-it rendered twice at every width, because the hiding rule lost the cascade
-to a higher-specificity selector. All four only ask whether a mark appears;
-two copies satisfy that too. The obvious move was to delete one of the two
-drawings.
-
-Instead I kept both — scaled independently, not one stretched into the
-other's shape — and wrote a second spec that resolves specificity and
-source order the way a browser does, rather than checking that a rule is
-merely present
-([fdad3d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/fdad3d4512886690f1704a8ae74b4cf3a2a98abf)).
-That spec was itself briefly wrong: it recognised `max-width` media queries
-but not the minifier's range-syntax rewrite, so it stayed silently inert
-([f8617c1](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f8617c12b3169f3e6370bf81b81e9eae76bc7a57)).
-Fixed, it went red for the real reason — both variants rendering at both
-widths — then green once the fix landed
-([c6147d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c6147d44b25968b5eedf9c9bbdf0adc68b10f9db)).
+The last red was the agent's, not mine. Four index pages showed their
+description above the heading; the agent wrote the assertion, found the
+order came from the theme, and stopped: no fix in allowed files
+([f181ead](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f181ead954df455d0bce33f23aa333704577ca08)).
+The fix was in the routing record it maintains in CLAUDE.md — those pages
+only reached the theme's layout because they declared none — and a layout of
+ours turned it green
+([334a505](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/334a505c4d632974416a10f404ddedba995c3818)).
+Stopping was correct. Reading its own record was my job.
