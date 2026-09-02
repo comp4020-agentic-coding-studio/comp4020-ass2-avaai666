@@ -12,3 +12,26 @@
 .at-nav + .at-main > h1:first-child {
   margin-block-start: var(--at-spacing-md);
 }
+
+/* The theme's own print block (base.css) already hides .at-nav, .at-sidebar
+   and .at-footer and collapses the screen grid — this adds only the chrome
+   the theme does not know about, plus the two things print needs that screen
+   does not: black-on-white body colour, and an external link's destination
+   next to it, since a printed page cannot be clicked. */
+@media print {
+  .at-search-trigger,
+  .week-strip,
+  .related-content {
+    display: none;
+  }
+
+  body {
+    color: var(--at-black);
+    background: var(--at-white);
+  }
+
+  main a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}

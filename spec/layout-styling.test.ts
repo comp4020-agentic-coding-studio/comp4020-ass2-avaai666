@@ -160,7 +160,7 @@ describe("layout styling", () => {
       expect(
         blocks,
         `${page.path}'s @media print rules have no main a[href^="http"]::after rule printing attr(href)`,
-      ).toMatch(/\bmain\s+a\[href\^=["']http["']\]::after\s*\{[^}]*content:\s*[^};]*attr\(href\)/);
+      ).toMatch(/\bmain\s+a\[href\^=["']?http["']?\]:{1,2}after\s*\{[^}]*content:\s*[^};]*attr\(href\)/);
     }
   });
 
