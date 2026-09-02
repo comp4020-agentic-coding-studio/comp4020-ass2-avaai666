@@ -11,6 +11,7 @@ interface ApiNode {
   id: string;
   type: string;
   title: string;
+  related?: string[];
   meta?: Record<string, unknown>;
 }
 
@@ -21,7 +22,12 @@ interface CourseApi {
 const api = JSON.parse(readFileSync(resolve("dist/api/index.json"), "utf8")) as CourseApi;
 const sessionNodes = api.nodes.filter((n) => n.type === "sessions");
 const lectureNodes = api.nodes.filter((n) => n.type === "lectures");
+const specimenNodes = api.nodes.filter((n) => n.type === "specimens");
 const lectureWeeks = new Set(lectureNodes.map((n) => Number(n.meta?.week)));
+
+function specimenRefs(node: ApiNode | undefined): string[] {
+  return (node?.related ?? []).filter((ref) => ref.startsWith("specimens/"));
+}
 
 function pageHtml(type: "sessions" | "lectures", nodeId: string): string {
   const slug = nodeId.slice(type.length + 1);
@@ -88,6 +94,51 @@ describe("this-week block: the Bench row on lecture pages", () => {
 
       const session = sessionNodes.find((n) => Number(n.meta?.week) === week)!;
       expect(row).toContain(session.title);
+    }
+  });
+});
+
+function printedLinesIn(block: string): string[] {
+  return [...block.matchAll(/<p\b[^>]*\bclass="[^"]*\bspecimen-printed\b[^"]*"[^>]*>([\s\S]*?)<\/p>/g)].map(
+    (m) =>
+      m[1]
+        .replace(/<[^>]+>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim(),
+  );
+}
+
+describe("this-week block: the printed line for each specimen", () => {
+  it("shows one .specimen-printed per distinct specimen referenced by the week's lecture and session, each matching that specimen's printed field", () => {
+    // Turns red by: rendering only the specimen's title and badge in the
+    // Specimens row, with no printed line above it, or reading the printed
+    // text from anywhere but that specimen's own `printed` field.
+    for (const type of ["sessions", "lectures"] as const) {
+      for (const node of api.nodes.filter((n) => n.type === type)) {
+        const week = Number(node.meta?.week);
+        const lecture = lectureNodes.find((n) => Number(n.meta?.week) === week);
+        const session = sessionNodes.find((n) => Number(n.meta?.week) === week);
+        const refs = [...new Set([...specimenRefs(lecture), ...specimenRefs(session)])];
+
+        const [block] = thisWeekBlocks(pageHtml(type, node.id));
+        expect(block, `${node.id} has no this-week block`).toBeDefined();
+        const printedLines = printedLinesIn(block!);
+
+        expect(
+          printedLines.length,
+          `${node.id}'s this-week block shows ${printedLines.length} printed line(s), expected ${refs.length}`,
+        ).toBe(refs.length);
+
+        for (const ref of refs) {
+          const specimen = specimenNodes.find((n) => n.id === ref)!;
+          const printed = String(specimen.meta?.printed).trim();
+          expect(
+            printedLines,
+            `${node.id}'s this-week block is missing the printed line for ${ref}`,
+          ).toContain(printed);
+        }
+      }
     }
   });
 });
