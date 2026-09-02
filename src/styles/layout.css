@@ -35,3 +35,14 @@
     font-size: 0.8em;
   }
 }
+
+/* The theme's own prefers-reduced-motion block (base.css) shortens durations
+   on *, *::before, *::after — a named pseudo-element like
+   ::view-transition-old(*) is not matched by that selector list, so Astro's
+   page-transition animation is untouched by it and needs its own rule. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
