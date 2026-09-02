@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 interface ApiNode {
   id: string;
   type: string;
+  title: string;
   meta?: Record<string, unknown>;
 }
 
@@ -15,6 +16,7 @@ interface CourseApi {
 const api = JSON.parse(readFileSync(resolve("dist/api/index.json"), "utf8")) as CourseApi;
 const sessions = api.nodes.filter((node) => node.type === "sessions");
 const lectures = api.nodes.filter((node) => node.type === "lectures");
+const withSlides = lectures.filter((node) => typeof node.meta?.slides === "string");
 
 describe("curriculum", () => {
   it("covers weeks 1 through 12 with a session each, no week twice", () => {
@@ -42,7 +44,6 @@ describe("curriculum", () => {
   // ever starts. Its silence here is not coverage — the build already caught
   // it, earlier and harder, by failing outright.
   it("carries a real deck for at least one lecture's slides", () => {
-    const withSlides = lectures.filter((node) => typeof node.meta?.slides === "string");
     expect(withSlides.length, "no lecture declares a slides path").toBeGreaterThan(0);
 
     for (const lecture of withSlides) {
@@ -52,6 +53,29 @@ describe("curriculum", () => {
       const deckDir = resolve("dist/decks", match![1]);
       expect(existsSync(deckDir), `${lecture.id} points at a deck that isn't in the build`).toBe(
         true,
+      );
+    }
+  });
+
+  it("gives each declared deck at least eight slides, titled for the lecture it belongs to", () => {
+    // Turns red by: a deck with fewer than eight `---`-separated slides, or
+    // a deck's <title> that has drifted from its lecture's title (a rename
+    // on one side and not the other).
+    for (const lecture of withSlides) {
+      const slides = String(lecture.meta?.slides);
+      const deckName = slides.match(/^\/decks\/([a-z0-9-]+)\/$/)![1];
+      const indexPath = resolve("dist/decks", deckName, "index.html");
+      const html = readFileSync(indexPath, "utf8");
+
+      const sectionCount = (html.match(/<section[\s>]/g) ?? []).length;
+      expect(
+        sectionCount,
+        `${deckName} has ${sectionCount} <section> elements, expected at least 8`,
+      ).toBeGreaterThanOrEqual(8);
+
+      const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "";
+      expect(title, `${deckName}'s <title> does not contain ${lecture.id}'s title`).toContain(
+        String(lecture.title),
       );
     }
   });
