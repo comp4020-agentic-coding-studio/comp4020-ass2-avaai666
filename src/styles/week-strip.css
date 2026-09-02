@@ -27,6 +27,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
   padding-block: var(--at-spacing-xs);
   color: var(--at-text-secondary);
   font-size: var(--at-font-size-xs);
