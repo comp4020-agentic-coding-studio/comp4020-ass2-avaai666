@@ -163,4 +163,29 @@ describe("layout styling", () => {
       ).toMatch(/\bmain\s+a\[href\^=["']http["']\]::after\s*\{[^}]*content:\s*[^};]*attr\(href\)/);
     }
   });
+
+  // astro-theme-university's base.css already ships a
+  // @media (prefers-reduced-motion: reduce) block, but it only shortens
+  // durations on `*, *::before, *::after` — that selector list does not match
+  // a named pseudo-element like ::view-transition-old(*), which is not a
+  // `*::before`/`*::after`. Astro's view-transition animations are untouched
+  // by the theme's block and need their own rule.
+  //
+  // Turns red by: layout.css missing its own
+  // @media (prefers-reduced-motion: reduce) block, or that block missing a
+  // rule disabling ::view-transition-old(*) and ::view-transition-new(*).
+  it("disables view-transition animation under prefers-reduced-motion, on every page", () => {
+    for (const page of pagesWithNav) {
+      const css = cssLoadedBy(page.html, page.path);
+      const blocks = extractAtRuleBlocks(css, REDUCED_MOTION_RULE).join("\n");
+      expect(
+        blocks.length,
+        `${page.path}'s loaded CSS has no @media (prefers-reduced-motion: reduce) block`,
+      ).toBeGreaterThan(0);
+      expect(
+        blocks,
+        `${page.path}'s prefers-reduced-motion rules do not disable ::view-transition-old(*)/::view-transition-new(*)`,
+      ).toMatch(/::view-transition-old\(\*\)\s*,\s*::view-transition-new\(\*\)\s*\{[^}]*animation:\s*none/);
+    }
+  });
 });
