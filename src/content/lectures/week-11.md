@@ -8,6 +8,7 @@ date: 2027-05-10
 teachers:
   - ines-barrantes
   - aurel-marchetti
+slides: /decks/week-11/
 related:
   - sessions/11-try-the-method
   - assessments/specimen-log
