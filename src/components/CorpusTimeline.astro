@@ -40,9 +40,25 @@ const sortedSpecimens = [...specimens].sort((a, b) => {
   return diff !== 0 ? diff : a.data.title.localeCompare(b.data.title);
 });
 
-const AXIS_START = 16;
-const AXIS_END = 184;
+// The vertical drawing uses a shorter axis than the horizontal one (see
+// below — a phone-width viewBox tall enough for the full 1960-2016 span at
+// the horizontal drawing's scale renders a full screen tall). That means
+// each layout needs its own collision pass: two marks far enough apart on
+// the long horizontal axis can land within a mark-diameter of each other
+// on the short vertical one, or the reverse.
+const AXIS_START_H = 16;
+const AXIS_END_H = 184;
+const AXIS_START_V = 10;
+const AXIS_END_V = 130;
 const MARK_DIAMETER = 8; // 2 * the mark radius (r=4) used below
+
+// The marked-line label ("2016") sits above the axis while the two tick
+// labels ("1960", the latest year) sit below it at y=70 — opposite sides,
+// not just different numbers — so they can never land on the same
+// baseline regardless of what the data does. 12 is high enough to clear
+// the tallest current mark stack (top mark at y=16 in the horizontal
+// viewBox) with room to spare.
+const MARKED_LABEL_Y_H = 12;
 
 // Two marks within one mark-diameter of each other along the axis would
 // draw indistinguishably close together. Walking in axis order and
@@ -51,14 +67,27 @@ const MARK_DIAMETER = 8; // 2 * the mark radius (r=4) used below
 // to the previous mark keeps shrinking, so the offset only ever needs to
 // grow. The year position is the datum and never moves; collisions are
 // resolved on the cross-axis only, one mark-diameter per step.
-let previousAlong: number | null = null;
-let stackLevel = 0;
-const marks = sortedSpecimens.map((specimen) => {
+function stackLevels(alongValues: number[]): number[] {
+  let previous: number | null = null;
+  let level = 0;
+  return alongValues.map((along) => {
+    level = previous !== null && Math.abs(along - previous) < MARK_DIAMETER ? level + 1 : 0;
+    previous = along;
+    return level;
+  });
+}
+
+const alongH = sortedSpecimens.map((specimen) =>
+  positionOnAxis(yearOf(specimen.data.sourceDate), AXIS_START_H, AXIS_END_H),
+);
+const alongV = sortedSpecimens.map((specimen) =>
+  positionOnAxis(yearOf(specimen.data.sourceDate), AXIS_START_V, AXIS_END_V),
+);
+const stackH = stackLevels(alongH);
+const stackV = stackLevels(alongV);
+
+const marks = sortedSpecimens.map((specimen, index) => {
   const year = yearOf(specimen.data.sourceDate);
-  const along = positionOnAxis(year, AXIS_START, AXIS_END);
-  stackLevel = previousAlong !== null && Math.abs(along - previousAlong) < MARK_DIAMETER ? stackLevel + 1 : 0;
-  previousAlong = along;
-  const cross = stackLevel * MARK_DIAMETER;
   return {
     id: `specimens/${specimen.id}`,
     title: specimen.data.title,
@@ -66,17 +95,21 @@ const marks = sortedSpecimens.map((specimen) => {
     verification: specimen.data.verification,
     href: withBase(`/specimens/${specimen.id}/`),
     // horizontal layout: along the x axis, stacked upward off the baseline
-    xh: along,
-    yh: 44 - cross,
+    xh: alongH[index],
+    yh: 44 - stackH[index] * MARK_DIAMETER,
     // vertical layout: along the y axis, stacked left of the baseline
-    xv: 34 - cross,
-    yv: along,
+    xv: 34 - stackV[index] * MARK_DIAMETER,
+    yv: alongV[index],
   };
 });
 
-const markedAt = positionOnAxis(MARKED_YEAR, AXIS_START, AXIS_END);
-const axisMinAt = AXIS_START;
-const latestAt = positionOnAxis(latestSpecimenYear, AXIS_START, AXIS_END);
+const markedAtH = positionOnAxis(MARKED_YEAR, AXIS_START_H, AXIS_END_H);
+const axisMinAtH = AXIS_START_H;
+const latestAtH = positionOnAxis(latestSpecimenYear, AXIS_START_H, AXIS_END_H);
+
+const markedAtV = positionOnAxis(MARKED_YEAR, AXIS_START_V, AXIS_END_V);
+const axisMinAtV = AXIS_START_V;
+const latestAtV = positionOnAxis(latestSpecimenYear, AXIS_START_V, AXIS_END_V);
 
 const descriptionText =
   `A timeline of the corpus from ${axisMinYear} to ${axisMaxYear}, ` +
@@ -90,18 +123,18 @@ const descriptionText =
 <figure class="corpus-timeline">
   <svg
     class="corpus-timeline-svg corpus-timeline-svg--horizontal"
-    viewBox="0 14 200 60"
+    viewBox="0 2 200 72"
     role={"graphics-document" as unknown as "img"}
     aria-labelledby="corpus-timeline-title-h corpus-timeline-desc-h"
   >
     <title id="corpus-timeline-title-h">Timeline of the corpus</title>
     <desc id="corpus-timeline-desc-h">{descriptionText}</desc>
 
-    <rect class="timeline-axis" x={AXIS_START} y="53" width={AXIS_END - AXIS_START} height="2" />
-    <rect class="timeline-marked-tick" x={markedAt - 1} y="38" width="2" height="20" />
-    <text class="timeline-marked-label" x={markedAt} y="70" text-anchor="end">{MARKED_YEAR}</text>
-    <text class="timeline-axis-label" x={axisMinAt} y="70" text-anchor="start">{axisMinYear}</text>
-    <text class="timeline-axis-label" x={latestAt} y="70" text-anchor="end">{latestSpecimenYear}</text>
+    <rect class="timeline-axis" x={AXIS_START_H} y="53" width={AXIS_END_H - AXIS_START_H} height="2" />
+    <rect class="timeline-marked-tick" x={markedAtH - 1} y="38" width="2" height="20" />
+    <text class="timeline-marked-label" x={markedAtH} y={MARKED_LABEL_Y_H} text-anchor="end">{MARKED_YEAR}</text>
+    <text class="timeline-axis-label" x={axisMinAtH} y="70" text-anchor="start">{axisMinYear}</text>
+    <text class="timeline-axis-label" x={latestAtH} y="70" text-anchor="end">{latestSpecimenYear}</text>
     {
       marks.map((mark) => (
         <a href={mark.href} data-specimen-id={mark.id} aria-label={`${mark.title}, ${mark.year}, ${mark.verification}`}>
@@ -115,22 +148,22 @@ const descriptionText =
 
   <svg
     class="corpus-timeline-svg corpus-timeline-svg--vertical"
-    viewBox="0 0 90 200"
+    viewBox="0 0 90 140"
     role={"graphics-document" as unknown as "img"}
     aria-labelledby="corpus-timeline-title-v corpus-timeline-desc-v"
   >
     <title id="corpus-timeline-title-v">Timeline of the corpus</title>
     <desc id="corpus-timeline-desc-v">{descriptionText}</desc>
 
-    <rect class="timeline-axis" x="44" y={AXIS_START} width="2" height={AXIS_END - AXIS_START} />
-    <rect class="timeline-marked-tick" x="30" y={markedAt - 1} width="16" height="2" />
-    <text class="timeline-marked-label" x="50" y={markedAt} dominant-baseline="middle" text-anchor="start">
+    <rect class="timeline-axis" x="44" y={AXIS_START_V} width="2" height={AXIS_END_V - AXIS_START_V} />
+    <rect class="timeline-marked-tick" x="30" y={markedAtV - 1} width="16" height="2" />
+    <text class="timeline-marked-label" x="50" y={markedAtV} dominant-baseline="middle" text-anchor="start">
       {MARKED_YEAR}
     </text>
-    <text class="timeline-axis-label" x="50" y={axisMinAt} dominant-baseline="middle" text-anchor="start">
+    <text class="timeline-axis-label" x="50" y={axisMinAtV} dominant-baseline="middle" text-anchor="start">
       {axisMinYear}
     </text>
-    <text class="timeline-axis-label" x="50" y={latestAt} dominant-baseline="middle" text-anchor="start">
+    <text class="timeline-axis-label" x="50" y={latestAtV} dominant-baseline="middle" text-anchor="start">
       {latestSpecimenYear}
     </text>
     {
