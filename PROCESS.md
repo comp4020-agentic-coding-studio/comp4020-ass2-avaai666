@@ -1,11 +1,72 @@
-# PROCESS
+# Process
 
-The banned-word list in `spec/voice.test.ts` had one entry that could never fire. The built pages render a curly apostrophe, the list used a straight one, so "in today's" sat there green, matching nothing the site produced. The obvious fix was a second, curly-quote entry. I normalised the extracted text instead, in [`70d5904`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/70d5904d8b415c1676b96b6477fed0d0e86f9844), so the list stays a list of words, not of typographic variants. I checked it by putting "Delve into this topic." on a page, watching the test fail and name that page, then took the sentence back out — a test I have not watched fail is not a test I trust.
+Rule 7 bans "delve", "tapestry", and other banned words, and
+`spec/voice.test.ts` checks the built HTML for them. One entry, "in today's",
+could never fire: the build's renderer turns a straight apostrophe into a
+curly one, and the list used a straight one. The test was green and proved
+nothing. The obvious fix was a curly-quote copy of the phrase in the list.
 
-The same commit let a word match its own inflections by stemming plus a wildcard, which then flagged "divided into three parts" and "Divide into pairs", since "dive" and "divide" share a stem. Another special case was the obvious fix. Instead, in [`c5e8516`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c5e8516a345c51c41a1dacd2f2fd3b944aff24df), I replaced the wildcard with actual English inflections, and added fixtures the matcher must and must not match, so the next banned word is checked against "divided" before I add it, not after.
+I normalised the extracted text instead, so the list stays a list of words,
+not typographic variants
+([70d5904](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/70d5904d8b415c1676b96b6477fed0d0e86f9844)).
+The same commit had already made the check too loose the other way: it
+matched a phrase's head word plus any suffix, so "dive" inside "divided" or
+"division" started failing ordinary sentences. The obvious move was another
+named exception. Instead I replaced the wildcard with a table of regular
+English inflections and added a second block testing the matcher against fixtures it must catch
+and must not — "diving into the corpus" against "the semester is divided
+into three parts"
+([70d5904...c5e8516](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/70d5904d8b415c1676b96b6477fed0d0e86f9844...c5e8516a345c51c41a1dacd2f2fd3b944aff24df)).
 
-`README.md` states that `src/layouts/PageLayout.astro` is "the layout every page renders through." It is not, and believing it cost three turns of work on a spacing fix before I built the site and read `dist/` to check. Fixing my one wrong import and moving on was the obvious move. Instead I recorded the false claim in `CLAUDE.md`, read at the start of every session here, and wrote [`0263441`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/026344188ef9201293b66dff10e31964fac02aac), which finds every page carrying the site navigation and checks a style's selector against whatever CSS actually reached it, not whether some file remembered to import it. I proved the check could fail first: pulled one page's import, rebuilt, watched only that page turn red, restored it, then committed [`3ea97f8`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3ea97f85b31da006a1277c144b7e087d9212dc1b) and [`bd680e2`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/bd680e23bf9960f0c5ac78e0e1e3e4a5bbf4c592).
+README.md calls `PageLayout.astro` "the layout every page renders through."
+I built the site, read `dist/`, and found the opposite: only bare
+`.md`/`.mdx` pages with no `layout:` frontmatter reach it, not the
+hand-written routes that call `ContentLayout` directly — and that claim had
+already cost three turns of a wrong spacing fix. The obvious move was to
+fix my import and move on.
 
-The home page's hero picture changed twice, and each time I rewrote its alt text by hand — [`1740ea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/1740ea1f3d030a4ba5b0d962d318d72e8f9b7856) and [`3703f25`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3703f25e2ef1e24fd1cedf700f0917276c97f93e) both found a shape in the words no longer in the picture. The third time it was the social card's own description, in `src/site-config.ts`, naming artwork two versions old, every check green throughout, since axe asks whether alt text exists, not whether it is true. Fixing that sentence too was the obvious move. Instead, in [`f0f425e`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f0f425e3a91d88b2097df7f05424039a3914023f), I made one module the only place either picture is described, and committed an assertion, red on purpose, that the built alt text is exactly that module's export; [`057fe86`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/057fe86a39a9aca8d30dd7290739212a54cda487) wired both call sites to it and turned the assertion green. Editing one copy now fails that assertion by construction; the first two fixes never did.
+Instead I recorded the measured, false claim in CLAUDE.md, where the next
+turn reads it before repeating the mistake
+([bd680e2](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/bd680e23bf9960f0c5ac78e0e1e3e4a5bbf4c592)),
+and wrote `spec/layout-styling.test.ts` to assert the layout style's selector
+reaches every built page carrying the site navigation, not just an import
+list I could remember. To test it, I removed the import from
+`specimens/index.astro` and rebuilt; it went red on exactly that page, and I
+restored it before committing
+([0263441...3ea97f8](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/026344188ef9201293b66dff10e31964fac02aac...3ea97f85b31da006a1277c144b7e087d9212dc1b)).
 
-The corpus timeline had four passing assertions — every specimen marked, the caption's count and year correct, the marked line labelled from real data — while the figure quietly rendered twice on every screen, because the rule hiding one of its two SVGs was losing the cascade to a higher-specificity selector nearby. All four only asked whether a mark or number appeared somewhere in the page; two copies satisfy that as well as one. Deleting one SVG was the obvious move. I kept both, since each is scaled for its own viewport, and wrote [`fdad3d4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/fdad3d4512886690f1704a8ae74b4cf3a2a98abf), a resolver reading specificity and source order the way a browser's cascade does, instead of checking a rule's text sits somewhere in the stylesheet. It came back red for the wrong reason first — the minifier had rewritten the media condition into range syntax my regex missed — so [`f8617c1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f8617c12b3169f3e6370bf81b81e9eae76bc7a57) fixed the resolver before I trusted it. Only then did [`c6147d4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c6147d44b25968b5eedf9c9bbdf0adc68b10f9db), renaming one selector to equal specificity, turn it green.
+The home page's hero alt text drifted from the picture it described twice,
+and I fixed it by hand both times
+([1740ea1](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/1740ea1f3d030a4ba5b0d962d318d72e8f9b7856),
+[3703f25](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3703f25e2ef1e24fd1cedf700f0917276c97f93e)).
+The third time it was the social card's description, still naming artwork
+from two versions back, and every check stayed green: axe checks that alt
+text exists, not that it's true. The obvious move was to rewrite the
+sentence again.
+
+Instead I wrote a module that is the only place either picture is described,
+wired the hero and the card through its exports, and asserted that the built
+page's alt text matches exactly what the module exports — red before the
+wiring, against the stale copy in `site-config.ts`, green after
+([f0f425e...057fe86](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/f0f425e3a91d88b2097df7f05424039a3914023f...057fe86a39a9aca8d30dd7290739212a54cda487)).
+The first two fixes treated the sentence; the third removed how it recurred.
+
+The corpus timeline on the home page passed four assertions — every
+specimen has a mark, caption count and latest year match the data, the
+marked line names a real lecture — while it quietly rendered twice at every
+width, because a rule meant to hide one variant was losing the cascade to a
+higher-specificity selector. All four only ask whether a mark appears
+somewhere in the HTML, and two copies satisfy that as well as one. The
+obvious move was to delete one of the two drawings.
+
+Instead I kept both — scaled independently, not one stretched into the
+other's shape — and wrote a second spec that resolves specificity and
+source order the way a browser does, rather than checking that a rule is
+merely present
+([fdad3d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/fdad3d4512886690f1704a8ae74b4cf3a2a98abf)).
+That spec was itself briefly wrong: it recognised `max-width` media queries
+but not the minifier's range-syntax rewrite, so it stayed silently inert
+([f8617c1](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f8617c12b3169f3e6370bf81b81e9eae76bc7a57)).
+Fixed, it went red for the real reason — both variants rendering at both
+widths — then green once the fix landed
+([c6147d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c6147d44b25968b5eedf9c9bbdf0adc68b10f9db)).
