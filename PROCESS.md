@@ -29,7 +29,7 @@ Alignment: four assessments are one corpus at three scales plus the room,
 summing to 100 by assertion
 ([ad6a6f6](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/ad6a6f66c3ee8b1d0e6f39d02b4c935462205b3a)).
 When my tutor read the home page as "an information page", I made the
-structure visible instead of adding prose: three specimens and the three
+structure visible rather than the prose longer: three specimens and the three
 things a student will be able to do
 ([d50786f](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/d50786fdfc8625ed0230e08b48572f5457d3fca4)),
 a semester table generated from the collections, a week strip, and a "This
@@ -43,8 +43,8 @@ The evidence standard: every quoted mistranslation carries a source, a date
 and a verification level, and an `apocryphal` page must say so in its body
 ([0982dca](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/0982dcae329fe354deef64dd4ba7b0b08e32d7b4)).
 The obvious call was to delete the two anecdotes I could not source. Keeping
-them, labelled, is the course's argument. The printed line itself became a
-`printed` field, with a check that the body's blockquote still equals it
+them, labelled, is the course's argument. The printed line became a `printed`
+field, checked against the body's blockquote
 ([2cdb592](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/2cdb592aa1196973dae971968d7e8997e3fade6a)).
 
 Deliberately not encoded: the 400-word cap and the deadpan register are
@@ -52,11 +52,12 @@ rules, not tests. A word count makes an agent trim to a number, and deadpan
 cannot be measured.
 
 How I knew a check was right: rule 18 forbids a commit that adds an
-assertion and satisfies it, so I never accepted green without seeing red.
-Twice a green check meant nothing. The banned-phrase list never fired on
-"in today's" because the build curls the apostrophe; normalising the text
-then let `dive` catch `divided`, so the matcher now runs against fixtures it
-must and must not catch
+assertion and satisfies it, so new behaviour arrived red first; the few
+guards added for what was already true each name the edit that would turn
+them red. The banned-phrase list never fired on "in today's" because the
+build curls the apostrophe; normalising the text then let `dive` catch
+`divided`, so the matcher now runs against fixtures it must and must not
+catch
 ([70d5904...c5e8516](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/70d5904d8b415c1676b96b6477fed0d0e86f9844...c5e8516a345c51c41a1dacd2f2fd3b944aff24df)).
 The corpus timeline passed four assertions while rendering twice; the
 replacement resolves the cascade as a browser does, and was itself inert
