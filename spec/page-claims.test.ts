@@ -46,6 +46,13 @@ const DIST = resolve("dist");
 const NAV_MARKER = /<nav\s+class="at-nav"/;
 const H1_TAG = /<h1\b[^>]*>/g;
 
+// The frontmatter/prop `description` renders, when present, as the built
+// page's lead paragraph — <p class="lead">{description}</p> — in both
+// ContentLayout.astro (theme) and MdxPageLayout.astro (theme, reached via
+// our PageLayout.astro). Found by grepping the built HTML for the element
+// wrapping each page's description text.
+const DESCRIPTION_TAG = /<[a-z][a-z0-9]*\s+class="lead"[^>]*>/;
+
 function findHtmlFiles(dir: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -89,6 +96,22 @@ describe("page claims", () => {
     for (const page of pagesWithNav) {
       const count = [...page.html.matchAll(H1_TAG)].length;
       expect(count, `${page.path} has ${count} <h1> element(s), expected exactly 1`).toBe(1);
+    }
+  });
+
+  // Turns red by: any page whose description-as-lead paragraph is emitted
+  // before its own <h1> — currently every bare .mdx page that has both a
+  // frontmatter description and a body heading, since MdxPageLayout.astro
+  // (astro-theme-university, not ours) renders the lead before <slot />.
+  it("shows the page heading before its description, on every page that has both", () => {
+    for (const page of pagesWithNav) {
+      const leadIndex = page.html.search(DESCRIPTION_TAG);
+      if (leadIndex === -1) continue;
+      const h1Index = page.html.search(H1_TAG);
+      expect(
+        h1Index !== -1 && h1Index < leadIndex,
+        `${page.path}: <h1> is at ${h1Index}, .lead is at ${leadIndex} — the description precedes the heading`,
+      ).toBe(true);
     }
   });
 
