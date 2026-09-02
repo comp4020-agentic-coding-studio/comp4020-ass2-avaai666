@@ -3,6 +3,7 @@ import { getEntry } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
 import { formatCourseDate } from "../lib/dates";
+import { printedLang } from "../lib/specimens";
 import "../styles/specimen.css";
 import "../styles/lecture.css";
 
@@ -86,9 +87,14 @@ const specimens = (
       <>
         <dt>Specimens</dt>
         <dd>
-          {specimens.map((specimen, index) => (
+          {specimens.map((specimen) => (
             <>
-              {index > 0 && <br />}
+              <p
+                class="specimen-printed specimen-printed--small"
+                lang={printedLang(specimen.data.languages)}
+              >
+                {specimen.data.printed}
+              </p>
               <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>{" "}
               <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
                 {specimen.data.verification}

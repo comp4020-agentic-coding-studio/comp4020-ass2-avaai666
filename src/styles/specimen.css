@@ -238,6 +238,16 @@ blockquote[data-specimen] p + p {
   line-height: var(--at-line-height-heading);
 }
 
+/* The this-week block cites a specimen inline among other rows (Lecture,
+   Bench, Due), not as a register entry in its own right, so its printed
+   line reads at a size between body text and the full-size register
+   line above — large enough to read as the artefact, not as the row's
+   own heading. Same left rule as the full-size version, for the same
+   reason: this is still physical evidence, not a pull-quote. */
+.specimen-printed--small {
+  font-size: calc(var(--at-font-size-base) * 1.15);
+}
+
 .specimen-record-heading {
   display: flex;
   align-items: baseline;
