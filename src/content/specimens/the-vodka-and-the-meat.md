@@ -8,6 +8,7 @@ sourceDate: "1960"
 verification: apocryphal
 languages: English → Russian → English
 mechanism: Unestablished — no system has been identified
+printed: The vodka is good but the meat is rotten
 related:
   - specimens/the-chevrolet-nova
 ---

@@ -8,6 +8,7 @@ sourceDate: "1980"
 verification: secondary
 languages: Spanish → English
 mechanism: A false friend, in a setting with no interpreter and no time
+printed: intoxicado → intoxicated
 ---
 
 A young man was brought unconscious into a Florida hospital in 1980. His family,

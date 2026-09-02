@@ -63,6 +63,7 @@ export const collections = {
         verification: specimenVerification,
         languages: z.string().trim().min(1),
         mechanism: z.string().trim().min(1),
+        printed: z.string().trim().min(1),
       })
       .loose(),
   }),

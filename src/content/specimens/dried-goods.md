@@ -8,6 +8,7 @@ sourceDate: "2007"
 verification: secondary
 languages: Chinese (Simplified) → English
 mechanism: Character merger under simplification, then sense selection by corpus frequency
+printed: Fuck Goods
 ---
 
 <span lang="zh-Hans">干货</span> is dried food: mushrooms, scallops, dates. On

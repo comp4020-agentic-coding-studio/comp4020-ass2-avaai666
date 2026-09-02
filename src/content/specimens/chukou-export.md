@@ -8,6 +8,7 @@ sourceDate: "2010"
 verification: secondary
 languages: Chinese (Simplified) → English
 mechanism: Polysemy resolved by frequency rather than by context
+printed: 出口 EXPORT
 ---
 
 <span lang="zh-Hans">出口</span> means *exit*. It also means *export*. The two

@@ -8,6 +8,7 @@ sourceDate: "2008-10"
 verification: primary
 languages: English → Welsh
 mechanism: A workflow with no translator in it; an inbox mistaken for a translation service
+printed: I am not in the office at the moment. Send any work to be translated.
 ---
 
 A council in Swansea needed a bilingual sign prohibiting heavy goods vehicles

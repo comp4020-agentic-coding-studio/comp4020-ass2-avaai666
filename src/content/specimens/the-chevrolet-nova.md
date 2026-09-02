@@ -8,6 +8,7 @@ sourceDate: "1970"
 verification: apocryphal
 languages: English → Spanish
 mechanism: None — the reading it depends on is not how the phrase parses
+printed: no va
 ---
 
 The story is that the Chevrolet Nova sold badly in Spanish-speaking markets
