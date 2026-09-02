@@ -231,7 +231,7 @@ blockquote[data-specimen] p + p {
   margin: 0 0 var(--at-spacing-sm);
   padding-inline-start: var(--at-spacing-md);
   border-inline-start: 0.35rem solid var(--at-accent);
-  color: var(--at-heading);
+  color: var(--at-text);
   font-size: calc(var(--at-font-size-base) * 1.5);
   font-weight: 600;
   font-style: normal;
