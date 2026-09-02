@@ -33,9 +33,12 @@ what the data says.
 ## How a check earns its place
 
 Rule 18 of CLAUDE.md: a commit that adds an assertion never also satisfies
-it. Each test above was committed first, run red, and then answered by a
-change in its own commit. Rule 14: a test that cannot fail is worse than no
-test, so each commit message says what edit would turn it red.
+it. New behaviour arrived as a red assertion commit, answered by a change in
+its own commit. A few guards — the citation-integrity and home-badge
+assertions in `page-claims`, for instance — were added for invariants that
+were already true and say so in their commit messages. Rule 14: a test that
+cannot fail is worse than no test, so every commit adding one names the
+edit that would turn it red.
 
 Two of these — `voice` and `timeline-visibility` — were rewritten after they
 had passed while the promise was already broken; `page-claims` was rewritten
