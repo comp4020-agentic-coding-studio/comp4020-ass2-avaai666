@@ -1,53 +1,11 @@
-# Process overview
+# PROCESS
 
-<!-- TEMPLATE: this file is a shape to fill in, not a form. Replace everything
-     in it with your own overview, and delete this comment — `pnpm
-     check:evidence` will remind you if it's still here. -->
+The banned-word list in `spec/voice.test.ts` had one entry that could never fire. The built pages render a curly apostrophe, the list used a straight one, so "in today's" sat there green, matching nothing the site produced. The obvious fix was a second, curly-quote entry. I normalised the extracted text instead, in [`70d5904`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/70d5904d8b415c1676b96b6477fed0d0e86f9844), so the list stays a list of words, not of typographic variants. I checked it by putting "Delve into this topic." on a page, watching the test fail and name that page, then took the sentence back out — a test I have not watched fail is not a test I trust.
 
-Written by you, for a reader: how you got from the brief to the harness and
-agentic workflow behind this submission. Markers read this file and follow its
-citations; they don't trawl the repo for evidence you didn't point at.
+The same commit let a word match its own inflections by stemming plus a wildcard, which then flagged "divided into three parts" and "Divide into pairs", since "dive" and "divide" share a stem. Another special case was the obvious fix. Instead, in [`c5e8516`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c5e8516a345c51c41a1dacd2f2fd3b944aff24df), I replaced the wildcard with actual English inflections, and added fixtures the matcher must and must not match, so the next banned word is checked against "divided" before I add it, not after.
 
-This file is the shape; the course site's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
-is the requirement, and its
-[word counts](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#word-counts)
-cover every deliverable.
+`README.md` states that `src/layouts/PageLayout.astro` is "the layout every page renders through." It is not, and believing it cost three turns of work on a spacing fix before I built the site and read `dist/` to check. Fixing my one wrong import and moving on was the obvious move. Instead I recorded the false claim in `CLAUDE.md`, read at the start of every session here, and wrote [`0263441`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/026344188ef9201293b66dff10e31964fac02aac), which finds every page carrying the site navigation and checks a style's selector against whatever CSS actually reached it, not whether some file remembered to import it. I proved the check could fail first: pulled one page's import, rebuilt, watched only that page turn red, restored it, then committed [`3ea97f8`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3ea97f85b31da006a1277c144b7e087d9212dc1b) and [`bd680e2`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/bd680e23bf9960f0c5ac78e0e1e3e4a5bbf4c592).
 
-## What I built
+The home page's hero picture changed twice, and each time I rewrote its alt text by hand — [`1740ea1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/1740ea1f3d030a4ba5b0d962d318d72e8f9b7856) and [`3703f25`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/3703f25e2ef1e24fd1cedf700f0917276c97f93e) both found a shape in the words no longer in the picture. The third time it was the social card's own description, in `src/site-config.ts`, naming artwork two versions old, every check green throughout, since axe asks whether alt text exists, not whether it is true. Fixing that sentence too was the obvious move. Instead, in [`f0f425e`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f0f425e3a91d88b2097df7f05424039a3914023f), I made one module the only place either picture is described, and committed an assertion, red on purpose, that the built alt text is exactly that module's export; [`057fe86`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/057fe86a39a9aca8d30dd7290739212a54cda487) wired both call sites to it and turned the assertion green. Editing one copy now fails that assertion by construction; the first two fixes never did.
 
-One paragraph: the thing, and the idea behind it.
-
-## How I got here
-
-The account of the process: how the work actually went, and how you knew the
-result was right. Tell it in whatever order makes it clear. A weekly prototype
-needs a paragraph or two; an assignment needs more.
-
-Cite the record as you go, as links whose text is the commit hash or range and
-whose target is this repo's commit or compare URL, so a reader clicks straight
-to the evidence:
-
-- one commit: [`a1b2c3d`](https://github.com/YOUR-ORG/YOUR-REPO/commit/a1b2c3d)
-- a range:
-  [`a1b2c3d...e4f5a6b`](https://github.com/YOUR-ORG/YOUR-REPO/compare/a1b2c3d...e4f5a6b)
-
-To pair a prompt with the commit it produced, quote the prompt (curated, not a
-full transcript) next to the citation:
-
-> the prompt, verbatim
-
-Screenshots are welcome where one carries the point better than a sentence does.
-Commit the file to this repo and link it with a **relative** path, which is what
-makes it render on GitHub: `![alt text](docs/before.png)`. Images don't count
-towards the word count and don't replace the citation.
-
-## Before you ship
-
-`pnpm check:evidence` verifies that this comment is gone, that your citations
-resolve to real commits, that a crit week's reflection entry is in
-`reflections/`, and that your `CLAUDE.md` is there. It checks that your account
-is traceable, not that it is good: that is the marker's call.
-
-Images aren't checked: unlike a citation whose SHA doesn't resolve, a broken
-image is visible the moment this file is rendered on GitHub.
+The corpus timeline had four passing assertions — every specimen marked, the caption's count and year correct, the marked line labelled from real data — while the figure quietly rendered twice on every screen, because the rule hiding one of its two SVGs was losing the cascade to a higher-specificity selector nearby. All four only asked whether a mark or number appeared somewhere in the page; two copies satisfy that as well as one. Deleting one SVG was the obvious move. I kept both, since each is scaled for its own viewport, and wrote [`fdad3d4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/fdad3d4512886690f1704a8ae74b4cf3a2a98abf), a resolver reading specificity and source order the way a browser's cascade does, instead of checking a rule's text sits somewhere in the stylesheet. It came back red for the wrong reason first — the minifier had rewritten the media condition into range syntax my regex missed — so [`f8617c1`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/f8617c12b3169f3e6370bf81b81e9eae76bc7a57) fixed the resolver before I trusted it. Only then did [`c6147d4`](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/c6147d44b25968b5eedf9c9bbdf0adc68b10f9db), renaming one selector to equal specificity, turn it green.
