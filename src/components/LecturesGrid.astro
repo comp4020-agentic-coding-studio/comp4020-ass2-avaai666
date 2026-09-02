@@ -33,6 +33,11 @@ const weeks = [...new Set([...lecturesByWeek.keys(), ...sessionsByWeek.keys()])]
               {lecture.data.description && (
                 <p class="lecture-record-description">{lecture.data.description}</p>
               )}
+              {lecture.data.slides && (
+                <a class="deck-link" href={withBase(lecture.data.slides)}>
+                  Deck
+                </a>
+              )}
             </>
           ) : (
             <>
