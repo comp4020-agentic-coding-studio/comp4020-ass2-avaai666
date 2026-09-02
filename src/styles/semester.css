@@ -69,7 +69,7 @@ tr.semester-break td {
   letter-spacing: 0.06em;
 }
 
-@media (max-width: 30rem) {
+@media (max-width: 40rem) {
   table.semester,
   table.semester thead,
   table.semester tbody,
