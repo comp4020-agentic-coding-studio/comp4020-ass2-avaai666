@@ -60,6 +60,7 @@ export const collections = {
       .extend({
         source: z.string().trim().min(1),
         sourceDate: specimenDate,
+        sourceUrl: z.string().url().optional(),
         verification: specimenVerification,
         languages: z.string().trim().min(1),
         mechanism: z.string().trim().min(1),

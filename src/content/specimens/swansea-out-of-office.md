@@ -5,6 +5,7 @@ description:
   installed, and photographed before anyone who read Welsh saw it
 source: Reported by BBC News, with a photograph of the installed sign
 sourceDate: "2008-10"
+sourceUrl: http://news.bbc.co.uk/2/hi/uk_news/wales/7702913.stm
 verification: primary
 languages: English → Welsh
 mechanism: A workflow with no translator in it; an inbox mistaken for a translation service
