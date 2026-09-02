@@ -15,7 +15,9 @@ const MARKED_YEAR = 2016;
 const specimens = await getPublishedCollection("specimens");
 const lectures = await getPublishedCollection("lectures");
 const deckLecture = lectures.find((lecture) => lecture.data.slides);
-const markedLabel = deckLecture ? `${MARKED_YEAR} · ${deckLecture.data.title}` : String(MARKED_YEAR);
+const markedLineSentence = deckLecture
+  ? `The marked line is ${MARKED_YEAR}, where week five's lecture — ${deckLecture.data.title} — puts the change.`
+  : `The marked line is ${MARKED_YEAR}.`;
 
 function yearOf(sourceDate: string): number {
   return Number(sourceDate.slice(0, 4));
@@ -40,15 +42,23 @@ const sortedSpecimens = [...specimens].sort((a, b) => {
 
 const AXIS_START = 16;
 const AXIS_END = 184;
+const MARK_DIAMETER = 8; // 2 * the mark radius (r=4) used below
 
-// Specimens that share a year would otherwise draw the same mark twice;
-// each later one in a year steps back along the cross-axis instead.
-const stackIndexByYear = new Map<number, number>();
+// Two marks within one mark-diameter of each other along the axis would
+// draw indistinguishably close together. Walking in axis order and
+// comparing each mark only to the one immediately before it (not to every
+// earlier mark) is enough here: once a run of near marks starts, the gap
+// to the previous mark keeps shrinking, so the offset only ever needs to
+// grow. The year position is the datum and never moves; collisions are
+// resolved on the cross-axis only, one mark-diameter per step.
+let previousAlong: number | null = null;
+let stackLevel = 0;
 const marks = sortedSpecimens.map((specimen) => {
   const year = yearOf(specimen.data.sourceDate);
-  const stackIndex = stackIndexByYear.get(year) ?? 0;
-  stackIndexByYear.set(year, stackIndex + 1);
   const along = positionOnAxis(year, AXIS_START, AXIS_END);
+  stackLevel = previousAlong !== null && Math.abs(along - previousAlong) < MARK_DIAMETER ? stackLevel + 1 : 0;
+  previousAlong = along;
+  const cross = stackLevel * MARK_DIAMETER;
   return {
     id: `specimens/${specimen.id}`,
     title: specimen.data.title,
@@ -57,17 +67,16 @@ const marks = sortedSpecimens.map((specimen) => {
     href: withBase(`/specimens/${specimen.id}/`),
     // horizontal layout: along the x axis, stacked upward off the baseline
     xh: along,
-    yh: 44 - stackIndex * 10,
+    yh: 44 - cross,
     // vertical layout: along the y axis, stacked left of the baseline
-    xv: 34 - stackIndex * 10,
+    xv: 34 - cross,
     yv: along,
   };
 });
 
 const markedAt = positionOnAxis(MARKED_YEAR, AXIS_START, AXIS_END);
 const axisMinAt = AXIS_START;
-const showAxisMaxLabel = axisMaxYear !== MARKED_YEAR;
-const axisMaxAt = AXIS_END;
+const latestAt = positionOnAxis(latestSpecimenYear, AXIS_START, AXIS_END);
 
 const descriptionText =
   `A timeline of the corpus from ${axisMinYear} to ${axisMaxYear}, ` +
@@ -81,7 +90,7 @@ const descriptionText =
 <figure class="corpus-timeline">
   <svg
     class="corpus-timeline-svg corpus-timeline-svg--horizontal"
-    viewBox="0 0 200 90"
+    viewBox="0 14 200 60"
     role={"graphics-document" as unknown as "img"}
     aria-labelledby="corpus-timeline-title-h corpus-timeline-desc-h"
   >
@@ -90,15 +99,9 @@ const descriptionText =
 
     <rect class="timeline-axis" x={AXIS_START} y="53" width={AXIS_END - AXIS_START} height="2" />
     <rect class="timeline-marked-tick" x={markedAt - 1} y="38" width="2" height="20" />
-    <text class="timeline-marked-label" x={markedAt} y="70" text-anchor="end">{markedLabel}</text>
+    <text class="timeline-marked-label" x={markedAt} y="70" text-anchor="end">{MARKED_YEAR}</text>
     <text class="timeline-axis-label" x={axisMinAt} y="70" text-anchor="start">{axisMinYear}</text>
-    {
-      showAxisMaxLabel && (
-        <text class="timeline-axis-label" x={axisMaxAt} y="70" text-anchor="end">
-          {axisMaxYear}
-        </text>
-      )
-    }
+    <text class="timeline-axis-label" x={latestAt} y="70" text-anchor="end">{latestSpecimenYear}</text>
     {
       marks.map((mark) => (
         <a href={mark.href} data-specimen-id={mark.id} aria-label={`${mark.title}, ${mark.year}, ${mark.verification}`}>
@@ -122,18 +125,14 @@ const descriptionText =
     <rect class="timeline-axis" x="44" y={AXIS_START} width="2" height={AXIS_END - AXIS_START} />
     <rect class="timeline-marked-tick" x="30" y={markedAt - 1} width="16" height="2" />
     <text class="timeline-marked-label" x="50" y={markedAt} dominant-baseline="middle" text-anchor="start">
-      {markedLabel}
+      {MARKED_YEAR}
     </text>
     <text class="timeline-axis-label" x="50" y={axisMinAt} dominant-baseline="middle" text-anchor="start">
       {axisMinYear}
     </text>
-    {
-      showAxisMaxLabel && (
-        <text class="timeline-axis-label" x="50" y={axisMaxAt} dominant-baseline="middle" text-anchor="start">
-          {axisMaxYear}
-        </text>
-      )
-    }
+    <text class="timeline-axis-label" x="50" y={latestAt} dominant-baseline="middle" text-anchor="start">
+      {latestSpecimenYear}
+    </text>
     {
       marks.map((mark) => (
         <a href={mark.href} data-specimen-id={mark.id} aria-label={`${mark.title}, ${mark.year}, ${mark.verification}`}>
@@ -147,8 +146,8 @@ const descriptionText =
 
   <figcaption>
     <p>
-      {sortedSpecimens.length} specimens, {axisMinYear}–{latestSpecimenYear}.
+      {sortedSpecimens.length} specimens, {axisMinYear}–{latestSpecimenYear}. {markedLineSentence} Nothing in this
+      corpus is more recent than the change week five describes. That is the finding, not a gap in the collection.
     </p>
-    <p>Nothing in this corpus is more recent than the change week five describes. That is the finding, not a gap in the collection.</p>
   </figcaption>
 </figure>
