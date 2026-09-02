@@ -11,3 +11,463 @@
  * slide class you reach for (`_class: quote`), a code-heavy layout, a
  * background. */
 @import url("astro-theme-university/styles/deck.css");
+
+/* ---------------------------------------------------------------------------
+ * The seven slide kinds
+ *
+ * A deck is read at four metres off a 1280x720 canvas that reveal.js scales
+ * to fill whatever screen it lands on. Nothing below is responsive in the way
+ * the website is: the canvas never changes size, so every length here is a
+ * length in that canvas, and the only thing a wider screen changes is the
+ * scale factor reveal applies to the whole thing.
+ *
+ * Two numbers make the rest readable. The canvas is 1280x720. The em base
+ * inside a slide is --r-main-font-size (2.25rem = 36px), because deck.css
+ * sets it on `.reveal` and every section inherits it. So `2.2em` below means
+ * 79.2px on a 1280px-wide stage, and at 1920x1080 (scale 1.5) it reaches the
+ * viewer at 119px.
+ *
+ * Every rule is an ordinary class selector. deck.css puts its structural
+ * rules behind `:where(.reveal .slides)`, which zeroes that prefix, so its
+ * `&.impact` lands at (0,1,1) and the `.reveal .slides section.impact` used
+ * here at (0,3,1) --- no !important is needed anywhere, and none is used.
+ * (One exception this file does not fight: deck.css's `@media print` block
+ * forces `display: grid` and its own padding with !important, so a PDF export
+ * gets the theme's print geometry, not the flex column .figure uses below.)
+ * astromotion's own base.css sits in `@layer astromotion` and loses to every
+ * unlayered rule here regardless of specificity.
+ * ------------------------------------------------------------------------- */
+
+/* Colour names used below, in the tokens deck.css actually declares:
+ *   ink    = var(--r-background-color)  (--at-dark-grey, the deck surface)
+ *   cream  = var(--r-main-color)        (--at-light-grey, the deck's body ink)
+ *   accent = var(--at-accent)           (= --at-primary, the lockup gold)
+ *   muted  = var(--at-text-secondary)
+ * --at-text is NOT one of them: it is declared in tokens.css, which a deck
+ * page never loads. A `var(--at-text)` on a slide resolves to nothing and the
+ * property falls back to its initial value --- black, on a near-black slide.
+ * That is what made the week-05 diagram invisible. Use currentColor. */
+
+/* The shared box. Scoped to the seven classes rather than to `section`, so
+ * the theme's own slide classes (.hero, .logo-slide, .split-layout) keep the
+ * geometry deck.css gives them. deck.css's `align-content: start` is what put
+ * every slide in the top third; the explicit single full-width column is what
+ * keeps text flush left once align-content is centred (a bare
+ * `place-content: center` centres the column too). */
+.reveal .slides section:is(.impact, .statement, .specimen, .list, .figure, .quote, .bench) {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-content: stretch;
+  /* 6% of 1280 = 76.8px each side, leaving a 1126px measure. 3rem top and
+     bottom (rather than deck.css's 4rem) buys back the 32px the longest
+     single-sentence statement needs at 2.2em. */
+  padding: 3rem 6%;
+  text-align: start;
+}
+
+/* impact --- the title card. deck.css paints this one as a flat brand fill
+ * with --at-on-primary ink, which for the Slop gold resolves to near-black:
+ * a gold slab. On this site gold marks a verified specimen and nothing else,
+ * so the slab goes and the slide keeps the deck's own ink surface. What
+ * survives is the hero's mark: a short accent rule under the title. */
+.reveal .slides section.impact {
+  background-color: var(--r-background-color);
+  background-image: none;
+  color: var(--r-main-color);
+  text-align: start;
+}
+
+.reveal .slides section.impact :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--r-main-color);
+}
+
+.reveal .slides section.impact h1 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  background: none;
+  font-size: 3em; /* 108px */
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+/* Same mark, same numbers, as deck.css's `.hero h1::after`. */
+.reveal .slides section.impact h1::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 4px;
+  margin-block-start: 1.5rem;
+  border-radius: calc(var(--at-border-radius) / 3);
+  background: var(--at-accent);
+}
+
+.reveal .slides section.impact :is(p, li) {
+  font-size: 1em; /* 36px --- body size, against a 108px title */
+  line-height: 1.5;
+  color: var(--at-text-secondary);
+}
+
+/* deck.css inverts code for the brand fill that is no longer there. */
+.reveal .slides section.impact code {
+  background: var(--at-primary-tint);
+  color: var(--at-dark-grey);
+  border-color: var(--at-primary);
+}
+
+/* statement --- one sentence, at the size a sentence gets when it is the
+ * whole slide. A statement carrying a heading or a second paragraph is a
+ * different object: it is body copy, and at 2.2em the longest of them runs
+ * off the bottom of the canvas, so it steps down to 1.4em. */
+.reveal .slides section.statement h2 {
+  max-width: 24em;
+  margin: 0 0 2rem;
+  color: var(--at-accent);
+  font-size: 1.4em; /* 50.4px */
+  line-height: 1.2;
+}
+
+.reveal .slides section.statement p {
+  max-width: 24em;
+  font-size: 2.2em; /* 79.2px; 6 lines of the longest statement = 594px < 624 */
+  line-height: 1.25;
+}
+
+.reveal .slides section.statement:is(:has(h2), :has(p + p)) p {
+  font-size: 1.4em; /* 50.4px */
+  line-height: 1.25;
+}
+
+/* specimen --- the artefact, then its index card. The printed line takes the
+ * same left rule blockquote[data-specimen] gives it on the website, because
+ * it is the same object: physical evidence, not a pull-quote. The rule is
+ * 0.2em rather than the website's fixed 0.35rem so it keeps the same weight
+ * *relative to the line it marks* --- 0.35rem beside a 93.6px line reads as a
+ * hairline, where beside the website's 27px line it reads as a slab. Cream,
+ * not accent: gold on this site marks what is verified, and the badge below
+ * is what says whether this one is. */
+.reveal .slides section.specimen {
+  color: var(--r-main-color);
+}
+
+.reveal .slides section.specimen p {
+  font-size: 1em;
+  line-height: 1.5;
+}
+
+.reveal .slides section.specimen .printed {
+  margin: 0 0 1.5rem;
+  padding-inline-start: 0.5em;
+  border-inline-start: 0.2em solid var(--r-main-color);
+  color: var(--r-main-color);
+  font-size: 2.6em; /* 93.6px */
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.reveal .slides section.specimen .specimen-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  margin: 0 0 1.5rem;
+  color: var(--at-text-secondary);
+  font-size: 1em;
+}
+
+/* list --- at most four items, because five is a document. */
+.reveal .slides section.list h2 {
+  max-width: 24em;
+  margin: 0 0 2rem;
+  color: var(--at-accent);
+  font-size: 1.4em; /* 50.4px */
+  line-height: 1.2;
+}
+
+.reveal .slides section.list p {
+  max-width: 24em;
+  font-size: 1.2em; /* 43.2px */
+  line-height: 1.5;
+}
+
+.reveal .slides section.list :is(ul, ol) {
+  max-width: 24em; /* 24 x 43.2px = 1037px, inside the 1126px measure */
+  margin-inline-start: 1.2em;
+  font-size: 1.2em;
+}
+
+.reveal .slides section.list li {
+  font-size: 1em;
+  line-height: 1.5;
+}
+
+.reveal .slides section.list li + li {
+  margin-block-start: 0.6em;
+}
+
+/* figure --- the diagram is the slide. A flex column rather than the grid
+ * every other kind uses, so the SVG can yield: it asks for 70% of the canvas
+ * height and shrinks from there if the heading and caption need the room,
+ * instead of overflowing the bottom edge where nobody would see it. */
+.reveal .slides section.figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--r-main-color);
+}
+
+.reveal .slides section.figure h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1em;
+  line-height: 1.2;
+}
+
+.reveal .slides section.figure p {
+  margin: 1rem 0 0;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.reveal .slides section.figure svg {
+  flex: 0 1 auto;
+  block-size: 31.5rem; /* 504px = 70% of the 720px canvas */
+  min-block-size: 0;
+  inline-size: auto;
+  max-inline-size: 100%;
+}
+
+/* An SVG on a slide inherits the slide's ink and draws with it. Only what
+ * carries `is-current` reaches for the accent, and text sitting on that fill
+ * takes the ink the accent was chosen against --- cream on gold is 2.2:1. */
+.reveal .slides section.figure svg text {
+  fill: currentColor;
+  stroke: none;
+}
+
+.reveal .slides section.figure svg :is(line, path) {
+  fill: none;
+  stroke: currentColor;
+}
+
+.reveal .slides section.figure svg .is-current {
+  fill: var(--at-accent);
+}
+
+.reveal .slides section.figure svg text.on-current {
+  fill: var(--at-on-primary);
+}
+
+/* quote --- someone said this. deck.css draws an 80%-wide overbar; a left
+ * rule reads as a quotation at four metres where a hairline above the first
+ * line does not, and there is no display glyph. */
+.reveal .slides section.quote {
+  text-shadow: none;
+}
+
+.reveal .slides section.quote blockquote {
+  width: auto;
+  max-width: 24em;
+  margin: 0;
+  padding: 0 0 0 0.5em;
+  border-block-start: none;
+  border-inline-start: 0.2em solid var(--at-accent);
+  color: var(--r-main-color);
+  font-weight: 400;
+}
+
+.reveal .slides section.quote blockquote::before {
+  content: none;
+}
+
+.reveal .slides section.quote blockquote p {
+  font-size: 2em; /* 72px */
+  line-height: 1.3;
+}
+
+/* bench --- where the lecture sends the room on Wednesday. Label, title,
+ * date, then the three fields every bench in this course declares. The
+ * label idiom is the website's register: uppercase, tracked, muted. */
+.reveal .slides section.bench {
+  color: var(--r-main-color);
+}
+
+.reveal .slides section.bench :is(.bench-label, .bench-fields dt) {
+  color: var(--at-text-secondary);
+  font-size: 0.75em; /* 27px */
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reveal .slides section.bench .bench-label {
+  margin: 0 0 1rem;
+}
+
+.reveal .slides section.bench h2 {
+  margin: 0 0 1rem;
+  font-size: 2em; /* 72px */
+  line-height: 1.2;
+}
+
+.reveal .slides section.bench .bench-date {
+  margin: 0 0 1.5rem;
+  color: var(--at-text-secondary);
+  font-size: 1em;
+}
+
+.reveal .slides section.bench .bench-fields {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.5em;
+  row-gap: 0.5em;
+  max-width: 30em;
+  margin: 0;
+  font-size: 1em;
+}
+
+.reveal .slides section.bench .bench-fields dt {
+  margin: 0;
+  line-height: 2; /* holds the smaller label on its value's baseline */
+}
+
+.reveal .slides section.bench .bench-fields dd {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.reveal .slides section.bench .bench-note {
+  margin: 1.5rem 0 0;
+  font-size: 1em;
+  line-height: 1.5;
+}
+
+/* The verification badge, copied from src/styles/specimen.css --- a deck page
+ * loads no site stylesheet, so a badge on a slide would otherwise render as
+ * bare text. Same class names, same colours, three substitutions forced by
+ * what a deck page has: --at-font-size-xs (a fixed 0.75rem, which on this
+ * canvas is 12px) becomes 0.75em so it tracks the line it sits on, and
+ * --at-accent-soft / --at-border become the dark-arm derivations tokens.css
+ * gives them, since neither token is declared on a deck page. */
+.reveal .slides section .verification-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15em 0.6em;
+  border-radius: var(--at-border-radius);
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.reveal .slides section .verification-badge--primary {
+  border: 1px solid var(--at-accent);
+  background: rgb(from var(--at-primary) r g b / 14%);
+  color: var(--at-accent);
+}
+
+.reveal .slides section :is(.verification-badge--secondary, .verification-badge--apocryphal) {
+  border: 1px solid rgb(from var(--at-primary) r g b / 40%);
+  background: transparent;
+  color: var(--at-text-secondary);
+}
+
+.reveal .slides section .verification-badge--apocryphal {
+  border-style: dashed;
+}
+
+/* Phones.
+ *
+ * reveal.js is configured (astromotion's catch-all route) with width 1280,
+ * height 720, margin 0, maxScale 4 and reveal's default minScale of 0.2, so
+ * on a 390px-wide phone the scale is min(390/1280, 844/720) = 0.3047 and the
+ * canvas paints at 390x219. Every length above is multiplied by 0.3047 before
+ * anybody reads it: body text at 1.75rem (28px) arrives at 8.5px, which is
+ * the measurement that started this.
+ *
+ * So the sizes go up, not the layout. Stage px = wanted px / 0.3047, i.e.
+ * x 3.282:
+ *   body      16px wanted -> 52.5px -> 3.30rem (52.8px) -> 16.1px
+ *   statement 22px wanted -> 72.2px -> 4.55rem (72.8px) -> 22.2px
+ *   printed             -> 5.50rem (88px)   -> 26.8px
+ *   impact h1           -> 6.00rem (96px)   -> 29.3px
+ *   list h2             -> 3.85rem (61.6px) -> 18.8px
+ * Side padding drops to 4% (51.2px), giving a 1177.6px measure, which is what
+ * keeps the longest statement at five lines rather than seven.
+ *
+ * 30rem is 480px against the initial 16px root, so this fires on a phone and
+ * not on a tablet. */
+@media (max-width: 30rem) {
+  .reveal .slides section:is(.impact, .statement, .specimen, .list, .figure, .quote, .bench) {
+    padding: 3rem 4%;
+  }
+
+  .reveal .slides section.impact h1 {
+    font-size: 6rem;
+  }
+
+  .reveal .slides section.impact :is(p, li) {
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.statement h2,
+  .reveal .slides section.list h2 {
+    max-width: none;
+    font-size: 3.85rem;
+  }
+
+  .reveal .slides section.statement p {
+    max-width: none;
+    font-size: 4.55rem;
+  }
+
+  .reveal .slides section.statement:is(:has(h2), :has(p + p)) p {
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.specimen .printed {
+    font-size: 5.5rem;
+  }
+
+  .reveal .slides section.specimen p {
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.specimen .specimen-line {
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.list p,
+  .reveal .slides section.list :is(ul, ol) {
+    max-width: none;
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.list li + li {
+    margin-block-start: 0.4em;
+  }
+
+  .reveal .slides section.figure h2,
+  .reveal .slides section.figure p {
+    font-size: 3.3rem;
+  }
+
+  .reveal .slides section.quote blockquote {
+    max-width: none;
+  }
+
+  .reveal .slides section.quote blockquote p {
+    font-size: 4.55rem;
+  }
+
+  .reveal .slides section.bench h2 {
+    font-size: 4.55rem;
+  }
+
+  .reveal .slides section.bench :is(.bench-date, .bench-fields, .bench-note) {
+    font-size: 3.3rem;
+  }
+}
