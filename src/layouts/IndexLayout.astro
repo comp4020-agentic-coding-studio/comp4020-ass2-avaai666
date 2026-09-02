@@ -1,0 +1,11 @@
+---
+import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import { siteConfig } from "../site-config";
+import "../styles/layout.css";
+
+const { frontmatter } = Astro.props;
+---
+
+<ContentLayout title={frontmatter.title} description={frontmatter.description} {...siteConfig}>
+  <slot />
+</ContentLayout>
