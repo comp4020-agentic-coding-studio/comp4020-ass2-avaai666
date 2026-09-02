@@ -29,6 +29,17 @@ const readBody = (id: string): string => {
   return node.body;
 };
 
+const readPage = (id: string): string => {
+  const slug = id.split("/")[1];
+  return readFileSync(resolve(`dist/specimens/${slug}/index.html`), "utf8");
+};
+
+const sourceRow = (id: string): string => {
+  const match = readPage(id).match(/<dt>Source<\/dt>\s*<dd>([\s\S]*?)<\/dd>/);
+  if (!match) throw new Error(`${id} has no Source row`);
+  return match[1];
+};
+
 describe("specimen evidence", () => {
   it("has at least one specimen", () => {
     expect(specimens.length).toBeGreaterThan(0);
@@ -63,6 +74,22 @@ describe("specimen evidence", () => {
       expect(body, `${node.id} is marked apocryphal but never says so in its body`).toContain(
         "apocryphal",
       );
+    }
+  });
+
+  it("links the Source row to sourceUrl where one is recorded, and links nowhere else", () => {
+    for (const node of specimens) {
+      const row = sourceRow(node.id);
+      const sourceUrl = node.meta?.sourceUrl;
+      if (typeof sourceUrl === "string" && sourceUrl.length > 0) {
+        expect(row, `${node.id} has a sourceUrl but its Source row links nowhere`).toContain(
+          `<a href="${sourceUrl}"`,
+        );
+      } else {
+        expect(row, `${node.id} has no sourceUrl but its Source row carries a link`).not.toContain(
+          "<a",
+        );
+      }
     }
   });
 });
