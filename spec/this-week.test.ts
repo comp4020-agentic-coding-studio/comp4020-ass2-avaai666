@@ -150,21 +150,34 @@ function deckLinkAnchors(html: string): string[] {
 }
 
 describe("this-week block: the deck link", () => {
-  it('appears exactly once on the week-05 lecture page, class="deck-link", linking to /decks/week-05/', () => {
-    // Turns red by: leaving the old "Open the slides" paragraph in place
-    // alongside the new Slides row, producing a second link on the page.
-    const anchors = deckLinkAnchors(pageHtml("lectures", "lectures/week-05"));
-    expect(anchors.length).toBe(1);
-    expect(anchors[0]).toMatch(/href="[^"]*\/decks\/week-05\/"/);
-  });
-
-  it("does not appear, and no /decks/ link of any kind appears, on any other lecture page", () => {
-    // Turns red by: rendering the Slides row unconditionally instead of only
-    // when that week's lecture declares `slides`.
+  it("appears exactly once, and only, on a lecture page whose lecture declares slides, and links to that lecture's own deck", () => {
+    // This replaces a narrower assertion that checked a count ("exactly one
+    // deck link on the site, and it is week-05's") which was true only
+    // because week-05 happened to be the sole lecture with slides so far.
+    // That test would have stayed green even if the deck link pointed at
+    // the wrong week, as long as no other lecture had slides. The intent
+    // was always "a lecture with slides links to its own deck, and a
+    // lecture without slides links to none" — this asserts that directly,
+    // generalised from the API, and is strictly stronger: it also checks
+    // that each link targets its own week's deck, not just that a link
+    // exists somewhere.
+    // Turns red by: rendering the Slides row unconditionally instead of
+    // only when that week's lecture declares `slides`; by rendering it
+    // more than once; or by pointing it at any deck other than the one
+    // this lecture's own `slides` field names.
     for (const node of lectureNodes) {
-      if (node.id === "lectures/week-05") continue;
       const html = pageHtml("lectures", node.id);
-      expect(html, `${node.id} links to a deck it does not have`).not.toMatch(/href="[^"]*\/decks\//);
+      const anchors = deckLinkAnchors(html);
+      const slides = node.meta?.slides;
+
+      if (typeof slides === "string") {
+        expect(anchors.length, `${node.id} should link its own deck exactly once`).toBe(1);
+        expect(anchors[0], `${node.id}'s deck link does not point at ${slides}`).toMatch(
+          new RegExp(`href="[^"]*${slides.replace(/\//g, "\\/")}"`),
+        );
+      } else {
+        expect(anchors.length, `${node.id} has no slides but links to a deck`).toBe(0);
+      }
     }
   });
 });
