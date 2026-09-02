@@ -47,6 +47,10 @@ table.semester .semester-date {
   letter-spacing: 0.06em;
 }
 
+table.semester .semester-date-short {
+  display: none;
+}
+
 table.semester small {
   display: block;
   color: var(--at-text-secondary);
@@ -98,6 +102,18 @@ tr.semester-break td {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     content: attr(data-label);
+  }
+
+  table.semester td.is-empty {
+    display: none;
+  }
+
+  table.semester .semester-date-long {
+    display: none;
+  }
+
+  table.semester .semester-date-short {
+    display: block;
   }
 
   tr.semester-break td {

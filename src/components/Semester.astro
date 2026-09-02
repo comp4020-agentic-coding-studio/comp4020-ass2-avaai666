@@ -1,7 +1,7 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
-import { formatCourseDate } from "../lib/dates";
+import { formatCourseDate, formatCourseDateShort } from "../lib/dates";
 import "../styles/semester.css";
 
 const sessions = await getPublishedCollection("sessions");
@@ -31,6 +31,10 @@ function breaksBefore(week: number): boolean {
   if (!previous || !current) return false;
   const gapDays = (current.data.date.getTime() - previous.data.date.getTime()) / 86_400_000;
   return gapDays > 7;
+}
+
+function isoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
 }
 ---
 
@@ -63,7 +67,10 @@ function breaksBefore(week: number): boolean {
               <td data-label="Lecture">
                 {lecture ? (
                   <>
-                    <span class="semester-date">{formatCourseDate(lecture.data.date)}</span>
+                    <time class="semester-date" datetime={isoDate(lecture.data.date)}>
+                      <span class="semester-date-long">{formatCourseDate(lecture.data.date)}</span>
+                      <span class="semester-date-short">{formatCourseDateShort(lecture.data.date)}</span>
+                    </time>
                     <a href={withBase(`/lectures/${lecture.id}/`)}>{lecture.data.title}</a>
                   </>
                 ) : (
@@ -73,17 +80,23 @@ function breaksBefore(week: number): boolean {
               <td data-label="Bench">
                 {session && (
                   <>
-                    <span class="semester-date">{formatCourseDate(session.data.date)}</span>
+                    <time class="semester-date" datetime={isoDate(session.data.date)}>
+                      <span class="semester-date-long">{formatCourseDate(session.data.date)}</span>
+                      <span class="semester-date-short">{formatCourseDateShort(session.data.date)}</span>
+                    </time>
                     <a href={withBase(`/sessions/${session.id}/`)}>{session.data.title}</a>
                     <small>{session.data.operation}</small>
                   </>
                 )}
               </td>
-              <td data-label="Due">
+              <td data-label="Due" class={dueThisWeek.length === 0 ? "is-empty" : undefined}>
                 {dueThisWeek.map((assessment) => (
                   <p class="semester-due">
                     <a href={withBase(`/assessments/${assessment.id}/`)}>{assessment.data.title}</a>
-                    <span class="semester-date">{formatCourseDate(assessment.data.due)}</span>
+                    <time class="semester-date" datetime={isoDate(assessment.data.due)}>
+                      <span class="semester-date-long">{formatCourseDate(assessment.data.due)}</span>
+                      <span class="semester-date-short">{formatCourseDateShort(assessment.data.due)}</span>
+                    </time>
                   </p>
                 ))}
               </td>
