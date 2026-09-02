@@ -29,7 +29,17 @@ const verificationNote = verificationNotes[specimen.data.verification];
     <dt>Languages</dt>
     <dd>{specimen.data.languages}</dd>
     <dt>Source</dt>
-    <dd>{specimen.data.source}</dd>
+    <dd>
+      {
+        specimen.data.sourceUrl ? (
+          <a href={specimen.data.sourceUrl} rel="external">
+            {specimen.data.source}
+          </a>
+        ) : (
+          specimen.data.source
+        )
+      }
+    </dd>
     <dt>Source date</dt>
     <dd>{specimen.data.sourceDate}</dd>
     <dt>Verification</dt>
