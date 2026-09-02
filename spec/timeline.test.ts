@@ -86,6 +86,28 @@ describe("corpus timeline", () => {
     expect(labelText).toBe("2016");
   });
 
+  // 1960 and 2010 are axis ticks; 2016 is the marked line's own note. Six
+  // years apart on a 1960-2016 axis, their labels collide on any shared
+  // baseline at every width measured. The fix is structural, not spacing:
+  // the marked-line label sits on the opposite side of the axis from the
+  // tick labels, so the two kinds of label can never land on the same y.
+  it("keeps the marked-line label off the axis tick labels' baseline", () => {
+    const horizontalMatch = figureHtml.match(
+      /<svg[^>]*corpus-timeline-svg--horizontal[^>]*>[\s\S]*?<\/svg>/,
+    );
+    expect(horizontalMatch, "no horizontal timeline SVG found in the figure").not.toBeNull();
+    const horizontalSvg = horizontalMatch?.[0] ?? "";
+    const markedY = horizontalSvg.match(/<text[^>]*class="timeline-marked-label"[^>]*\by="([^"]*)"/)?.[1];
+    const tickYs = [
+      ...horizontalSvg.matchAll(/<text[^>]*class="timeline-axis-label"[^>]*\by="([^"]*)"/g),
+    ].map((m) => m[1]);
+    expect(markedY, "no y attribute found on the marked-line label").toBeDefined();
+    expect(tickYs.length, "no axis tick labels found").toBeGreaterThan(0);
+    for (const tickY of tickYs) {
+      expect(markedY, `marked-line label shares y="${tickY}" with an axis tick label`).not.toBe(tickY);
+    }
+  });
+
   it("puts the week five lecture title in the caption, not the drawing", () => {
     const captionMatch = figureHtml.match(/<figcaption>[\s\S]*?<\/figcaption>/);
     expect(captionMatch, "no <figcaption> found in the timeline figure").not.toBeNull();
