@@ -1,7 +1,7 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
-import Card from "astro-theme-university/components/Card.astro";
-import CardGrid from "astro-theme-university/components/CardGrid.astro";
+import { withBase } from "astro-theme-university/url";
+import "../styles/specimen.css";
 
 const people = await getPublishedCollection("people");
 
@@ -21,13 +21,6 @@ const roleLabels: Record<string, string> = {
   other: "",
 };
 
-// photoAlt rides the schema's passthrough (definePeopleCollection has no
-// extension point), so it needs a cast out of the generated types.
-function photoAlt(data: unknown): string | undefined {
-  const alt = (data as { photoAlt?: unknown }).photoAlt;
-  return typeof alt === "string" ? alt : undefined;
-}
-
 const visible = people.sort((a, b) => {
   const ra = roleOrder[a.data.role ?? "other"] ?? 99;
   const rb = roleOrder[b.data.role ?? "other"] ?? 99;
@@ -36,23 +29,18 @@ const visible = people.sort((a, b) => {
 });
 ---
 
-<CardGrid columns={2}>
+<ul class="specimen-register">
   {
     visible.map((person) => (
-      <Card
-        headingLevel="h2"
-        title={person.data.title}
-        href={`/people/${person.id}/`}
-        image={person.data.photo ?? undefined}
-        imageAlt={photoAlt(person.data)}
-      >
+      <li class="specimen-record">
+        <p class="specimen-record-heading">
+          <a href={withBase(`/people/${person.id}/`)}>{person.data.title}</a>
+        </p>
         {person.data.role && roleLabels[person.data.role] && (
-          <p>
-            <small>{roleLabels[person.data.role]}</small>
-          </p>
+          <p class="specimen-provenance-caption">{roleLabels[person.data.role]}</p>
         )}
         <p>{person.data.description}</p>
-      </Card>
+      </li>
     ))
   }
-</CardGrid>
+</ul>
