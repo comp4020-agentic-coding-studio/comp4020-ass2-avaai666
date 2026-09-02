@@ -5,6 +5,7 @@ import RelatedContent from "astro-course-university/components/RelatedContent.as
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import TeachingTeam from "../../components/TeachingTeam.astro";
+import WeekStrip from "../../components/WeekStrip.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, siteConfig } from "../../site-config";
 import "../../styles/layout.css";
@@ -20,6 +21,7 @@ const title = `Week ${lecture.data.week}: ${lecture.data.title}`;
 ---
 
 <ContentLayout title={title} description={lecture.data.description} {...siteConfig}>
+  <WeekStrip current={lecture.data.week} kind="lectures" />
   <p><strong>{formatCourseDate(lecture.data.date)}</strong></p>
   {lecture.data.slides && <p><a href={withBase(lecture.data.slides)}>Open the slides</a></p>}
   <Content />
