@@ -1,5 +1,5 @@
 ---
-title: Fuck the duck until exploded
+title: The merged character
 description:
   A menu item in which a character merger, a frequency-ranked lookup and no
   context at all combine into the most reproduced sign in this field
