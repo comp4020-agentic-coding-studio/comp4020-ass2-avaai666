@@ -43,3 +43,32 @@
 .lecture-record-link {
   margin: var(--at-spacing-xs) 0 0;
 }
+
+/* A deck is a marked requirement, not one more link in a sentence, so this
+   is the one element on a lecture page allowed to be louder than the body:
+   a full-width bar in the accent colour rather than inline underlined text.
+   The trailing arrow reads as "go", not "read more". Minimum 44px keeps it
+   a comfortable touch target on the bench page as well as the lecture's own. */
+.deck-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--at-spacing-xs);
+  min-height: 44px;
+  margin-block: var(--at-spacing-sm) 0;
+  padding-inline: var(--at-spacing-md);
+  border-radius: var(--at-border-radius);
+  background: var(--at-accent);
+  color: var(--at-on-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.deck-link::after {
+  content: "→";
+}
+
+.deck-link:focus-visible {
+  outline: 2px solid var(--at-accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,118 @@
+---
+import { getEntry } from "astro:content";
+import { getPublishedCollection } from "astro-course-university/content";
+import { withBase } from "astro-theme-university/url";
+import { formatCourseDate } from "../lib/dates";
+import "../styles/specimen.css";
+import "../styles/lecture.css";
+
+interface Props {
+  week: number;
+  self: "sessions" | "lectures";
+}
+
+const { week, self } = Astro.props;
+
+const sessions = await getPublishedCollection("sessions");
+const lectures = await getPublishedCollection("lectures");
+const assessments = await getPublishedCollection("assessments");
+
+const session = sessions.find((entry) => entry.data.week === week);
+const lecture = lectures.find((entry) => entry.data.week === week);
+const dueThisWeek = assessments
+  .filter((entry) => entry.data.week === week)
+  .sort((a, b) => a.data.due.getTime() - b.data.due.getTime());
+
+// related refs are already "<collection>/<slug>" (see resolveEdgeTarget in
+// astro-course-university) so a specimen ref can be sliced directly.
+function specimenSlugs(entry: { data: { related: string[] } } | undefined): string[] {
+  if (!entry) return [];
+  return entry.data.related
+    .filter((ref) => ref.startsWith("specimens/"))
+    .map((ref) => ref.slice("specimens/".length));
+}
+
+const orderedSlugs = [...new Set([...specimenSlugs(lecture), ...specimenSlugs(session)])];
+const specimens = (
+  await Promise.all(orderedSlugs.map((slug) => getEntry("specimens", slug)))
+).filter((specimen): specimen is NonNullable<typeof specimen> => Boolean(specimen));
+---
+
+<p class="specimen-provenance-caption">This week</p>
+<dl class="this-week specimen-provenance">
+  {
+    self !== "lectures" && (
+      <>
+        <dt>Lecture</dt>
+        <dd>
+          {lecture ? (
+            <>
+              {formatCourseDate(lecture.data.date)}{" "}
+              <a href={withBase(`/lectures/${lecture.id}/`)}>{lecture.data.title}</a>
+            </>
+          ) : (
+            "No lecture"
+          )}
+        </dd>
+      </>
+    )
+  }
+  {
+    self !== "sessions" && session && (
+      <>
+        <dt>Bench</dt>
+        <dd>
+          {formatCourseDate(session.data.date)}{" "}
+          <a href={withBase(`/sessions/${session.id}/`)}>{session.data.title}</a>{" "}
+          <small>{session.data.operation}</small>
+        </dd>
+      </>
+    )
+  }
+  {
+    lecture?.data.slides && (
+      <>
+        <dt>Slides</dt>
+        <dd>
+          <a class="deck-link" href={withBase(lecture.data.slides)}>
+            Open the deck
+          </a>
+        </dd>
+      </>
+    )
+  }
+  {
+    specimens.length > 0 && (
+      <>
+        <dt>Specimens</dt>
+        <dd>
+          {specimens.map((specimen, index) => (
+            <>
+              {index > 0 && <br />}
+              <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>{" "}
+              <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+                {specimen.data.verification}
+              </span>
+            </>
+          ))}
+        </dd>
+      </>
+    )
+  }
+  {
+    dueThisWeek.length > 0 && (
+      <>
+        <dt>Due</dt>
+        <dd>
+          {dueThisWeek.map((assessment, index) => (
+            <>
+              {index > 0 && <br />}
+              <a href={withBase(`/assessments/${assessment.id}/`)}>{assessment.data.title}</a>{" "}
+              {formatCourseDate(assessment.data.due)}
+            </>
+          ))}
+        </dd>
+      </>
+    )
+  }
+</dl>
