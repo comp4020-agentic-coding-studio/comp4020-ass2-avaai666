@@ -1,6 +1,7 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
+import { printedLang } from "../lib/specimens";
 import { VERIFICATION_LEVELS } from "../lib/verification";
 import "../styles/specimen.css";
 
@@ -49,6 +50,9 @@ function usedIn(specimenId: string) {
           const weeks = usedIn(specimen.id);
           return (
             <li class="specimen-record">
+              <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
+                {specimen.data.printed}
+              </p>
               <p class="specimen-record-heading">
                 <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
                 <span class={`verification-badge verification-badge--${specimen.data.verification}`}>

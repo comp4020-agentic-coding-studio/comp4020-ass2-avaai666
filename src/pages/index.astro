@@ -7,6 +7,7 @@ import CorpusTimeline from "../components/CorpusTimeline.astro";
 import Semester from "../components/Semester.astro";
 import { courseMeta } from "../course-config";
 import { heroImageAlt } from "../lib/artwork";
+import { printedLang } from "../lib/specimens";
 import { siteConfig } from "../site-config";
 import "../styles/layout.css";
 import "../styles/specimen.css";
@@ -52,6 +53,9 @@ const exhibit = await getEntry("assessments", "the-exhibit");
   <ul class="specimen-register">
     {featuredSpecimens.map((specimen) => (
       <li class="specimen-record">
+        <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
+          {specimen.data.printed}
+        </p>
         <p class="specimen-record-heading">
           <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
           <span class={`verification-badge verification-badge--${specimen.data.verification}`}>

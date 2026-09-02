@@ -219,6 +219,25 @@ blockquote[data-specimen] p + p {
   border-block-start: 1px solid var(--at-divider);
 }
 
+/* The printed line is the artefact; the title and badge below it are the
+   record's index card, not the object itself. It gets the same left rule
+   as blockquote[data-specimen] for the same reason that rule exists there
+   — this is physical evidence, not a pull-quote — but none of that rule's
+   background or block padding, which would make it read as a second boxed
+   quote rather than the register's largest line of text. No separate
+   heading font exists in the theme to switch to, so size and weight do the
+   work size alone would do in a theme that had one. */
+.specimen-printed {
+  margin: 0 0 var(--at-spacing-sm);
+  padding-inline-start: var(--at-spacing-md);
+  border-inline-start: 0.35rem solid var(--at-accent);
+  color: var(--at-heading);
+  font-size: calc(var(--at-font-size-base) * 1.5);
+  font-weight: 600;
+  font-style: normal;
+  line-height: var(--at-line-height-heading);
+}
+
 .specimen-record-heading {
   display: flex;
   align-items: baseline;
