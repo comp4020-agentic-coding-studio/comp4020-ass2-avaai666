@@ -60,6 +60,13 @@ const MARK_DIAMETER = 8; // 2 * the mark radius (r=4) used below
 // viewBox) with room to spare.
 const MARKED_LABEL_Y_H = 12;
 
+// The rule used to start at the same fixed depth regardless of the label,
+// leaving a gap under the label as wide as the whole mark stack. Its top
+// now sits a few units under the label's own visual bottom instead, so
+// the two read as one annotation; its bottom is unchanged.
+const MARKED_TICK_TOP_H = 18;
+const MARKED_TICK_BOTTOM_H = 58;
+
 // Two marks within one mark-diameter of each other along the axis would
 // draw indistinguishably close together. Walking in axis order and
 // comparing each mark only to the one immediately before it (not to every
@@ -131,7 +138,13 @@ const descriptionText =
     <desc id="corpus-timeline-desc-h">{descriptionText}</desc>
 
     <rect class="timeline-axis" x={AXIS_START_H} y="53" width={AXIS_END_H - AXIS_START_H} height="2" />
-    <rect class="timeline-marked-tick" x={markedAtH - 1} y="38" width="2" height="20" />
+    <rect
+      class="timeline-marked-tick"
+      x={markedAtH - 1}
+      y={MARKED_TICK_TOP_H}
+      width="2"
+      height={MARKED_TICK_BOTTOM_H - MARKED_TICK_TOP_H}
+    />
     <text class="timeline-marked-label" x={markedAtH} y={MARKED_LABEL_Y_H} text-anchor="end">{MARKED_YEAR}</text>
     <text class="timeline-axis-label" x={axisMinAtH} y="70" text-anchor="start">{axisMinYear}</text>
     <text class="timeline-axis-label" x={latestAtH} y="70" text-anchor="end">{latestSpecimenYear}</text>
