@@ -1,0 +1,50 @@
+---
+import { getPublishedCollection } from "astro-course-university/content";
+import { withBase } from "astro-theme-university/url";
+import "../styles/week-strip.css";
+
+interface Props {
+  current: number;
+  kind: "sessions" | "lectures";
+}
+
+const { current, kind } = Astro.props;
+
+const entries = await getPublishedCollection(kind);
+const byWeek = new Map(entries.map((entry) => [entry.data.week, entry]));
+const weeksWithEntry = [...byWeek.keys()].sort((a, b) => a - b);
+const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
+
+const currentIndex = weeksWithEntry.indexOf(current);
+const previousWeek = currentIndex > 0 ? weeksWithEntry[currentIndex - 1] : undefined;
+const nextWeek =
+  currentIndex >= 0 && currentIndex < weeksWithEntry.length - 1
+    ? weeksWithEntry[currentIndex + 1]
+    : undefined;
+
+function hrefFor(week: number): string {
+  return withBase(`/${kind}/${byWeek.get(week)!.id}/`);
+}
+---
+
+<nav class="week-strip" aria-label="Weeks">
+  <ol>
+    {
+      weeks.map((week) => (
+        <li>
+          {byWeek.has(week) ? (
+            <a href={hrefFor(week)} aria-current={week === current ? "page" : undefined}>
+              {week}
+            </a>
+          ) : (
+            <span aria-disabled="true">{week}</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+  <p class="week-strip-adjacent">
+    {previousWeek !== undefined && <a href={hrefFor(previousWeek)}>← Week {previousWeek}</a>}
+    {nextWeek !== undefined && <a href={hrefFor(nextWeek)}>Week {nextWeek} →</a>}
+  </p>
+</nav>
