@@ -1,0 +1,243 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+
+/** A deck is a projection surface, not a page: it is read at four metres and
+ *  it cannot scroll. Everything here is a legibility floor the build cannot
+ *  see — the stylesheet in src/decks/theme.css can only size a slide it can
+ *  identify, and it can only identify one that carries a class. */
+
+interface ApiNode {
+  id: string;
+  type: string;
+  title: string;
+  meta?: Record<string, unknown>;
+}
+
+interface CourseApi {
+  nodes: ApiNode[];
+}
+
+/** The seven slide kinds src/decks/theme.css lays out. A slide outside this
+ *  set falls back to deck.css's `align-content: start` at 28px, which is the
+ *  top-left-corner failure this file exists to stop. */
+const SLIDE_CLASSES = [
+  "impact",
+  "statement",
+  "specimen",
+  "list",
+  "figure",
+  "quote",
+  "bench",
+] as const;
+
+const MAX_WORDS_PER_SLIDE = 45;
+const MAX_LIST_ITEMS = 4;
+
+const api = JSON.parse(readFileSync(resolve("dist/api/index.json"), "utf8")) as CourseApi;
+const lecturesWithDecks = api.nodes.filter(
+  (node) => node.type === "lectures" && typeof node.meta?.slides === "string",
+);
+const sessions = api.nodes.filter((node) => node.type === "sessions");
+const specimens = api.nodes.filter((node) => node.type === "specimens");
+
+/** Two strings are the same printed line when they differ only in the spaces
+ *  between their words. A deck sets `出口 &nbsp; EXPORT` because the sign has a
+ *  gap on it; the specimen record writes one ordinary space. Same artefact. */
+function normalise(text: string): string {
+  return text.replace(/ /g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** The words a person in the room can actually read. Speaker notes compile to
+ *  a display:none aside, the theme's heading anchor is a hidden "#", and an
+ *  SVG <title> is alt text for a screen reader — none of them are on the wall.
+ *  SVG <text> is, so it stays and it counts. */
+function visibleText(html: string): string {
+  const stripped = html
+    .replace(/<aside\b[^>]*\bnotes\b[^>]*>[\s\S]*?<\/aside>/gi, " ")
+    .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, " ")
+    .replace(/<a\b[^>]*\bat-heading-anchor\b[^>]*>[\s\S]*?<\/a>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
+  return normalise(stripped);
+}
+
+function wordCount(text: string): number {
+  return text === "" ? 0 : text.split(" ").length;
+}
+
+interface Slide {
+  index: number;
+  attrs: string;
+  inner: string;
+  classes: string[];
+}
+
+interface Deck {
+  name: string;
+  lecture: ApiNode;
+  html: string;
+  title: string;
+  slides: Slide[];
+}
+
+const decks: Deck[] = lecturesWithDecks.map((lecture) => {
+  const name = String(lecture.meta?.slides).match(/^\/decks\/([a-z0-9-]+)\/$/)![1]!;
+  const html = readFileSync(resolve("dist/decks", name, "index.html"), "utf8");
+  const slides = [...html.matchAll(/<section\b([^>]*)>([\s\S]*?)<\/section>/g)].map(
+    (match, index) => {
+      const cls = match[1]!.match(/\bclass="([^"]*)"/)?.[1] ?? "";
+      return {
+        index: index + 1,
+        attrs: match[1]!,
+        inner: match[2]!,
+        classes: cls.split(/\s+/).filter(Boolean),
+      };
+    },
+  );
+  return {
+    name,
+    lecture,
+    html,
+    title: html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "",
+    slides,
+  };
+});
+
+describe("deck legibility", () => {
+  // Guards every loop below: with no decks in dist/ each `for` runs zero
+  // times and this file would pass while saying nothing.
+  it("finds a built deck for every lecture that declares slides", () => {
+    expect(lecturesWithDecks.length, "no lecture declares a slides path").toBeGreaterThan(0);
+    expect(decks.length).toBe(lecturesWithDecks.length);
+  });
+
+  // Turns red by: deleting slides from a deck until it holds seven.
+  it("gives every deck at least eight slides", () => {
+    for (const deck of decks) {
+      expect(
+        deck.slides.length,
+        `${deck.name} has ${deck.slides.length} sections, expected at least 8`,
+      ).toBeGreaterThanOrEqual(8);
+    }
+  });
+
+  // Turns red by: removing one slide's `{/* _class: … */}` directive, or
+  // giving a slide two of the seven at once (`_class: impact statement`).
+  it("marks every slide with exactly one of the seven slide classes", () => {
+    for (const deck of decks) {
+      for (const slide of deck.slides) {
+        const kinds = slide.classes.filter((cls) =>
+          (SLIDE_CLASSES as readonly string[]).includes(cls),
+        );
+        expect(
+          kinds,
+          `${deck.name} slide ${slide.index} carries ${JSON.stringify(slide.classes)}, expected exactly one of ${SLIDE_CLASSES.join(", ")}`,
+        ).toHaveLength(1);
+      }
+    }
+  });
+
+  // Turns red by: pasting a paragraph onto a slide until it passes 45 words.
+  it("keeps every slide under 45 words of visible text", () => {
+    for (const deck of decks) {
+      for (const slide of deck.slides) {
+        const words = wordCount(visibleText(slide.inner));
+        expect(
+          words,
+          `${deck.name} slide ${slide.index} shows ${words} words, over the ${MAX_WORDS_PER_SLIDE}-word ceiling`,
+        ).toBeLessThanOrEqual(MAX_WORDS_PER_SLIDE);
+      }
+    }
+  });
+
+  // Turns red by: adding a fifth bullet to any list slide.
+  it("keeps every list to four items or fewer", () => {
+    for (const deck of decks) {
+      for (const slide of deck.slides) {
+        for (const list of slide.inner.matchAll(/<(ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/g)) {
+          const items = (list[2]!.match(/<li\b/g) ?? []).length;
+          expect(
+            items,
+            `${deck.name} slide ${slide.index} has a <${list[1]}> of ${items} items, over ${MAX_LIST_ITEMS}`,
+          ).toBeLessThanOrEqual(MAX_LIST_ITEMS);
+        }
+      }
+    }
+  });
+
+  // Turns red by: renaming a lecture in src/content/lectures/ without
+  // renaming its deck's frontmatter `title:` to match.
+  it("titles every deck page for the lecture it belongs to", () => {
+    for (const deck of decks) {
+      expect(
+        deck.title,
+        `${deck.name}'s <title> "${deck.title}" does not contain ${deck.lecture.id}'s title`,
+      ).toContain(String(deck.lecture.title));
+    }
+  });
+
+  // A deck that does not end at the bench ends nowhere: the lecture exists to
+  // send the room to Wednesday. Turns red by: dropping `_class: bench` from a
+  // deck's last slide, or leaving the bench title on it stale after a rename
+  // in src/content/sessions/.
+  it("ends every deck on the bench slide, naming that week's bench", () => {
+    for (const deck of decks) {
+      const week = Number(deck.lecture.meta?.week);
+      const session = sessions.find((node) => Number(node.meta?.week) === week);
+      expect(session, `no bench in week ${week} for ${deck.lecture.id}`).toBeDefined();
+      const last = deck.slides.at(-1)!;
+      expect(
+        last.classes,
+        `${deck.name}'s last slide is ${JSON.stringify(last.classes)}, not bench`,
+      ).toContain("bench");
+      expect(
+        visibleText(last.inner),
+        `${deck.name}'s bench slide does not name week ${week}'s bench, "${session!.title}"`,
+      ).toContain(normalise(String(session!.title)));
+    }
+  });
+
+  // Without this, the assertion below is vacuous: no .specimen slides means
+  // nothing to check and a green run that proves nothing.
+  it("puts at least one specimen slide in the decks", () => {
+    const count = decks.reduce(
+      (total, deck) => total + deck.slides.filter((s) => s.classes.includes("specimen")).length,
+      0,
+    );
+    expect(count, "no deck slide carries the specimen class").toBeGreaterThan(0);
+  });
+
+  // A specimen slide quotes an artefact, so the line on the wall has to be the
+  // line in the record — not a retyping of it. Turns red by: changing a word
+  // inside a `.printed` element, or its specimen's `printed:` frontmatter,
+  // without changing the other.
+  it("prints, on every specimen slide, a line that equals a specimen's printed field", () => {
+    const printed = new Set(
+      specimens.map((node) => normalise(String(node.meta?.printed ?? ""))).filter(Boolean),
+    );
+    expect(printed.size, "the API carries no specimen printed lines").toBeGreaterThan(0);
+
+    for (const deck of decks) {
+      for (const slide of deck.slides.filter((s) => s.classes.includes("specimen"))) {
+        const lines = [
+          ...slide.inner.matchAll(/<(\w+)\b[^>]*\bclass="[^"]*\bprinted\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/g),
+        ].map((match) => visibleText(match[2]!));
+        expect(
+          lines.length,
+          `${deck.name} slide ${slide.index} is a specimen slide with no .printed element`,
+        ).toBeGreaterThan(0);
+        for (const line of lines) {
+          expect(
+            printed.has(line),
+            `${deck.name} slide ${slide.index} prints "${line}", which is not any specimen's printed line`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+});
