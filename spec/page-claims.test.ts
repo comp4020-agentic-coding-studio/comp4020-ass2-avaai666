@@ -92,13 +92,18 @@ describe("page claims", () => {
     }
   });
 
-  // Regression guard, not a fix: the sentence pointing at the Swansea
-  // specimen and the specimen record itself are now rendered from the same
-  // condition (index.astro), so this is expected to pass as soon as it is
-  // added. It exists to catch a future edit that separates them again.
-  it("shows the specimen record and a verification badge together on the home page", () => {
-    expect(homeHtml).toContain("specimen-record specimen-record--standalone");
-    expect(homeHtml).toMatch(/verification-badge verification-badge--(primary|secondary|apocryphal)/);
+  // Guard: every specimen record on the home page carries its verification
+  // badge, and there are at least three of them. Fails if a record ever
+  // renders without a badge, and fails if the block shrinks below three.
+  it("shows every home page specimen record with its verification badge", () => {
+    // Anchored to class="…" rather than the bare class name: Astro inlines
+    // this page's scoped CSS into the same document, so the bare name also
+    // appears once as a selector, which counted as a fourth heading.
+    const headings = homeHtml.match(/class="[^"]*specimen-record-heading[^"]*"/g) ?? [];
+    const badges = homeHtml.match(/class="[^"]*verification-badge--(?:primary|secondary|apocryphal)[^"]*"/g) ?? [];
+    expect(homeHtml).toContain("specimen-register");
+    expect(headings.length).toBeGreaterThanOrEqual(3);
+    expect(badges.length).toBe(headings.length);
   });
 
   // Guard against an orphan: a specimen with no session or lecture citing it,
