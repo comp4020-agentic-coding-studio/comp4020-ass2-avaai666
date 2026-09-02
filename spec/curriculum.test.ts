@@ -33,20 +33,29 @@ describe("curriculum", () => {
     }
   });
 
-  // The live assertion here is the first one: at least one lecture declares
-  // a `slides` path. Nothing else in the build enforces that — if every
-  // lecture dropped its slides line, the build would succeed and the spec's
-  // "at least one lecture carries a real deck" requirement would fail silently.
-  // The second assertion, that the declared deck exists under dist/decks/, is
-  // a backstop this test can rarely reach: astro-broken-links-checker runs on
+  // This assertion used to read "at least one lecture declares a `slides`
+  // path", which was true of a course that presented three of its ten
+  // lectures. It no longer describes the promise: every lecture is now
+  // delivered from a deck, so a lecture without one is a gap, not a choice,
+  // and "at least one" would go on passing while nine of them were missing.
+  //
+  // The second half — that the declared deck is really in the build — is a
+  // backstop this test can rarely reach: astro-broken-links-checker runs on
   // the astro:build:done hook and throws when a lecture links a deck that
   // isn't in the build, which exits `astro build` before `vitest run spec`
   // ever starts. Its silence here is not coverage — the build already caught
   // it, earlier and harder, by failing outright.
-  it("carries a real deck for at least one lecture's slides", () => {
-    expect(withSlides.length, "no lecture declares a slides path").toBeGreaterThan(0);
+  //
+  // Turns red by: deleting the `slides:` line from any one lecture in
+  // src/content/lectures/.
+  it("carries a real deck for every lecture", () => {
+    expect(lectures.length, "the API carries no lectures").toBeGreaterThan(0);
+    expect(
+      withSlides.map((lecture) => lecture.id).sort(),
+      "some lecture declares no slides path",
+    ).toEqual(lectures.map((lecture) => lecture.id).sort());
 
-    for (const lecture of withSlides) {
+    for (const lecture of lectures) {
       const slides = String(lecture.meta?.slides);
       const match = slides.match(/^\/decks\/([a-z0-9-]+)\/$/);
       expect(match, `${lecture.id} has a slides path that isn't /decks/<name>/`).not.toBeNull();

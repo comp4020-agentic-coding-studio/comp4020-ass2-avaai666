@@ -13,7 +13,7 @@ what the data says.
 
 | File | The promise it keeps |
 | --- | --- |
-| `curriculum.test.ts` | Twelve weeks, one bench each, none twice; every lecture has a bench in its week; at least one lecture carries a real deck. |
+| `curriculum.test.ts` | Twelve weeks, one bench each, none twice; every lecture has a bench in its week; every lecture carries a real deck. |
 | `bench-operations.test.ts` | Every bench declares a non-empty `material`, `operation` and `leaves`, and no two of the twelve operations match. The curriculum is twelve different things done, not one thing done twelve times. Prints the twelve operations in week order on every run. |
 | `week-distinctness.test.ts` | No two week pages open with the same sentence, and no pair of bodies exceeds 0.15 word-trigram similarity. Prints the closest pairs on every run so the number is visible before it fails. |
 | `assessment-weights.test.ts` | The four pieces of assessed work sum to exactly 100. |
