@@ -1,0 +1,96 @@
+---
+import { getPublishedCollection } from "astro-course-university/content";
+import { withBase } from "astro-theme-university/url";
+import { formatCourseDate } from "../lib/dates";
+import "../styles/semester.css";
+
+const sessions = await getPublishedCollection("sessions");
+const lectures = await getPublishedCollection("lectures");
+const assessments = await getPublishedCollection("assessments");
+
+const sessionByWeek = new Map(sessions.map((session) => [session.data.week, session]));
+const lectureByWeek = new Map(lectures.map((lecture) => [lecture.data.week, lecture]));
+
+const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
+
+const assessmentsByWeek = new Map(
+  weeks.map((week) => [
+    week,
+    assessments
+      .filter((assessment) => assessment.data.week === week)
+      .sort((a, b) => a.data.due.getTime() - b.data.due.getTime()),
+  ]),
+);
+
+// A break is a fact about the bench dates, not a week number typed by hand:
+// if the bench date of week N+1 is more than 7 days after week N's, a break
+// falls between them.
+function breaksBefore(week: number): boolean {
+  const previous = sessionByWeek.get(week - 1);
+  const current = sessionByWeek.get(week);
+  if (!previous || !current) return false;
+  const gapDays = (current.data.date.getTime() - previous.data.date.getTime()) / 86_400_000;
+  return gapDays > 7;
+}
+---
+
+<table class="semester">
+  <caption>Twelve teaching weeks: lecture, bench and assessment due dates.</caption>
+  <thead>
+    <tr>
+      <th scope="col">Week</th>
+      <th scope="col">Lecture</th>
+      <th scope="col">Bench</th>
+      <th scope="col">Due</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      weeks.map((week) => {
+        const lecture = lectureByWeek.get(week);
+        const session = sessionByWeek.get(week);
+        const dueThisWeek = assessmentsByWeek.get(week) ?? [];
+
+        return (
+          <>
+            {breaksBefore(week) && (
+              <tr class="semester-break">
+                <td colspan="4">Mid-semester break</td>
+              </tr>
+            )}
+            <tr>
+              <th scope="row">{week}</th>
+              <td data-label="Lecture">
+                {lecture ? (
+                  <>
+                    <span class="semester-date">{formatCourseDate(lecture.data.date)}</span>
+                    <a href={withBase(`/lectures/${lecture.id}/`)}>{lecture.data.title}</a>
+                  </>
+                ) : (
+                  "No lecture"
+                )}
+              </td>
+              <td data-label="Bench">
+                {session && (
+                  <>
+                    <span class="semester-date">{formatCourseDate(session.data.date)}</span>
+                    <a href={withBase(`/sessions/${session.id}/`)}>{session.data.title}</a>
+                    <small>{session.data.operation}</small>
+                  </>
+                )}
+              </td>
+              <td data-label="Due">
+                {dueThisWeek.map((assessment) => (
+                  <p class="semester-due">
+                    <a href={withBase(`/assessments/${assessment.id}/`)}>{assessment.data.title}</a>
+                    <span class="semester-date">{formatCourseDate(assessment.data.due)}</span>
+                  </p>
+                ))}
+              </td>
+            </tr>
+          </>
+        );
+      })
+    }
+  </tbody>
+</table>

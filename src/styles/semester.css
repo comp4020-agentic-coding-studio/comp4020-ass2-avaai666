@@ -1,0 +1,106 @@
+/* The same register-row language as the other indexes (sessions, lectures,
+   assessments): hairline rules between rows, small uppercase column labels,
+   no card. Home-page only, so this is imported once, from index.astro, not
+   added to the site-wide styling list spec/layout-styling.test.ts checks. */
+table.semester {
+  width: 100%;
+  margin-block: var(--at-spacing-lg);
+  border-collapse: collapse;
+}
+
+table.semester caption {
+  margin-block-end: var(--at-spacing-sm);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+  text-align: left;
+}
+
+table.semester thead th {
+  padding-block-end: var(--at-spacing-sm);
+  border-block-end: 1px solid var(--at-divider);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+table.semester tbody tr {
+  border-block-end: 1px solid var(--at-divider);
+}
+
+table.semester th[scope="row"],
+table.semester td {
+  padding-block: var(--at-spacing-sm);
+  padding-inline-end: var(--at-spacing-md);
+  vertical-align: top;
+  text-align: left;
+  font-weight: 400;
+}
+
+table.semester .semester-date {
+  display: block;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+table.semester small {
+  display: block;
+  color: var(--at-text-secondary);
+}
+
+table.semester .semester-due {
+  margin: 0;
+}
+
+table.semester .semester-due + .semester-due {
+  margin-block-start: var(--at-spacing-xs);
+}
+
+tr.semester-break td {
+  padding-block: var(--at-spacing-xs);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 30rem) {
+  table.semester,
+  table.semester thead,
+  table.semester tbody,
+  table.semester tr,
+  table.semester th,
+  table.semester td {
+    display: block;
+    width: 100%;
+  }
+
+  table.semester thead {
+    display: none;
+  }
+
+  table.semester th[scope="row"],
+  table.semester td {
+    padding-inline-end: 0;
+  }
+
+  table.semester td[data-label]::before {
+    display: block;
+    margin-block-end: var(--at-spacing-xs);
+    color: var(--at-text-secondary);
+    font-size: var(--at-font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    content: attr(data-label);
+  }
+
+  tr.semester-break td {
+    text-align: left;
+  }
+}
