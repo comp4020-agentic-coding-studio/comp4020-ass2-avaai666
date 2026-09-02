@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getRelatedEntries } from "astro-course-university/content";
+import { withBase } from "astro-theme-university/url";
+import { graphCollections } from "../site-config";
+
+interface Props {
+  assessment: CollectionEntry<"assessments">;
+}
+
+const { assessment } = Astro.props;
+
+const related = await getRelatedEntries(assessment, graphCollections);
+const benches = related
+  .filter((entry) => entry.collection === "sessions")
+  .map((entry) => entry as unknown as CollectionEntry<"sessions">)
+  .sort((a, b) => a.data.week - b.data.week);
+---
+
+{
+  benches.length > 0 && (
+    <p class="assessment-benches">
+      Built at
+      {benches.map((bench, i) => (
+        <Fragment>
+          {i === 0 ? " " : i === benches.length - 1 ? " and " : ", "}
+          <a href={withBase(`/sessions/${bench.id}/`)}>Week {bench.data.week}</a>
+        </Fragment>
+      ))}
+      .
+    </p>
+  )
+}
