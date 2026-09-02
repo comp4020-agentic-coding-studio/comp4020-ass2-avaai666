@@ -71,16 +71,45 @@ describe("corpus timeline", () => {
     expect(Number(match?.[1])).toBe(latestYear);
   });
 
-  it("labels the marked line with a lecture title present in the API", () => {
+  // SVG text does not wrap: a label built from the lecture title plus the
+  // year ran off the edge of the graphic at every measured width, because it
+  // was longer than the drawing itself. The marked line's own label is now
+  // the year alone; the lecture title moved to the figcaption, which is HTML
+  // and wraps. This replaces the old "labels the marked line with a lecture
+  // title present in the API" check, which asserted the design this fixes.
+  it("marks the 2016 line in the SVG with the year alone, not the lecture title", () => {
     const labelMatch = figureHtml.match(
       /<text[^>]*class="timeline-marked-label"[^>]*>([\s\S]*?)<\/text>/,
     );
     expect(labelMatch, "no element with class \"timeline-marked-label\" found in the timeline").not.toBeNull();
     const labelText = decodeEntities((labelMatch?.[1] ?? "").replace(/<[^>]+>/g, "")).trim();
+    expect(labelText).toBe("2016");
+  });
+
+  it("puts the week five lecture title in the caption, not the drawing", () => {
+    const captionMatch = figureHtml.match(/<figcaption>[\s\S]*?<\/figcaption>/);
+    expect(captionMatch, "no <figcaption> found in the timeline figure").not.toBeNull();
+    const captionText = decodeEntities((captionMatch?.[0] ?? "").replace(/<[^>]+>/g, " "));
     const lectureTitles = lectureNodes.map((node) => node.title);
     expect(
-      lectureTitles.some((title) => labelText.includes(title)),
-      `label "${labelText}" does not include any lecture title from the API`,
+      lectureTitles.some((title) => captionText.includes(title)),
+      "figcaption does not include any lecture title from the API",
     ).toBe(true);
+  });
+
+  // The drawing carries labels only; long prose belongs in the caption,
+  // which wraps. Four-character years fit; a lecture title or a "year ·
+  // title" label does not, which is exactly the bug the two checks above
+  // replace.
+  it("keeps every <text> label inside the timeline SVG to 12 characters or fewer", () => {
+    const labels = [...figureHtml.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((m) =>
+      decodeEntities(m[1].replace(/<[^>]+>/g, "")).trim(),
+    );
+    for (const label of labels) {
+      expect(
+        label.length,
+        `SVG text "${label}" is ${label.length} characters, over the 12-character drawing limit`,
+      ).toBeLessThanOrEqual(12);
+    }
   });
 });
