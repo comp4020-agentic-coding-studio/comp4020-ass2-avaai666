@@ -12,8 +12,24 @@ import { sessionLabels, siteConfig } from "../site-config";
 import "../styles/layout.css";
 import "../styles/specimen.css";
 
-const swansea = await getEntry("specimens", "swansea-out-of-office");
-const swanseaQuote = swansea?.body?.match(/<blockquote\s+data-specimen[^>]*>[\s\S]*?<\/blockquote>/)?.[0];
+// Order is the order these read on the page: a workflow, a dictionary,
+// a word in a room — the "Three of the seven" register below.
+const FEATURED_SPECIMEN_IDS = ["swansea-out-of-office", "gan-the-merged-character", "intoxicado"];
+
+const FEATURED_SPECIMEN_LINES: Record<string, string> = {
+  "swansea-out-of-office":
+    "The English was emailed away for translation and the reply that came back was printed on the sign. The Welsh half says the translator is out of the office. No translation system was involved at any point.",
+  intoxicado:
+    "One Spanish word was read as the English word it resembles, in a room with no interpreter and no time.",
+};
+
+const featuredSpecimens = (
+  await Promise.all(FEATURED_SPECIMEN_IDS.map((id) => getEntry("specimens", id)))
+).filter((specimen): specimen is NonNullable<typeof specimen> => Boolean(specimen));
+
+const specimenLog = await getEntry("assessments", "specimen-log");
+const reconstruction = await getEntry("assessments", "the-reconstruction");
+const exhibit = await getEntry("assessments", "the-exhibit");
 ---
 
 <ContentLayout
@@ -26,6 +42,42 @@ const swanseaQuote = swansea?.body?.match(/<blockquote\s+data-specimen[^>]*>[\s\
   <ul class="course-tags" aria-label="Course tags">
     {courseMeta.tags.map((tag) => <li>{tag}</li>)}
   </ul>
+
+  <h2>Three of the seven</h2>
+  <p>
+    Every artefact on this site is recorded with where it came from, when, and
+    how far the record can be trusted. These three are the shape of the
+    corpus: a workflow, a dictionary, and a word in a room where being wrong
+    mattered.
+  </p>
+  <ul class="specimen-register">
+    {featuredSpecimens.map((specimen) => (
+      <li class="specimen-record">
+        <p class="specimen-record-heading">
+          <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
+          <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+            {specimen.data.verification}
+          </span>
+        </p>
+        <p class="specimen-record-languages">
+          {specimen.data.languages} · {specimen.data.sourceDate}
+        </p>
+        <p>{specimen.id === "gan-the-merged-character" ? (<>Simplification merged two characters into one. A lookup then chose between that character's senses by which was commoner, and a restaurant printed the answer on its menu — <em>Fuck the duck until exploded</em>.</>) : (FEATURED_SPECIMEN_LINES[specimen.id])}</p>
+      </li>
+    ))}
+  </ul>
+
+  {
+    specimenLog && reconstruction && exhibit && (
+      <>
+        <h2>What you will be able to do</h2>
+        <p>By week twelve you can record an artefact so that a stranger can re-check it, and say plainly when you cannot source one. That is what the <a href={withBase(`/assessments/${specimenLog.id}/`)}>specimen log</a> is marked on.</p>
+        <p>You can argue from one error back to the process that produced it, specifically enough to be wrong. That is <a href={withBase(`/assessments/${reconstruction.id}/`)}>the reconstruction</a>.</p>
+        <p>You can put a corpus in front of someone who was not in the room and document what you left out of it. That is <a href={withBase(`/assessments/${exhibit.id}/`)}>the exhibit</a>.</p>
+        <p>The fourth mark is the room itself, and it is the one you cannot do alone.</p>
+      </>
+    )
+  }
 
   <h2>What you will do</h2>
   <p>
@@ -40,35 +92,6 @@ const swanseaQuote = swansea?.body?.match(/<blockquote\s+data-specimen[^>]*>[\s\
     By week twelve you have a catalogued corpus and one argument you can defend
     about a system you never had access to.
   </p>
-
-  {
-    swansea && swanseaQuote ? (
-      <>
-        <p>
-          One of seven in the corpus. It is the only entry with a primary
-          source, and no translation system was involved in making it.
-        </p>
-        <div class="specimen-record specimen-record--standalone">
-          <p class="specimen-provenance-caption">Specimen</p>
-          <p class="specimen-record-heading">
-            <span>{swansea.data.title}</span>
-            <span class={`verification-badge verification-badge--${swansea.data.verification}`}>
-              {swansea.data.verification}
-            </span>
-          </p>
-          <p class="specimen-record-languages">{swansea.data.languages}</p>
-          <dl class="specimen-record-fields">
-            <dt>Mechanism</dt>
-            <dd>{swansea.data.mechanism}</dd>
-          </dl>
-          <Fragment set:html={swanseaQuote} />
-          <p>
-            <a href={withBase(`/specimens/${swansea.id}/`)}>→ Read the record</a>
-          </p>
-        </div>
-      </>
-    ) : null
-  }
 
   <CorpusTimeline />
 
