@@ -25,6 +25,23 @@ const title = `Week ${lecture.data.week}: ${lecture.data.title}`;
   <ThisWeek week={lecture.data.week} self="lectures" />
   <p><strong>{formatCourseDate(lecture.data.date)}</strong></p>
   <Content />
+  {
+    lecture.data.readings?.length ? (
+      <section class="readings">
+        <h2>Further reading</h2>
+        <ol>
+          {lecture.data.readings.map((reading) => (
+            <li>
+              <a href={reading.url} rel="noopener">
+                {reading.title}
+              </a>
+              <span class="readings-source">{reading.source}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ) : null
+  }
   <TeachingTeam teachers={lecture.data.teachers} />
   <RelatedContent entry={lecture} collections={graphCollections} />
 </ContentLayout>

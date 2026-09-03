@@ -22,6 +22,43 @@ main blockquote {
   max-width: 70ch;
 }
 
+/* Further reading, on the lecture pages that have any. Same register as the
+   Provenance dl on a specimen page: a hairline above the list, one under each
+   row, and a small-uppercase caption instead of a heading that competes with
+   the body's own h2s. A source list and a provenance list are the same kind
+   of object — the record behind a claim — so they are read the same way. */
+.readings {
+  margin-block: var(--at-spacing-lg);
+}
+
+.readings h2 {
+  margin: 0 0 var(--at-spacing-xs);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.readings ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--at-divider);
+}
+
+.readings li {
+  padding-block: var(--at-spacing-sm);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.readings-source {
+  display: block;
+  margin-block-start: var(--at-spacing-xs);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+}
+
 /* The theme's own print block (base.css) already hides .at-nav, .at-sidebar
    and .at-footer and collapses the screen grid — this adds only the chrome
    the theme does not know about, plus the two things print needs that screen
