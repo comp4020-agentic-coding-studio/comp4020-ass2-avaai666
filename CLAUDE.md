@@ -115,3 +115,17 @@ rely on remembering the import list.
 17. One commit per idea, message says what changed and why.
 18. Never a single commit that both adds a spec test and satisfies it. Write the
     test, commit it, run it red, then implement.
+
+## ★ Measured, not assumed
+
+19. A threshold in a test is a measurement, not a taste. Before writing a cap —
+    words per slide, characters per line, a breakpoint — measure the thing on
+    the 390px and 1920px stages and derive the number from what fits; say the
+    derivation in the test comment. (d90d75f, 3f92c58)
+20. A document that describes a test is a claim about the test. When
+    spec/README.md, a commit message or PROCESS.md says a check does X, open the
+    check and confirm it does X; if the promise is right and the test is weaker,
+    strengthen the test, never soften the promise. (cb90562)
+21. "This edit would turn it red" is itself a claim. Make the edit, watch it
+    fail, revert, and only then write the sentence; a rule-14 sentence that was
+    not tried is deleted, not kept. (cb90562's message)
