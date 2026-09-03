@@ -379,6 +379,30 @@
   border-style: dashed;
 }
 
+/* The running footer. One rule, printed through the shared ::after, and the
+ * text itself comes from --deck-footer so a deck sets its own without a
+ * second stylesheet: each deck declares the property once, on `.reveal`, in a
+ * one-line <style> on its first slide. A deck that declares nothing prints an
+ * empty string rather than the literal `var(...)`, which is what the `""`
+ * fallback is for; spec/deck-legibility.test.ts is what notices the empty one.
+ *
+ * `position: absolute` resolves against the section, which reveal.js already
+ * positions. 0.5em of the slide's 36px base is 18px on the canvas, so the
+ * footer is the smallest thing on a slide by design --- see the phone query
+ * below, where the whole point is that 18px x 0.3047 is not readable.
+ *
+ * Note this reaches every section, deck.css's `.hero` included, where it
+ * lands on the same ::after that paints the hero scrim. No deck in this
+ * repo uses `.hero`; one that did would lose its gradient to this rule. */
+.reveal .slides section::after {
+  content: var(--deck-footer, "");
+  position: absolute;
+  left: 6%;
+  bottom: 4%;
+  font-size: 0.5em;
+  color: var(--at-text-secondary);
+}
+
 /* Phones.
  *
  * reveal.js is configured (astromotion's catch-all route) with width 1280,
