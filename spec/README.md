@@ -7,28 +7,28 @@ intends. The build already owns compilation, accessibility (axe), internal
 links, content refs, deck compilation and the generated API; nothing below
 repeats that.
 
-Read the files in this order and you have the course's shape. Seventeen files;
-the first ten are about the course, the rest about whether the page shows
-what the data says.
+Read the files in this order and you have the course's shape. Seventeen
+files; the first ten are about the course, the rest about whether the page
+— or the slide — shows what the data says.
 
 | File | The promise it keeps |
 | --- | --- |
-| `curriculum.test.ts` | Twelve weeks, one bench each, none twice; every lecture has a bench in its week; every lecture carries a real deck. |
+| `curriculum.test.ts` | Twelve weeks, one bench each, none twice; every lecture has a bench in its week; every lecture carries a deck that exists in the build, has at least eight slides and is titled as the lecture is. |
 | `bench-operations.test.ts` | Every bench declares a non-empty `material`, `operation` and `leaves`, and no two of the twelve operations match. The curriculum is twelve different things done, not one thing done twelve times. Prints the twelve operations in week order on every run. |
 | `week-distinctness.test.ts` | No two week pages open with the same sentence, and no pair of bodies exceeds 0.15 word-trigram similarity. Prints the closest pairs on every run so the number is visible before it fails. |
 | `assessment-weights.test.ts` | The four pieces of assessed work sum to exactly 100. |
 | `data-integrity.test.ts` | Every dated thing falls inside the teaching period. Shipped with the template; kept. |
-| `specimen-evidence.test.ts` | Every quoted mistranslation carries `source`, `sourceDate` and a verification level; a page marked `apocryphal` says so in its body, not only in its frontmatter. |
+| `specimen-evidence.test.ts` | Every quoted mistranslation carries `source`, `sourceDate` and a verification level; a page marked `apocryphal` says so in its body, not only in its frontmatter; a specimen with a `sourceUrl` links its Source row to it, and one without links nowhere. |
 | `page-claims.test.ts` | Prose does not contradict data: the Benches index cannot claim one shared operation; every home page specimen record renders with its badge; every specimen is cited by a week and every citation resolves; every page carrying the site navigation has exactly one `h1`, and shows it before its description. |
 | `semester.test.ts` | The home page's semester table has exactly twelve rows; every lecture and bench appears in the row of its own week, and every assessment in the row of its own week and nowhere else; the number of break rows equals the number of gaps longer than a week between bench dates; every week page carries a week strip with exactly one current week, and on lecture pages a week with no lecture is a disabled span, never a link. |
-| `this-week.test.ts` | Every bench page names its week's lecture (or "No lecture"), every lecture page names its week's bench, and a lecture with slides links to its own deck exactly once, from its page and from the index, while a lecture without slides links to none. |
+| `this-week.test.ts` | Every bench page names its week's lecture (or "No lecture"), every lecture page names its week's bench, every specimen the week cites appears with its printed line, and every lecture links its own deck exactly once, from its page and from the index. |
 | `specimen-printed.test.ts` | Every specimen declares the line as printed, and the blockquote in its body still equals it; every index rendering of that line equals the field. At least one specimen has no artefact, and the check proves it exercised that path rather than skipping it. |
 | `voice.test.ts` | The banned-phrase list in CLAUDE.md rule 7 is enforced against the built HTML, with typographic quotes normalised. A second block tests the matcher itself against fixtures it must and must not catch. |
 | `artwork.test.ts` | The hero and social-card alt text in the built page equal the strings exported from `src/lib/artwork.ts`, the only place either picture is described. |
 | `timeline.test.ts` | The corpus timeline's marks, caption numbers and marked-line label all come from the specimen and lecture data; the marked-line label never shares a baseline with the axis ticks, and no label in the SVG runs past twelve characters. |
 | `timeline-visibility.test.ts` | Exactly one timeline variant is visible at each marking width. Resolves specificity, source order and the minifier's range-syntax media queries the way a browser does, because a rule being present is not the same as a rule winning. |
+| `deck-legibility.test.ts` | Every slide carries exactly one of the seven slide classes; no slide exceeds 45 words, no list four items, no item 90 characters, no statement 180; every deck opens with its footer line and closes on a bench slide naming that week's bench; every specimen slide's printed line is a specimen's `printed`. The numbers come from measuring the 390px stage, not from taste. |
 | `specimen-styling.test.ts` | Every page that uses `data-specimen` actually receives the specimen stylesheet. |
-| `deck-legibility.test.ts` | Every deck slide carries exactly one of the seven layout classes `src/decks/theme.css` knows how to lay out; no slide runs past 45 words and no list past four items; every deck has at least eight slides, is titled for its lecture, ends on its week's bench, and prints on a specimen slide the line that specimen's record holds. |
 | `layout-styling.test.ts` | Every page carrying the site navigation actually receives the layout stylesheet, whichever layout path it rendered through (see CLAUDE.md, "Platform routing, measured"); that stylesheet's print block hides the site chrome, sets body text black on white and prints external hrefs, and its reduced-motion block disables view transitions. |
 
 ## How a check earns its place
