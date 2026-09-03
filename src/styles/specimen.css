@@ -308,7 +308,7 @@ blockquote[data-specimen] p + p {
    line for the same meaning: no primary source, nothing on the other end. */
 ol.chain {
   --chain-connector-style: solid;
-  --chain-connector-color: var(--at-divider);
+  --chain-connector-color: var(--at-border);
   display: flex;
   margin-block: var(--at-spacing-lg);
   padding: 0;
