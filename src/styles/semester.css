@@ -8,6 +8,77 @@ table.semester {
   border-collapse: collapse;
 }
 
+/* Same twelve weeks, phone-only: a native details/summary navigator
+   replaces the table below the 40rem breakpoint rather than reflowing it.
+   Each toggles the other off with display: none, not visibility or clip,
+   so a screen reader hears exactly one of the two, never both. */
+nav.semester-nav {
+  display: none;
+  margin-block: var(--at-spacing-lg);
+}
+
+nav.semester-nav details {
+  border-block-end: 1px solid var(--at-divider);
+}
+
+nav.semester-nav summary {
+  display: flex;
+  align-items: center;
+  gap: var(--at-spacing-sm);
+  min-height: 44px;
+  padding-block: var(--at-spacing-sm);
+  cursor: pointer;
+  list-style: none;
+}
+
+nav.semester-nav summary::-webkit-details-marker {
+  display: none;
+}
+
+nav.semester-nav summary::after {
+  margin-inline-start: auto;
+  color: var(--at-text-secondary);
+  content: "+";
+}
+
+nav.semester-nav details[open] summary::after {
+  content: "\2212";
+}
+
+nav.semester-nav summary:focus-visible {
+  outline: 2px solid var(--at-accent);
+  outline-offset: 2px;
+}
+
+nav.semester-nav .semester-nav-week {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+nav.semester-nav .semester-nav-due {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+nav.semester-nav .semester-nav-body {
+  padding-inline-start: var(--at-spacing-md);
+  padding-block-end: var(--at-spacing-sm);
+}
+
+nav.semester-nav .semester-nav-line {
+  margin: 0;
+}
+
+nav.semester-nav .semester-nav-line + .semester-nav-line {
+  margin-block-start: var(--at-spacing-xs);
+}
+
 table.semester caption {
   margin-block-end: var(--at-spacing-sm);
   color: var(--at-text-secondary);
@@ -73,8 +144,34 @@ tr.semester-break td {
   letter-spacing: 0.06em;
 }
 
+nav.semester-nav .semester-date {
+  display: block;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+nav.semester-nav small {
+  display: block;
+  color: var(--at-text-secondary);
+}
+
+nav.semester-nav .semester-break {
+  margin: 0;
+  padding-block: var(--at-spacing-xs);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @media (max-width: 40rem) {
-  table.semester,
+  table.semester {
+    display: none;
+  }
+
   table.semester thead,
   table.semester tbody,
   table.semester tr,
@@ -118,5 +215,9 @@ tr.semester-break td {
 
   tr.semester-break td {
     text-align: left;
+  }
+
+  nav.semester-nav {
+    display: block;
   }
 }
