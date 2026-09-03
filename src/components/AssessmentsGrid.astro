@@ -1,6 +1,7 @@
 ---
 import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
+import AssessmentBenches from "./AssessmentBenches.astro";
 import { formatCourseDate } from "../lib/dates";
 import "../styles/assessment.css";
 
@@ -20,10 +21,14 @@ const totalWeight = visible.reduce((sum, assessment) => sum + assessment.data.we
           <p class="assessment-register-title">
             <a href={withBase(`/assessments/${assessment.id}/`)}>{assessment.data.title}</a>
           </p>
+          <div class="weight-bar" role="img" aria-label={`${assessment.data.weight} of 100`}>
+            <span style={`width: ${assessment.data.weight}%`} />
+          </div>
           {assessment.data.description && (
             <p class="assessment-register-description">{assessment.data.description}</p>
           )}
           <p class="assessment-register-due">Due {formatCourseDate(assessment.data.due)}</p>
+          <AssessmentBenches assessment={assessment} />
         </dd>
       </>
     ))

@@ -35,6 +35,23 @@
   font-weight: 600;
 }
 
+/* The weight is already stated as text in the row's left column; this is the
+   same number again, as a fill, because a column of numbers is harder to
+   compare at a glance than a column of bars. The accent marks it because the
+   four widths are the one figure on this page that spec/assessment-weights.test.ts
+   proves sums to 100 — everything else here is unverified prose. */
+.weight-bar {
+  height: 4px;
+  margin: var(--at-spacing-xs) 0 0;
+  background: var(--at-divider);
+}
+
+.weight-bar span {
+  display: block;
+  height: 100%;
+  background: var(--at-accent);
+}
+
 .assessment-register-description {
   margin: var(--at-spacing-xs) 0 0;
 }
