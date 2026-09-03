@@ -55,6 +55,23 @@
   color: var(--at-text);
 }
 
+/* The bench body's h2s are its movements — Before/In the bench/Afterwards,
+   or whatever a given bench titles them — numbered without touching any of
+   that text. Scoped to .bench-body so the count resets per page and never
+   reaches "The spec" or "Teaching team", which sit outside it. */
+.bench-body {
+  counter-reset: bench-step;
+}
+
+.bench-body h2::before {
+  counter-increment: bench-step;
+  content: counter(bench-step, decimal-leading-zero) " ";
+  color: var(--at-accent);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
 @media (max-width: 30rem) {
   .session-record-fields {
     grid-template-columns: 1fr;

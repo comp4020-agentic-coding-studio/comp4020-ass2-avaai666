@@ -10,6 +10,7 @@ import WeekStrip from "../../components/WeekStrip.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
 import "../../styles/layout.css";
+import "../../styles/session.css";
 import "../../styles/specimen.css";
 
 export async function getStaticPaths() {
@@ -38,7 +39,9 @@ const { Content } = await render(session);
     <dt>Leaves</dt>
     <dd>{session.data.leaves}</dd>
   </dl>
-  <Content />
+  <div class="bench-body">
+    <Content />
+  </div>
   <SpecList spec={session.data.spec}>
     What you bring to the session. Written so a reader can tell whether it has
     been met without asking you.
