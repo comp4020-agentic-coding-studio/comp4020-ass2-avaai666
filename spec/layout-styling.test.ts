@@ -164,6 +164,51 @@ describe("layout styling", () => {
     }
   });
 
+  // Every themed colour on this site is a light-dark() token, and light-dark()
+  // resolves against the used color-scheme, not against the media type. With
+  // the dark toggle on, a print job therefore renders captions, dt, chain
+  // roles and muted text at their 95%-white value onto white paper. Forcing
+  // color-scheme: light on :root inside the print block is what makes the
+  // black-on-white body rule above true of the rest of the page too.
+  //
+  // Turns red by: deleting the `:root { color-scheme: light }` rule from
+  // layout.css's @media print block.
+  it("resolves the light palette in print whatever the theme toggle says, on every page", () => {
+    for (const page of pagesWithNav) {
+      const css = cssLoadedBy(page.html, page.path);
+      const blocks = extractAtRuleBlocks(css, PRINT_RULE).join("\n");
+      expect(
+        blocks,
+        `${page.path}'s @media print rules do not set color-scheme: light on :root`,
+      ).toMatch(/:root\s*\{[^}]*color-scheme:\s*light\b[^}]*\}/);
+    }
+  });
+
+  // .weight-bar is a track and a fill, both drawn as backgrounds, and a
+  // browser drops backgrounds in print unless asked not to — so the bar that
+  // carries an assessment's weight prints as nothing at all.
+  //
+  // Turns red by: deleting the .weight-bar print-color-adjust rule from
+  // layout.css's @media print block, or narrowing it to only one of the two
+  // selectors (the track without the fill prints an empty bar; the fill
+  // without the track prints an unscaled one).
+  it("keeps the assessment weight bar's track and fill in print, on every page", () => {
+    for (const page of pagesWithNav) {
+      const css = cssLoadedBy(page.html, page.path);
+      const blocks = extractAtRuleBlocks(css, PRINT_RULE).join("\n");
+      for (const selector of [/\.weight-bar\s*[,{]/, /\.weight-bar\s*>\s*span\s*[,{]/]) {
+        expect(
+          blocks,
+          `${page.path}'s @media print rules have no print-color-adjust rule matching ${selector}`,
+        ).toMatch(selector);
+      }
+      expect(
+        blocks,
+        `${page.path}'s @media print rules do not set print-color-adjust: exact on the weight bar`,
+      ).toMatch(/\.weight-bar[^{]*\{[^}]*print-color-adjust:\s*exact\b/);
+    }
+  });
+
   // astro-theme-university's base.css already ships a
   // @media (prefers-reduced-motion: reduce) block, but it only shortens
   // durations on `*, *::before, *::after` — that selector list does not match
