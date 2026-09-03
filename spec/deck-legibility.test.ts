@@ -34,6 +34,26 @@ const SLIDE_CLASSES = [
 const MAX_WORDS_PER_SLIDE = 45;
 const MAX_LIST_ITEMS = 4;
 
+/** Two length ceilings, derived from the 390x844 phone rather than from
+ *  taste. There the 1280x720 canvas scales by 0.3047 and paints at 390x219,
+ *  and because every slide kind centres its content, content that outgrows
+ *  its box spills off both ends of it: the canvas bounds it, not the padding.
+ *  src/decks/theme.css carries the derivation; the number it leaves is a
+ *  659.2px band, once the running footer has taken the bottom 60.8px.
+ *
+ *  90 characters: a list item sets at 3.3rem (52.8px) into a 1074px column,
+ *  which at about 0.5em a character is 40 characters a line, so 90 is three
+ *  lines — 237.6px. Two of those under a heading is 602.2px, inside the band.
+ *  This is a guard and not a proof: it stops one item becoming the thing that
+ *  overflows, and says nothing about four of them together, which is what
+ *  MAX_LIST_ITEMS is for.
+ *
+ *  180 characters: a statement's sole paragraph sets at 4.55rem (72.8px) at
+ *  line-height 1.25, so 91px a line and about 32 characters a line. 180 is
+ *  six lines, 546px of the band. The slide leaves the stage at eight. */
+const MAX_LIST_ITEM_CHARS = 90;
+const MAX_STATEMENT_PARAGRAPH_CHARS = 180;
+
 const api = JSON.parse(readFileSync(resolve("dist/api/index.json"), "utf8")) as CourseApi;
 const lecturesWithDecks = api.nodes.filter(
   (node) => node.type === "lectures" && typeof node.meta?.slides === "string",
@@ -263,5 +283,47 @@ describe("deck legibility", () => {
         `${deck.name} declares the footer "${declared}", expected "${expected}"`,
       ).toBe(expected);
     }
+  });
+
+  // Turns red by: extending any outline item past 90 characters. Week 11's
+  // third seam line — "I am not in the office at the moment. Send any work to
+  // be translated. — week 7" — is the longest in the repo at 78, so it needs
+  // 13 more characters to trip this.
+  it("keeps every list item to 90 characters or fewer", () => {
+    let seen = 0;
+    for (const deck of decks) {
+      for (const slide of deck.slides) {
+        for (const item of slide.inner.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)) {
+          const text = visibleText(item[1]!);
+          seen += 1;
+          expect(
+            text.length,
+            `${deck.name} slide ${slide.index} has a ${text.length}-character item, over ${MAX_LIST_ITEM_CHARS}: "${text}"`,
+          ).toBeLessThanOrEqual(MAX_LIST_ITEM_CHARS);
+        }
+      }
+    }
+    expect(seen, "no deck slide carries a list item").toBeGreaterThan(0);
+  });
+
+  // Turns red by: adding a clause to week 11's opening statement — "For ten
+  // weeks the argument has been that an error is evidence, and that reading it
+  // backwards gets you to a machine you were never given access to." — which
+  // is the longest at 146 characters and needs 35 more to trip this.
+  it("keeps every statement paragraph to 180 characters or fewer", () => {
+    let seen = 0;
+    for (const deck of decks) {
+      for (const slide of deck.slides.filter((s) => s.classes.includes("statement"))) {
+        for (const para of slide.inner.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)) {
+          const text = visibleText(para[1]!);
+          seen += 1;
+          expect(
+            text.length,
+            `${deck.name} slide ${slide.index} has a ${text.length}-character paragraph, over ${MAX_STATEMENT_PARAGRAPH_CHARS}: "${text}"`,
+          ).toBeLessThanOrEqual(MAX_STATEMENT_PARAGRAPH_CHARS);
+        }
+      }
+    }
+    expect(seen, "no deck slide carries a statement paragraph").toBeGreaterThan(0);
   });
 });
