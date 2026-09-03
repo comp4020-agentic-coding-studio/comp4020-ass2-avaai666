@@ -1,9 +1,8 @@
 # Process
 
 SLOP8217 teaches students to read a mistranslation as evidence of the
-machine that produced it. Before the agent wrote a page I took three
-positions on what a good course is, from the brief's examples and from
-Biggs. From *Calling Bullshit*: a course is one claim, stated in the title
+machine that produced it. Before any page, I took three positions on what
+a good course is, from the brief's examples and from Biggs. From *Calling Bullshit*: a course is one claim, stated in the title
 and held for a semester. From constructive alignment: what is marked is
 what is learned, so each assessment must be that claim at a different scale.
 And one of my own: a course about the standard of evidence has to meet that
@@ -18,8 +17,8 @@ My first rule against twelve weeks repeating one another was a proxy:
 "never more than one week page per turn". I replaced it with a measurement
 — no shared opening sentence, trigram similarity under 0.15
 ([7db6317](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/7db6317eeaeabe8295c9ca1ffa3eb0c6c70dedb6))
-— then saw that a measurement of wording passes a bench that repeats another
-in different words. So every bench declares its `material`, `operation` and
+— then saw that a measurement of wording passes a bench that repeats
+another. So every bench declares its `material`, `operation` and
 what `leaves` the room, and a check asserts no two operations match
 ([e9ee529...eae0e70](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/e9ee52923089a1b242182dc317a8d185066f9cad...eae0e7011d08b36b684cbb52ea1d6bf3e130847f)).
 The obvious move was a tighter threshold. A declared field is a claim about
@@ -59,10 +58,10 @@ build curls the apostrophe; normalising the text then let `dive` catch
 `divided`, so the matcher now runs against fixtures it must and must not
 catch
 ([70d5904...c5e8516](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/70d5904d8b415c1676b96b6477fed0d0e86f9844...c5e8516a345c51c41a1dacd2f2fd3b944aff24df)).
-The corpus timeline passed four assertions while rendering twice; the
-replacement resolves the cascade as a browser does, and was itself inert
-until it learned the minifier's range syntax
-([fdad3d4...c6147d4](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/compare/fdad3d4512886690f1704a8ae74b4cf3a2a98abf...c6147d44b25968b5eedf9c9bbdf0adc68b10f9db)).
+The README warns that nothing checks whether a slide fits. With ten decks
+that became a check — one job per slide, four items at most, sentence caps
+derived from the 390px stage after measuring it
+([7bbd2a0](https://github.com/comp4020-agentic-coding-studio/comp4020-ass2-avaai666/commit/7bbd2a08fa9f8e90c2b2f75604586427c2f44aa1)).
 
 The last red was the agent's, not mine. Four index pages showed their
 description above the heading; the agent wrote the assertion, found the
