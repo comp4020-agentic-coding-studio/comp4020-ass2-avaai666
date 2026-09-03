@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { inputLang, printedLang } from "../lib/specimens";
+
+interface Props {
+  specimen: CollectionEntry<"specimens">;
+}
+
+const { specimen } = Astro.props;
+const { input, mechanism, printed, languages, verification } = specimen.data;
+---
+
+<ol class={`chain chain--${verification}`}>
+  <li class="chain-item chain-input">
+    <p class="chain-caption">Input</p>
+    <p class="chain-text" lang={input ? inputLang(languages) : undefined}>
+      {input ?? "Not recorded"}
+    </p>
+  </li>
+  <li class="chain-item chain-mechanism">
+    <p class="chain-caption">Mechanism</p>
+    <p class="chain-text">{mechanism}</p>
+    <p class="chain-role">Inference</p>
+  </li>
+  <li class="chain-item chain-printed">
+    <p class="chain-caption">Printed</p>
+    <p class="chain-text specimen-printed specimen-printed--small" lang={printedLang(languages)}>
+      {printed}
+    </p>
+    <p class="chain-role">Observed</p>
+  </li>
+</ol>

@@ -299,3 +299,79 @@ blockquote[data-specimen] p + p {
     margin-block-start: 0;
   }
 }
+
+/* The reconstruction chain: input, mechanism, printed, as one structure
+   instead of three separate fields. The connector between items is the
+   only place verification is read twice on this page — solid accent for
+   primary, solid muted for secondary (the base rule, unmodified), dashed
+   muted for apocryphal, reusing .verification-badge--apocryphal's dashed
+   line for the same meaning: no primary source, nothing on the other end. */
+ol.chain {
+  --chain-connector-style: solid;
+  --chain-connector-color: var(--at-divider);
+  display: flex;
+  margin-block: var(--at-spacing-lg);
+  padding: 0;
+  list-style: none;
+}
+
+ol.chain.chain--primary {
+  --chain-connector-color: var(--at-accent);
+}
+
+ol.chain.chain--apocryphal {
+  --chain-connector-style: dashed;
+}
+
+ol.chain .chain-item {
+  flex: 1;
+  padding-inline: var(--at-spacing-md);
+}
+
+ol.chain .chain-item:first-child {
+  padding-inline-start: 0;
+}
+
+ol.chain .chain-item:last-child {
+  padding-inline-end: 0;
+}
+
+ol.chain .chain-item + .chain-item {
+  border-inline-start: 2px var(--chain-connector-style) var(--chain-connector-color);
+}
+
+ol.chain .chain-caption {
+  margin: 0 0 var(--at-spacing-xs);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+ol.chain .chain-text {
+  margin: 0;
+}
+
+ol.chain .chain-role {
+  margin: var(--at-spacing-xs) 0 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-sm);
+}
+
+@media (max-width: 40rem) {
+  ol.chain {
+    flex-direction: column;
+  }
+
+  ol.chain .chain-item {
+    padding-inline: 0;
+  }
+
+  ol.chain .chain-item + .chain-item {
+    border-inline-start: none;
+    border-block-start: 2px var(--chain-connector-style) var(--chain-connector-color);
+    padding-block-start: var(--at-spacing-sm);
+    margin-block-start: var(--at-spacing-sm);
+  }
+}

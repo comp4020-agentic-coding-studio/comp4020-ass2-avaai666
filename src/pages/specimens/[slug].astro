@@ -3,6 +3,7 @@ import { render } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import ReconstructionChain from "../../components/ReconstructionChain.astro";
 import { graphCollections, siteConfig } from "../../site-config";
 import { verificationNotes } from "../../lib/verification";
 import "../../styles/layout.css";
@@ -52,6 +53,8 @@ const verificationNote = verificationNotes[specimen.data.verification];
     <dt>Mechanism</dt>
     <dd>{specimen.data.mechanism}</dd>
   </dl>
+
+  <ReconstructionChain specimen={specimen} />
 
   <Content />
 
