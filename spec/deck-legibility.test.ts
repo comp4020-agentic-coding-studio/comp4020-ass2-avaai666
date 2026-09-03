@@ -49,12 +49,14 @@ function normalise(text: string): string {
 }
 
 /** The words a person in the room can actually read. Speaker notes compile to
- *  a display:none aside, the theme's heading anchor is a hidden "#", and an
- *  SVG <title> is alt text for a screen reader — none of them are on the wall.
- *  SVG <text> is, so it stays and it counts. */
+ *  a display:none aside, a slide's own <style> block is CSS, the theme's
+ *  heading anchor is a hidden "#", and an SVG <title> is alt text for a screen
+ *  reader — none of them are on the wall. SVG <text> is, so it stays and it
+ *  counts. */
 function visibleText(html: string): string {
   const stripped = html
     .replace(/<aside\b[^>]*\bnotes\b[^>]*>[\s\S]*?<\/aside>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
     .replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, " ")
     .replace(/<a\b[^>]*\bat-heading-anchor\b[^>]*>[\s\S]*?<\/a>/gi, " ")
     .replace(/<[^>]+>/g, " ")
@@ -238,6 +240,28 @@ describe("deck legibility", () => {
           ).toBe(true);
         }
       }
+    }
+  });
+
+  // The footer is a CSS custom property, not markup: theme.css prints
+  // `--deck-footer` through `section::after`, and each deck declares its own
+  // value in a one-line <style> on its first slide. A deck that declares
+  // nothing prints an empty footer, and without this the build says so
+  // nowhere.
+  // Turns red by: deleting the <style> line from any deck's first slide;
+  // changing a week number or a word of the lecture title on one side of the
+  // string without changing the other; or renaming a lecture in
+  // src/content/lectures/ and leaving the footer naming the old title.
+  it("declares a footer naming the course, the week and the lecture, on every deck", () => {
+    for (const deck of decks) {
+      const week = Number(deck.lecture.meta?.week);
+      const expected = `SLOP8217 · Week ${week} · ${deck.lecture.title}`;
+      const declared = deck.html.match(/--deck-footer:\s*"([^"]*)"/)?.[1];
+      expect(declared, `${deck.name} declares no --deck-footer`).toBeDefined();
+      expect(
+        declared,
+        `${deck.name} declares the footer "${declared}", expected "${expected}"`,
+      ).toBe(expected);
     }
   });
 });
