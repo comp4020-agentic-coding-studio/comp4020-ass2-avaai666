@@ -58,10 +58,17 @@
   grid-template-columns: minmax(0, 1fr);
   align-content: center;
   justify-content: stretch;
-  /* 6% of 1280 = 76.8px each side, leaving a 1126px measure. 3rem top and
-     bottom (rather than deck.css's 4rem) buys back the 32px the longest
-     single-sentence statement needs at 2.2em. */
-  padding: 3rem 6%;
+  /* 6% of 1280 = 76.8px each side, leaving a 1126px measure. 3rem top
+     (rather than deck.css's 4rem) buys back the 32px the longest
+     single-sentence statement needs at 2.2em.
+     Bottom reserves the footer's own zone, so the grid centres content in
+     the space above it rather than across the whole 720px canvas: the
+     footer prints at `bottom: 4%`, `font-size: 0.5em`, no line-height of its
+     own, and deck pages never load --at-line-height, so 1.6 stands in for
+     it here --- 1.6 x 0.5em is one footer line. Padding percentages resolve
+     against the box's width, not its height, so this 4% (of 1280) reserves
+     more than the footer's own 4%-of-720 offset, not less. */
+  padding: 3rem 6% calc(4% + 0.8em);
   text-align: start;
 }
 
@@ -437,12 +444,19 @@
  *     C/2 - 360 + (pt - pb)/2
  *
  * The padding does not bound C; the canvas does, and the padding only moves
- * where the middle of C lands. That is the lever the footer needs: the footer
- * occupies the bottom 60.8px (2% = 14.4px clear, plus 46.4px of type at
- * line-height 1), so content has the band [0, 659.2] to live in, whose centre
- * is 329.6 rather than 360. Setting pb - pt = 60.8 moves the centre there and
- * makes the usable height 659.2px --- the number every budget below is
- * measured against. pt = 2rem gives pb = 92.8px = 5.8rem.
+ * where the middle of C lands. That is the lever the footer needs, and below
+ * it is pulled directly rather than by tuning pt against pb to hit a target
+ * centre: padding-bottom reserves the footer's own zone --- 2% (of 1280,
+ * since padding percentages resolve against width, not height, so this
+ * overshoots the footer's real 2%-of-720 offset) plus 1.6 line-heights of
+ * the phone footer's own font-size. At pt = 2rem (32px, unchanged) and the
+ * phone footer lowered to 2.46rem (39.4px stage, 12.0px actual), pb comes to
+ * 88.6px (2% + 3.94rem), leaving content a 599.4px box. Centred content that
+ * outgrows it spills at most 32px each way before reaching the canvas's own
+ * top edge --- the tighter bound, since the footer's true top (720, less its
+ * 2% clear and one line of its own type) sits at 666.2px, further out. So
+ * content up to 599.4 + 2 x 32 = 663.4px is safe; the number every budget
+ * below is measured against.
  *
  * Per-character widths below are estimated at 0.5em, which is where week 10's
  * measured 12.6px outline overflow lands. Treat the budgets as +/- half a
@@ -452,18 +466,21 @@
  * not on a tablet. */
 @media (max-width: 30rem) {
   .reveal .slides section:is(.impact, .statement, .specimen, .list, .figure, .quote, .bench) {
-    padding: 2rem 4% 5.8rem;
+    padding: 2rem 4% calc(2% + 3.94rem);
   }
 
-  /* The footer, at the 2.9rem this block uses for everything that was
-     arriving under 14px: 46.4px x 0.3047 = 14.1px. line-height 1 makes its
-     height exactly its font-size, which is what the 60.8px band above is
+  /* The footer, lowered from the 2.9rem (14.1px) every other size in this
+     block steps down to, because reserving its zone above left the tallest
+     slides --- the bench slides' 628.4px budget below, week 05's 639.2px
+     figure --- too little clearance against this file's own +/- half-line
+     measurement error. 2.46rem x 0.3047 = 12.0px; line-height 1 still makes
+     its height exactly its font-size, which is what the calc() above is
      computed from. Left edge moves to 4% to sit under the text rather than
      inside it, since the side padding is 4% here and 6% on the canvas. */
   .reveal .slides section::after {
     left: 4%;
     bottom: 2%;
-    font-size: 2.9rem;
+    font-size: 2.46rem;
     line-height: 1;
   }
 
@@ -537,7 +554,7 @@
 
   /* The figure's SVG asks for 70% of the canvas, which on week 05 left the
      heading, the diagram and a two-line caption 13.6px past the bottom edge.
-     55% is 396px, and the same slide comes to 639.2px inside the 659.2px
+     55% is 396px, and the same slide comes to 639.2px inside the 663.4px
      band. */
   .reveal .slides section.figure svg {
     max-block-size: 24.75rem;
@@ -560,7 +577,7 @@
        .bench-note    46.4 x 1.4 =  65.0  + 0.5rem   =  73.0
                                                    C =  628.4
 
-     628.4 <= 659.2, with 30.8px spare, which is 9.4px on the phone. The
+     628.4 <= 663.4, with 35.0px spare, which is 10.7px on the phone. The
      eight decks without a note come to 555.4. dd is the one thing here that
      does not step down: it already arrived at 16.1px, above the floor, and
      shrinking it to buy room would be a legibility regression paid for by
