@@ -551,17 +551,20 @@
        .bench-label   46.4 x 1.2 =  55.7  + 0.5rem   =  63.7
        h2             61.6 x 1.2 =  73.9  + 0.75rem  =  85.9
        .bench-date    46.4 x 1.2 =  55.7  + 0.75rem  =  67.7
-       .bench-fields  dt 46.4 x 1.4 = 65.0, dd 46.4 x 1.45 = 67.3 a line;
+       .bench-fields  dt 46.4 x 1.4 = 65.0, dd 52.8 x 1.45 = 76.6 a line;
                       the value column is 1177.6 - 309 (the dt column, set by
-                      OPERATION at 46.4px) - 46.4 (column-gap) = 822.2px, so
-                      35 characters a line, so the longest Leaves value on
+                      OPERATION at 46.4px) - 52.8 (column-gap) = 815.8px, so
+                      31 characters a line, so the longest Leaves value on
                       any deck (60 characters, week 08) takes two:
-                      67.3 + 67.3 + 134.6 + 2 x 13.9  = 297.0
+                      76.6 + 76.6 + 153.2 + 2 x 15.8  = 338.1
        .bench-note    46.4 x 1.4 =  65.0  + 0.5rem   =  73.0
-                                                   C =  587.3
+                                                   C =  628.4
 
-     587.3 <= 659.2, with 71.9px spare, which is 21.9px on the phone. The
-     eight decks without a note come to 514.3. h2 steps 4.55rem -> 3.85rem
+     628.4 <= 659.2, with 30.8px spare, which is 9.4px on the phone. The
+     eight decks without a note come to 555.4. dd is the one thing here that
+     does not step down: it already arrived at 16.1px, above the floor, and
+     shrinking it to buy room would be a legibility regression paid for by
+     the very screen this block is about. h2 steps 4.55rem -> 3.85rem
      because at 4.55rem the two longest bench titles (34 characters) wrapped,
      and a second line there costs more than the size does. */
   .reveal .slides section.bench :is(.bench-label, .bench-fields dt) {
@@ -583,13 +586,14 @@
     line-height: 1.2;
   }
 
-  .reveal .slides section.bench :is(.bench-date, .bench-fields, .bench-note) {
+  .reveal .slides section.bench :is(.bench-date, .bench-note) {
     font-size: 2.9rem;
   }
 
   .reveal .slides section.bench .bench-fields {
     column-gap: 1em;
     row-gap: 0.3em;
+    font-size: 3.3rem;
   }
 
   .reveal .slides section.bench .bench-fields dt {
