@@ -262,14 +262,19 @@
 
 /* quote --- someone said this. deck.css draws an 80%-wide overbar; a left
  * rule reads as a quotation at four metres where a hairline above the first
- * line does not, and there is no display glyph. */
+ * line does not, and there is no display glyph.
+ *
+ * 30em of the blockquote's own 36px is 1080px, inside the 1126px measure. At
+ * the 24em it used to be, week 04's quote --- the longest in the set at 140
+ * characters --- broke to six lines at 72px, which is 561.6px of a 624px box
+ * before the heading. 30em takes it to five. */
 .reveal .slides section.quote {
   text-shadow: none;
 }
 
 .reveal .slides section.quote blockquote {
   width: auto;
-  max-width: 24em;
+  max-width: 30em;
   margin: 0;
   padding: 0 0 0 0.5em;
   border-block-start: none;
@@ -422,11 +427,44 @@
  * Side padding drops to 4% (51.2px), giving a 1177.6px measure, which is what
  * keeps the longest statement at five lines rather than seven.
  *
+ * How a slide overflows, which is not what the padding suggests. Every kind
+ * here centres its content (`align-content: center`, and `justify-content`
+ * on .figure's flex column). Centred content that outgrows its box does not
+ * stop at the padding: it spills equally off both ends of it. So for content
+ * of height C on the 720px canvas, with padding pt and pb, the content's
+ * centre sits at 360 + (pt - pb)/2 and the amount hanging below the canvas is
+ *
+ *     C/2 - 360 + (pt - pb)/2
+ *
+ * The padding does not bound C; the canvas does, and the padding only moves
+ * where the middle of C lands. That is the lever the footer needs: the footer
+ * occupies the bottom 60.8px (2% = 14.4px clear, plus 46.4px of type at
+ * line-height 1), so content has the band [0, 659.2] to live in, whose centre
+ * is 329.6 rather than 360. Setting pb - pt = 60.8 moves the centre there and
+ * makes the usable height 659.2px --- the number every budget below is
+ * measured against. pt = 2rem gives pb = 92.8px = 5.8rem.
+ *
+ * Per-character widths below are estimated at 0.5em, which is where week 10's
+ * measured 12.6px outline overflow lands. Treat the budgets as +/- half a
+ * line.
+ *
  * 30rem is 480px against the initial 16px root, so this fires on a phone and
  * not on a tablet. */
 @media (max-width: 30rem) {
   .reveal .slides section:is(.impact, .statement, .specimen, .list, .figure, .quote, .bench) {
-    padding: 3rem 4%;
+    padding: 2rem 4% 5.8rem;
+  }
+
+  /* The footer, at the 2.9rem this block uses for everything that was
+     arriving under 14px: 46.4px x 0.3047 = 14.1px. line-height 1 makes its
+     height exactly its font-size, which is what the 60.8px band above is
+     computed from. Left edge moves to 4% to sit under the text rather than
+     inside it, since the side padding is 4% here and 6% on the canvas. */
+  .reveal .slides section::after {
+    left: 4%;
+    bottom: 2%;
+    font-size: 2.9rem;
+    line-height: 1;
   }
 
   .reveal .slides section.impact h1 {
@@ -479,19 +517,91 @@
     font-size: 3.3rem;
   }
 
+  /* The blockquote itself carries no type on the canvas, so it kept the
+     slide's 36px and measured 11px --- the smallest thing on a quote slide,
+     and the one a `cite` or a bare line of text would inherit. 52.8px is
+     16.1px. Its `max-width: 30em` is 1584px here, past the 1177.6px measure,
+     so the measure governs and the cap holds at every width. */
   .reveal .slides section.quote blockquote {
-    max-width: none;
+    font-size: 3.3rem;
   }
 
   .reveal .slides section.quote blockquote p {
     font-size: 4.55rem;
   }
 
+  /* 0.75em of the 3.3rem specimen line was 39.6px, arriving at 12.1px. */
+  .reveal .slides section .verification-badge {
+    font-size: 2.9rem;
+  }
+
+  /* The figure's SVG asks for 70% of the canvas, which on week 05 left the
+     heading, the diagram and a two-line caption 13.6px past the bottom edge.
+     55% is 396px, and the same slide comes to 639.2px inside the 659.2px
+     band. */
+  .reveal .slides section.figure svg {
+    max-block-size: 24.75rem;
+  }
+
+  /* The bench, whose three rows plus title were the worst overflow here.
+     Everything that was under 14px goes to 2.9rem (14.1px), and the rhythm
+     tightens to pay for it. Budget for weeks 01 and 11, the two that also
+     carry a bench-note and the two that overflowed:
+
+       .bench-label   46.4 x 1.2 =  55.7  + 0.5rem   =  63.7
+       h2             61.6 x 1.2 =  73.9  + 0.75rem  =  85.9
+       .bench-date    46.4 x 1.2 =  55.7  + 0.75rem  =  67.7
+       .bench-fields  dt 46.4 x 1.4 = 65.0, dd 46.4 x 1.45 = 67.3 a line;
+                      the value column is 1177.6 - 309 (the dt column, set by
+                      OPERATION at 46.4px) - 46.4 (column-gap) = 822.2px, so
+                      35 characters a line, so the longest Leaves value on
+                      any deck (60 characters, week 08) takes two:
+                      67.3 + 67.3 + 134.6 + 2 x 13.9  = 297.0
+       .bench-note    46.4 x 1.4 =  65.0  + 0.5rem   =  73.0
+                                                   C =  587.3
+
+     587.3 <= 659.2, with 71.9px spare, which is 21.9px on the phone. The
+     eight decks without a note come to 514.3. h2 steps 4.55rem -> 3.85rem
+     because at 4.55rem the two longest bench titles (34 characters) wrapped,
+     and a second line there costs more than the size does. */
+  .reveal .slides section.bench :is(.bench-label, .bench-fields dt) {
+    font-size: 2.9rem;
+  }
+
+  .reveal .slides section.bench .bench-label {
+    margin-block-end: 0.5rem;
+    line-height: 1.2;
+  }
+
   .reveal .slides section.bench h2 {
-    font-size: 4.55rem;
+    margin-block-end: 0.75rem;
+    font-size: 3.85rem;
+  }
+
+  .reveal .slides section.bench .bench-date {
+    margin-block-end: 0.75rem;
+    line-height: 1.2;
   }
 
   .reveal .slides section.bench :is(.bench-date, .bench-fields, .bench-note) {
-    font-size: 3.3rem;
+    font-size: 2.9rem;
+  }
+
+  .reveal .slides section.bench .bench-fields {
+    column-gap: 1em;
+    row-gap: 0.3em;
+  }
+
+  .reveal .slides section.bench .bench-fields dt {
+    line-height: 1.4;
+  }
+
+  .reveal .slides section.bench .bench-fields dd {
+    line-height: 1.45;
+  }
+
+  .reveal .slides section.bench .bench-note {
+    margin-block-start: 0.5rem;
+    line-height: 1.4;
   }
 }
