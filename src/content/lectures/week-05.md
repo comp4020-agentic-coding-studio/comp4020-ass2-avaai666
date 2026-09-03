@@ -10,6 +10,10 @@ teachers:
 slides: /decks/week-05/
 related:
   - sessions/05-starve-it
+readings:
+  - title: "Why Is Google Translate Spitting Out Sinister Religious Prophecies?"
+    url: "https://www.vice.com/en/article/why-is-google-translate-spitting-out-sinister-religious-prophecies/"
+    source: "Jon Christian, Vice, 20 July 2018"
 ---
 
 Everything before this week rests on an assumption: that a bad translation looks

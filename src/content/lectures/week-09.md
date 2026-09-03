@@ -11,6 +11,13 @@ slides: /decks/week-09/
 related:
   - sessions/09-what-stays-out
   - specimens/intoxicado
+readings:
+  - title: "Differences between the texts"
+    url: "https://nzhistory.govt.nz/page/differences-between-texts"
+    source: "NZ History, Ministry for Culture and Heritage"
+  - title: "About the treaty"
+    url: "https://www.waitangitribunal.govt.nz/en/about/the-treaty/about-the-treaty"
+    source: "Waitangi Tribunal"
 ---
 
 Nothing in this lecture is funny, and the register of this course changes here on

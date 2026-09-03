@@ -93,6 +93,20 @@ export const collections = {
           .string()
           .regex(/^\/decks\/[a-z0-9-]+\/$/)
           .optional(),
+        // Sources a lecture names but cannot link from its prose. Every url
+        // here must also be recorded in spec/fixtures/verified-links.json,
+        // which spec/external-links.test.ts enforces against the built page:
+        // the schema can check that a string is a URL, not that anyone opened
+        // it. Same shape as a specimen's sourceUrl, one level up.
+        readings: z
+          .array(
+            z.object({
+              title: z.string().min(1),
+              url: z.string().url(),
+              source: z.string().min(1),
+            }),
+          )
+          .optional(),
       })
       .loose(),
   }),

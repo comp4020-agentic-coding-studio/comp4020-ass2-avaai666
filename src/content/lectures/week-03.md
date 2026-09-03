@@ -12,6 +12,13 @@ related:
   - sessions/03-trace-it-back
   - specimens/the-vodka-and-the-meat
   - specimens/the-chevrolet-nova
+readings:
+  - title: "701 Translator"
+    url: "https://mt-archive.net/IBM-1954.pdf"
+    source: "IBM press release, 8 January 1954, via the Machine Translation Archive"
+  - title: "Language and Machines: Computers in Translation and Linguistics"
+    url: "https://www.nationalacademies.org/publications/9547"
+    source: "National Research Council (ALPAC), 1966"
 ---
 
 On 7 January 1954 a joint Georgetown and IBM demonstration translated a few

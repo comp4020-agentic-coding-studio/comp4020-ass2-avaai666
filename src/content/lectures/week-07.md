@@ -11,6 +11,10 @@ slides: /decks/week-07/
 related:
   - sessions/07-read-the-standard
   - specimens/swansea-out-of-office
+readings:
+  - title: "GB/T 30240.1-2013 公共服务领域英文译写规范 第1部分：通则"
+    url: "https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=B5DC1BA74C622EDF62CF9E5C76783952"
+    source: "National public standards service, published 31 December 2013"
 ---
 
 Some errors are not made by translators. They are made by procurement.
