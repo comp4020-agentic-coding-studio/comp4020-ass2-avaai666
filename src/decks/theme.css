@@ -64,11 +64,14 @@
      Bottom reserves the footer's own zone, so the grid centres content in
      the space above it rather than across the whole 720px canvas: the
      footer prints at `bottom: 4%`, `font-size: 0.5em`, no line-height of its
-     own, and deck pages never load --at-line-height, so 1.6 stands in for
-     it here --- 1.6 x 0.5em is one footer line. Padding percentages resolve
-     against the box's width, not its height, so this 4% (of 1280) reserves
-     more than the footer's own 4%-of-720 offset, not less. */
-  padding: 3rem 6% calc(4% + 0.8em);
+     own, and deck pages never load --at-line-height. 1.6 x 0.5em (one
+     footer line at a typical line-height) still measured short once real
+     decks were checked at 1920 --- week-05's figure and week-11's bench
+     each overlapped the footer by 7px --- so the multiplier rises to 2.4:
+     2.4 x 0.5em = 1.2em. Padding percentages resolve against the box's
+     width, not its height, so this 4% (of 1280) reserves more than the
+     footer's own 4%-of-720 offset, not less. */
+  padding: 3rem 6% calc(4% + 1.2em);
   text-align: start;
 }
 
@@ -215,9 +218,11 @@
 }
 
 /* figure --- the diagram is the slide. A flex column rather than the grid
- * every other kind uses, so the SVG can yield: it asks for 70% of the canvas
- * height and shrinks from there if the heading and caption need the room,
- * instead of overflowing the bottom edge where nobody would see it. */
+ * every other kind uses, so the SVG can yield: it asks for 62% of the canvas
+ * height (down from 70%, once week-05's figure measured overlapping the
+ * footer by 7px at 1920) and shrinks from there if the heading and caption
+ * need the room, instead of overflowing the bottom edge where nobody would
+ * see it. */
 .reveal .slides section.figure {
   display: flex;
   flex-direction: column;
@@ -240,7 +245,7 @@
 
 .reveal .slides section.figure svg {
   flex: 0 1 auto;
-  block-size: 31.5rem; /* 504px = 70% of the 720px canvas */
+  block-size: 27.9rem; /* 446.4px = 62% of the 720px canvas */
   min-block-size: 0;
   inline-size: auto;
   max-inline-size: 100%;
@@ -448,15 +453,16 @@
  * it is pulled directly rather than by tuning pt against pb to hit a target
  * centre: padding-bottom reserves the footer's own zone --- 2% (of 1280,
  * since padding percentages resolve against width, not height, so this
- * overshoots the footer's real 2%-of-720 offset) plus 1.6 line-heights of
- * the phone footer's own font-size. At pt = 2rem (32px, unchanged) and the
- * phone footer lowered to 2.46rem (39.4px stage, 12.0px actual), pb comes to
- * 88.6px (2% + 3.94rem), leaving content a 599.4px box. Centred content that
- * outgrows it spills at most 32px each way before reaching the canvas's own
- * top edge --- the tighter bound, since the footer's true top (720, less its
- * 2% clear and one line of its own type) sits at 666.2px, further out. So
- * content up to 599.4 + 2 x 32 = 663.4px is safe; the number every budget
- * below is measured against.
+ * overshoots the footer's real 2%-of-720 offset) plus 2.4 line-heights of
+ * the phone footer's own font-size, the same multiplier the base rule above
+ * raised to once real decks measured 1.6 short. At pt = 2rem (32px,
+ * unchanged) and the phone footer at 2.46rem (39.4px stage, 12.0px actual),
+ * pb comes to 120.2px (2% + 5.91rem), leaving content a 567.8px box. Centred
+ * content that outgrows it spills at most 32px each way before reaching the
+ * canvas's own top edge --- the tighter bound, since the footer's true top
+ * (720, less its 2% clear and one line of its own type) sits at 666.2px,
+ * further out. So content up to 567.8 + 2 x 32 = 631.8px is safe; the number
+ * every budget below is measured against.
  *
  * Per-character widths below are estimated at 0.5em, which is where week 10's
  * measured 12.6px outline overflow lands. Treat the budgets as +/- half a
@@ -466,7 +472,7 @@
  * not on a tablet. */
 @media (max-width: 30rem) {
   .reveal .slides section:is(.impact, .statement, .specimen, .list, .figure, .quote, .bench) {
-    padding: 2rem 4% calc(2% + 3.94rem);
+    padding: 2rem 4% calc(2% + 5.91rem);
   }
 
   /* The footer, lowered from the 2.9rem (14.1px) every other size in this
@@ -525,8 +531,16 @@
     font-size: 3.3rem;
   }
 
+  /* Week 01's three-level list touched the top edge by 1px and the footer
+     by 3px once re-measured, without any font-size here past the 3.3rem
+     (16.1px) floor to spend. Line-height steps down from the shared 1.5 to
+     1.35, and the gap between items drops by a quarter. */
+  .reveal .slides section.list li {
+    line-height: 1.35;
+  }
+
   .reveal .slides section.list li + li {
-    margin-block-start: 0.4em;
+    margin-block-start: 0.3em;
   }
 
   .reveal .slides section.figure h2,
@@ -552,12 +566,12 @@
     font-size: 2.9rem;
   }
 
-  /* The figure's SVG asks for 70% of the canvas, which on week 05 left the
-     heading, the diagram and a two-line caption 13.6px past the bottom edge.
-     55% is 396px, and the same slide comes to 639.2px inside the 663.4px
-     band. */
+  /* The figure's SVG asks for 62% of the canvas at every other width (above
+     it was 70%); at 55% here week-05's figure still touched the footer by
+     4px once re-measured. 50% is 360px, and the same slide comes to 603.2px
+     inside the 631.8px ceiling. */
   .reveal .slides section.figure svg {
-    max-block-size: 24.75rem;
+    max-block-size: 22.5rem;
   }
 
   /* The bench, whose three rows plus title were the worst overflow here.
@@ -577,8 +591,11 @@
        .bench-note    46.4 x 1.4 =  65.0  + 0.5rem   =  73.0
                                                    C =  628.4
 
-     628.4 <= 663.4, with 35.0px spare, which is 10.7px on the phone. The
-     eight decks without a note come to 555.4. dd is the one thing here that
+     628.4 <= 631.8, with 3.4px spare, which is 1.0px on the phone --- much
+     thinner than before the reserve above widened to close week-11's own
+     628.4-budget bench overlapping the footer at 1920. The eight decks
+     without a note come to 555.4, comfortably clear. dd is the one thing
+     here that
      does not step down: it already arrived at 16.1px, above the floor, and
      shrinking it to buy room would be a legibility regression paid for by
      the very screen this block is about. h2 steps 4.55rem -> 3.85rem
