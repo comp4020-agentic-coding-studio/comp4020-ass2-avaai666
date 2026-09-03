@@ -182,12 +182,47 @@ describe("this-week block: the deck link", () => {
   });
 });
 
+function lectureRows(html: string): string[] {
+  return [...html.matchAll(/<li class="lecture-record">([\s\S]*?)<\/li>/g)].map((m) => m[1]!);
+}
+
+function indexRowFor(rows: string[], slug: string): string {
+  const row = rows.find((r) => new RegExp(`href="[^"]*/lectures/${slug}/"`).test(r));
+  if (!row) throw new Error(`no row in the lectures index links /lectures/${slug}/`);
+  return row;
+}
+
 describe("this-week block: the lectures index", () => {
-  it("has exactly as many deck-link anchors as the API has lectures with slides", () => {
-    // Turns red by: adding the Deck link unconditionally to every row (or
-    // never adding it), instead of gating it on that lecture's `slides`.
+  it("links each lecture's own deck exactly once from that lecture's own row, and no deck from a lecture with none", () => {
+    // This replaces an aggregate count ("as many deck-link anchors as
+    // lectures with slides"), which passed as long as the totals matched —
+    // two lectures could have swapped decks, or one row could double a link
+    // that another was missing, and the count alone would not have noticed.
+    // This instead locates each lecture's own <li> by its own page href and
+    // checks the deck-link inside that specific row.
+    // Turns red by: swapping two lectures' slides paths in the index
+    // component — verified: with every lecture in the current data
+    // declaring slides, dropping the `lecture.data.slides &&` gate has
+    // nothing to bite on and stays green, so that edit is not claimed here.
     const html = readFileSync(resolve("dist/lectures/index.html"), "utf8");
-    const withSlides = lectureNodes.filter((n) => Boolean(n.meta?.slides));
-    expect(deckLinkAnchors(html).length).toBe(withSlides.length);
+    const rows = lectureRows(html);
+
+    for (const node of lectureNodes) {
+      const slug = node.id.split("/")[1]!;
+      const row = indexRowFor(rows, slug);
+      const anchors = deckLinkAnchors(row);
+      const slides = node.meta?.slides;
+
+      if (typeof slides === "string") {
+        expect(anchors.length, `${node.id}'s row in the index should link its own deck exactly once`).toBe(
+          1,
+        );
+        expect(anchors[0], `${node.id}'s index row does not link ${slides}`).toMatch(
+          new RegExp(`href="[^"]*${slides.replace(/\//g, "\\/")}"`),
+        );
+      } else {
+        expect(anchors.length, `${node.id} has no slides but its index row links a deck`).toBe(0);
+      }
+    }
   });
 });
