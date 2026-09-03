@@ -3,7 +3,7 @@
 // add a fact — it puts three facts the page already carries into one
 // visible structure, and the last assertion below checks that directly by
 // requiring the input text to also occur outside the chain.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -21,9 +21,61 @@ interface CourseApi {
 const api = JSON.parse(readFileSync(resolve("dist/api/index.json"), "utf8")) as CourseApi;
 const specimenNodes = api.nodes.filter((n) => n.type === "specimens");
 
-function pageHtml(nodeId: string): string {
+function pageFile(nodeId: string): string {
   const slug = nodeId.slice("specimens".length + 1);
-  return readFileSync(resolve("dist/specimens", slug, "index.html"), "utf8");
+  return resolve("dist/specimens", slug, "index.html");
+}
+
+function pageHtml(nodeId: string): string {
+  return readFileSync(pageFile(nodeId), "utf8");
+}
+
+const DIST = resolve("dist");
+
+function inlineStyles(html: string): string[] {
+  return [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]);
+}
+
+function linkedStylesheetHrefs(html: string): string[] {
+  const hrefs: string[] = [];
+  for (const tag of html.matchAll(/<link\b[^>]*>/gi)) {
+    const attrs = tag[0];
+    if (!/rel\s*=\s*["']stylesheet["']/i.test(attrs)) continue;
+    const href = attrs.match(/href\s*=\s*["']([^"']+)["']/i);
+    if (href) hrefs.push(href[1]);
+  }
+  return hrefs;
+}
+
+/** Hrefs are root-relative under whatever base path the site deploys at
+ *  (see scripts/pages-base.ts). Strip leading segments until one resolves
+ *  to a real file under dist/, rather than assuming a fixed base. */
+function resolveUnderDist(href: string): string | null {
+  const path = href.split(/[?#]/)[0]!;
+  const segments = path.split("/").filter(Boolean);
+  for (let i = 0; i < segments.length; i++) {
+    const candidate = resolve(DIST, ...segments.slice(i));
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+function cssLoadedBy(html: string, pagePath: string): string {
+  const chunks = [...inlineStyles(html)];
+  for (const href of linkedStylesheetHrefs(html)) {
+    const file = resolveUnderDist(href);
+    expect(file, `${pagePath} links stylesheet ${href}, which does not resolve to a file under dist/`).not.toBeNull();
+    chunks.push(readFileSync(file!, "utf8"));
+  }
+  return chunks.join("\n");
+}
+
+/** The base `ol.chain` rule only — `ol.chain.chain--primary` has another
+ *  selector segment before its brace and is not matched, which is the point:
+ *  primary keeps the full-strength accent, and this is about the default the
+ *  other two levels inherit. */
+function chainBaseRules(css: string): string[] {
+  return [...css.matchAll(/\bol\.chain\s*\{[^}]*\}/g)].map((m) => m[0]);
 }
 
 function chainsIn(html: string): string[] {
@@ -122,6 +174,38 @@ describe("reconstruction chain (specimen pages)", () => {
         bodyOutsideChain,
         `${node.id}'s input "${node.meta!.input}" does not occur in the page outside the chain`,
       ).toContain(String(node.meta!.input));
+    }
+  });
+
+  // The connector is the only place verification is read twice on this page,
+  // so it has to be legible on both themes. --at-divider is a 12%-alpha
+  // hairline in light and dark alike (astro-theme-university
+  // styles/tokens.css); --at-border is the 30%/40% accent-alpha token that
+  // .verification-badge--apocryphal already draws its dashed line in, so the
+  // two marks of the same meaning resolve to the same colour.
+  //
+  // Turns red by: setting --chain-connector-color back to var(--at-divider)
+  // on ol.chain in src/styles/specimen.css.
+  it("declares the chain's default connector colour as the border token, never the hairline, on every specimen page", () => {
+    for (const node of specimenNodes) {
+      const css = cssLoadedBy(pageHtml(node.id), pageFile(node.id));
+      const declaring = chainBaseRules(css).filter((rule) =>
+        /--chain-connector-color\s*:/.test(rule),
+      );
+      expect(
+        declaring.length,
+        `${node.id}: no ol.chain rule in its loaded CSS declares --chain-connector-color`,
+      ).toBeGreaterThan(0);
+      for (const rule of declaring) {
+        expect(
+          rule,
+          `${node.id}: an ol.chain rule sets --chain-connector-color to something other than var(--at-border)`,
+        ).toMatch(/--chain-connector-color\s*:\s*var\(\s*--at-border\s*\)/);
+      }
+      expect(
+        css,
+        `${node.id}: its loaded CSS still sets --chain-connector-color to the 12%-alpha var(--at-divider)`,
+      ).not.toMatch(/--chain-connector-color\s*:\s*var\(\s*--at-divider\s*\)/);
     }
   });
 });
