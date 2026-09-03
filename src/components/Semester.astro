@@ -1,41 +1,11 @@
 ---
-import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
 import { formatCourseDate, formatCourseDateShort } from "../lib/dates";
+import { isoDate, loadSemester, SEMESTER_WEEKS } from "../lib/semester";
 import "../styles/semester.css";
 
-const sessions = await getPublishedCollection("sessions");
-const lectures = await getPublishedCollection("lectures");
-const assessments = await getPublishedCollection("assessments");
-
-const sessionByWeek = new Map(sessions.map((session) => [session.data.week, session]));
-const lectureByWeek = new Map(lectures.map((lecture) => [lecture.data.week, lecture]));
-
-const weeks = Array.from({ length: 12 }, (_, i) => i + 1);
-
-const assessmentsByWeek = new Map(
-  weeks.map((week) => [
-    week,
-    assessments
-      .filter((assessment) => assessment.data.week === week)
-      .sort((a, b) => a.data.due.getTime() - b.data.due.getTime()),
-  ]),
-);
-
-// A break is a fact about the bench dates, not a week number typed by hand:
-// if the bench date of week N+1 is more than 7 days after week N's, a break
-// falls between them.
-function breaksBefore(week: number): boolean {
-  const previous = sessionByWeek.get(week - 1);
-  const current = sessionByWeek.get(week);
-  if (!previous || !current) return false;
-  const gapDays = (current.data.date.getTime() - previous.data.date.getTime()) / 86_400_000;
-  return gapDays > 7;
-}
-
-function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
+const { sessionByWeek, lectureByWeek, assessmentsByWeek, breaksBefore } = await loadSemester();
+const weeks = SEMESTER_WEEKS;
 ---
 
 <table class="semester">

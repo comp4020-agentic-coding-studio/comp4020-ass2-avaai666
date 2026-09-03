@@ -1,0 +1,66 @@
+---
+import { withBase } from "astro-theme-university/url";
+import { formatCourseDate } from "../lib/dates";
+import { isoDate, loadSemester, SEMESTER_WEEKS } from "../lib/semester";
+import "../styles/semester.css";
+
+const { sessionByWeek, lectureByWeek, assessmentsByWeek, breaksBefore } = await loadSemester();
+---
+
+<nav class="semester-nav" aria-label="The semester, week by week">
+  {
+    SEMESTER_WEEKS.map((week) => {
+      const lecture = lectureByWeek.get(week);
+      const session = sessionByWeek.get(week);
+      const dueThisWeek = assessmentsByWeek.get(week) ?? [];
+      const weekLabel = `W${String(week).padStart(2, "0")}`;
+
+      return (
+        <>
+          {breaksBefore(week) && <p class="semester-break">Mid-semester break</p>}
+          <details>
+            <summary>
+              <span class="semester-nav-week">{weekLabel}</span>
+              <span class="semester-nav-title">{lecture ? lecture.data.title : "No lecture"}</span>
+              {dueThisWeek.length > 0 && <span class="semester-nav-due">Due</span>}
+            </summary>
+            <div class="semester-nav-body">
+              {lecture && (
+                <p class="semester-nav-line">
+                  <time class="semester-date" datetime={isoDate(lecture.data.date)}>
+                    {formatCourseDate(lecture.data.date)}
+                  </time>
+                  <a href={withBase(`/lectures/${lecture.id}/`)}>{lecture.data.title}</a>
+                </p>
+              )}
+              {session && (
+                <p class="semester-nav-line">
+                  <time class="semester-date" datetime={isoDate(session.data.date)}>
+                    {formatCourseDate(session.data.date)}
+                  </time>
+                  <a href={withBase(`/sessions/${session.id}/`)}>{session.data.title}</a>
+                  <small>{session.data.operation}</small>
+                </p>
+              )}
+              {lecture?.data.slides && (
+                <p class="semester-nav-line">
+                  <a class="deck-link" href={withBase(lecture.data.slides)}>
+                    Deck
+                  </a>
+                </p>
+              )}
+              {dueThisWeek.map((assessment) => (
+                <p class="semester-nav-line">
+                  <a href={withBase(`/assessments/${assessment.id}/`)}>{assessment.data.title}</a>
+                  <time class="semester-date" datetime={isoDate(assessment.data.due)}>
+                    {formatCourseDate(assessment.data.due)}
+                  </time>
+                </p>
+              ))}
+            </div>
+          </details>
+        </>
+      );
+    })
+  }
+</nav>
