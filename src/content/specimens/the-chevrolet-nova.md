@@ -7,6 +7,7 @@ source: Repeated in marketing textbooks and business press; contradicted by cont
 sourceDate: "1970"
 verification: apocryphal
 languages: English → Spanish
+input: Nova
 mechanism: None — the reading it depends on is not how the phrase parses
 printed: no va
 ---

@@ -7,6 +7,7 @@ source: Photographs of Chinese restaurant menus, widely reproduced online; origi
 sourceDate: "2007"
 verification: secondary
 languages: Chinese (Simplified) → English
+input: 干爆鸭子
 mechanism: Character merger under simplification, then sense selection by corpus frequency
 printed: Fuck the duck until exploded
 related:

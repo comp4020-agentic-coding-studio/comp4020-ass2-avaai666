@@ -7,6 +7,7 @@ source: Photographs of Chinese public signage, widely circulated; this course ha
 sourceDate: "2010"
 verification: secondary
 languages: Chinese (Simplified) → English
+input: 出口
 mechanism: Polysemy resolved by frequency rather than by context
 printed: 出口 EXPORT
 ---

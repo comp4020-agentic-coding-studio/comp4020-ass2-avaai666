@@ -7,6 +7,7 @@ source: Reported in medical-interpreting literature and press coverage; this cou
 sourceDate: "1980"
 verification: secondary
 languages: Spanish → English
+input: intoxicado
 mechanism: A false friend, in a setting with no interpreter and no time
 printed: intoxicado → intoxicated
 ---

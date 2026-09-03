@@ -7,6 +7,7 @@ source: Photographs of Chinese supermarket signage, widely reproduced online; or
 sourceDate: "2007"
 verification: secondary
 languages: Chinese (Simplified) → English
+input: 干货
 mechanism: Character merger under simplification, then sense selection by corpus frequency
 printed: Fuck Goods
 ---

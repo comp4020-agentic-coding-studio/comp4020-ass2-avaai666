@@ -7,6 +7,7 @@ source: Repeated in textbooks, lectures and press coverage; no primary account l
 sourceDate: "1960"
 verification: apocryphal
 languages: English → Russian → English
+input: "The spirit is willing but the flesh is weak"
 mechanism: Unestablished — no system has been identified
 printed: The vodka is good but the meat is rotten
 related:

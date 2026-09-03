@@ -63,6 +63,7 @@ export const collections = {
         sourceUrl: z.string().url().optional(),
         verification: specimenVerification,
         languages: z.string().trim().min(1),
+        input: z.string().trim().min(1).optional(),
         mechanism: z.string().trim().min(1),
         printed: z.string().trim().min(1),
       })
