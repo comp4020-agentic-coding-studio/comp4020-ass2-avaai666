@@ -43,6 +43,21 @@ main blockquote {
     content: " (" attr(href) ")";
     font-size: 0.8em;
   }
+
+  /* Every colour on this site is a light-dark() token, and light-dark()
+     resolves against the used color-scheme, not the media type — so with the
+     dark toggle on, the black-on-white body rule above lands under captions,
+     dt, chain roles and muted text still painted at their 95%-white value.
+     Pinning the scheme is what makes that rule true of the whole page. */
+  :root {
+    color-scheme: light;
+  }
+
+  /* Track and fill are both backgrounds, and print drops backgrounds. */
+  .weight-bar,
+  .weight-bar > span {
+    print-color-adjust: exact;
+  }
 }
 
 /* The theme's own prefers-reduced-motion block (base.css) shortens durations
