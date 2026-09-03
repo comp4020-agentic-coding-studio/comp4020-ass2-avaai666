@@ -13,6 +13,15 @@
   margin-block-start: var(--at-spacing-md);
 }
 
+/* Prose reads better capped; a register (table, dl, the week strip, the
+   semester table, the reconstruction chain) or a figure is not prose and
+   keeps the full measure. */
+main p,
+main li,
+main blockquote {
+  max-width: 70ch;
+}
+
 /* The theme's own print block (base.css) already hides .at-nav, .at-sidebar
    and .at-footer and collapses the screen grid — this adds only the chrome
    the theme does not know about, plus the two things print needs that screen
