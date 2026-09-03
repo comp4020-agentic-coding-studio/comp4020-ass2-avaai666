@@ -113,6 +113,84 @@ describe("semester table (home page)", () => {
   });
 });
 
+const navMatches = [...homeHtml.matchAll(/<nav class="semester-nav"[^>]*>[\s\S]*?<\/nav>/g)];
+const navHtml = navMatches[0]?.[0] ?? "";
+
+function detailsOf(html: string): string[] {
+  return [...html.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/g)].map((m) => m[0]);
+}
+
+const navDetails = detailsOf(navHtml);
+
+function summaryTextOf(details: string): string {
+  const match = details.match(/<summary\b[^>]*>([\s\S]*?)<\/summary>/);
+  return (match?.[1] ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+describe("semester nav (home page, phone)", () => {
+  it("renders exactly one nav.semester-nav with exactly twelve details", () => {
+    // Turns red by: deleting <SemesterNav /> from src/pages/index.astro, or
+    // rendering it more than once, or looping over fewer/more than 12 weeks.
+    expect(navMatches.length).toBe(1);
+    expect(navDetails.length).toBe(12);
+  });
+
+  it("orders each summary W01…W12, each naming its own week's lecture title or \"No lecture\"", () => {
+    // Turns red by: rendering the weeks out of order, using an unpadded
+    // week number ("W1" instead of "W01"), or looking up the lecture by
+    // array index instead of by week so a title lands under the wrong week.
+    navDetails.forEach((details, index) => {
+      const week = index + 1;
+      const label = `W${String(week).padStart(2, "0")}`;
+      const summaryText = summaryTextOf(details);
+      expect(summaryText.startsWith(label), `detail ${index} does not start with ${label}`).toBe(
+        true,
+      );
+
+      const lecture = lectureNodes.find((n) => Number(n.meta?.week) === week);
+      const expectedTitle = lecture ? lecture.title : "No lecture";
+      expect(
+        summaryText,
+        `week ${week}'s summary is missing "${expectedTitle}"`,
+      ).toContain(expectedTitle);
+    });
+  });
+
+  it("marks Due in the summary of every week with an assessment due, and no other week", () => {
+    // Turns red by: rendering the Due mark on every week regardless of
+    // whether an assessment falls due that week, or omitting it for a week
+    // that does have one due.
+    const dueWeeks = new Set(assessmentNodes.map((n) => Number(n.meta?.week)));
+    navDetails.forEach((details, index) => {
+      const week = index + 1;
+      const hasDueMark = /<span class="semester-nav-due">Due<\/span>/.test(details);
+      expect(hasDueMark, `week ${week}'s Due mark presence is wrong`).toBe(dueWeeks.has(week));
+    });
+  });
+
+  it("renders exactly one Deck link per lecture that has slides", () => {
+    // Turns red by: rendering the Deck link for every lecture regardless of
+    // whether it has slides, or omitting it for a lecture that does.
+    const lecturesWithSlides = lectureNodes.filter((n) => Boolean(n.meta?.slides));
+    const deckLinkCount = [...navHtml.matchAll(/<a\s+class="deck-link"/g)].length;
+    expect(deckLinkCount).toBe(lecturesWithSlides.length);
+  });
+
+  it("puts one \"Mid-semester break\" paragraph between W06 and W07, and nowhere else", () => {
+    // Turns red by: hard-coding the break's position instead of deriving it
+    // from breaksBefore(), so a change to the session dates would not move
+    // it, or by rendering it inside a <details> instead of as a plain <p>.
+    const breakMatches = [...navHtml.matchAll(/<p class="semester-break">Mid-semester break<\/p>/g)];
+    expect(breakMatches.length).toBe(1);
+
+    const breakIndex = navHtml.indexOf(breakMatches[0][0]);
+    const week06Index = navHtml.indexOf(navDetails[5]);
+    const week07Index = navHtml.indexOf(navDetails[6]);
+    expect(breakIndex).toBeGreaterThan(week06Index);
+    expect(breakIndex).toBeLessThan(week07Index);
+  });
+});
+
 function pageHtml(type: "sessions" | "lectures", nodeId: string): string {
   const slug = nodeId.slice(type.length + 1);
   return readFileSync(resolve("dist", type, slug, "index.html"), "utf8");
