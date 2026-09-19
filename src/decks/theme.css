@@ -78,13 +78,30 @@
 /* impact --- the title card. deck.css paints this one as a flat brand fill
  * with --at-on-primary ink, which for the Slop gold resolves to near-black:
  * a gold slab. On this site gold marks a verified specimen and nothing else,
- * so the slab goes and the slide keeps the deck's own ink surface. What
- * survives is the hero's mark: a short accent rule under the title. */
+ * so the slab goes and the slide keeps the deck's own ink surface. In its
+ * place: a faint grid, the same idea as the specimen register's cells, at
+ * 6% currentColor so it reads as texture rather than a second background;
+ * and the dashed mark hero-home.avif draws over its own missing cell,
+ * redrawn here since a slide has no image asset for it. */
 .reveal .slides section.impact {
   background-color: var(--r-background-color);
-  background-image: none;
+  background-image:
+    repeating-linear-gradient(90deg, rgb(from currentColor r g b / 6%) 0 1px, transparent 1px 4rem),
+    repeating-linear-gradient(180deg, rgb(from currentColor r g b / 6%) 0 1px, transparent 1px 4rem);
   color: var(--r-main-color);
   text-align: start;
+}
+
+.reveal .slides section.impact::before {
+  content: "";
+  position: absolute;
+  top: 8%;
+  right: 6%;
+  width: 3rem;
+  height: 3rem;
+  border: 2px dashed var(--at-text-secondary);
+  border-radius: var(--at-border-radius);
+  pointer-events: none;
 }
 
 .reveal .slides section.impact :is(h1, h2, h3, h4, h5, h6) {
@@ -103,7 +120,21 @@
   text-transform: none;
 }
 
-/* Same mark, same numbers, as deck.css's `.hero h1::after`. */
+/* Cream, before the title: this course's own text, the half of every
+ * specimen that is never in question. */
+.reveal .slides section.impact h1::before {
+  content: "";
+  display: block;
+  width: 2.5rem;
+  height: 3px;
+  margin-block-end: 1.25rem;
+  border-radius: calc(var(--at-border-radius) / 3);
+  background: var(--r-main-color);
+}
+
+/* Gold, after: same mark, same numbers, as deck.css's `.hero h1::after` ---
+ * what a translation earns once it is checked against the cream line above
+ * it, not asserted on its own. */
 .reveal .slides section.impact h1::after {
   content: "";
   display: block;
