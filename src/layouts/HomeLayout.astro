@@ -1,0 +1,24 @@
+---
+// The home page's own layout shell. ContentLayout caps <main> at
+// --at-content-width (~48rem) and only ever offers its own generic hero
+// (title + description), neither of which this page can use — see
+// CLAUDE.md, "Platform routing, measured", and the second-pass brief's Part
+// 1. This wraps BaseLayout directly instead, exactly the way ContentLayout
+// itself does, and gives <main> a class the home stylesheet uses to lift
+// the width cap.
+import BaseLayout, { type BaseLayoutProps } from "astro-theme-university/layouts/BaseLayout.astro";
+import "../styles/layout.css";
+
+type Props = BaseLayoutProps;
+
+const { mainAttrs, ...baseProps } = Astro.props;
+const { class: mainClass, ...mainRest } = mainAttrs ?? {};
+---
+
+<BaseLayout
+  {...baseProps}
+  mainAttrs={{ class: ["home-page", mainClass].filter(Boolean).join(" "), ...mainRest }}
+>
+  <slot name="hero" slot="hero" />
+  <slot />
+</BaseLayout>

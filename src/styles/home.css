@@ -2,23 +2,86 @@
    .weight-bar, .specimen-register) because this file is imported nowhere
    else, so nothing here reaches another page's use of the same classes. */
 
-/* ContentLayout renders the hero (title) and then its own .lead description
-   paragraph before any content from this page's default slot, so the course
-   code and term cannot appear above the title — there is no slot that early.
-   This masthead line is the next thing after the description instead: the
-   record's byline, not an overline. */
+/* This page's <main> is handed a "home-page" class (see HomeLayout.astro)
+   specifically to escape the theme's own content-width cap
+   (.at-main { grid-column: inset-start / content-end }, ~48rem) — every
+   section on this page needs the full viewport to draw its own band, and
+   uses .home-shell (below) for the actual reading measure inside that band. */
+.at-main.home-page {
+  grid-column: full;
+  grid-template-columns: 1fr;
+}
+
+.home-shell {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(var(--at-spacing-lg), 5vw, var(--at-spacing-2xl));
+}
+
+/* One full-bleed band per section, alternating field so the page reads in
+   rhythm rather than as one continuous scroll: the hero is the dark field,
+   the semester/timeline record is the one tinted transition band, everything
+   else sits on the page's ordinary background. */
+.home-band {
+  padding-block: var(--at-spacing-2xl);
+}
+
+/* Tinted, not forced-dark: the semester table and the corpus timeline SVG
+   this band holds carry their own light-dark() colours, already legible
+   against either scheme's --at-bg-alt — unlike the hero (below), nothing in
+   this band is built by this stylesheet, so nothing here overrides colour. */
+.home-band--tint {
+  background: var(--at-bg-alt);
+}
+
+/* The hero itself: a dark field fixed to --at-black regardless of the
+   light/dark toggle, matching the evidence-bench artwork it stands next to
+   (hero-home.avif is also a dark field — see src/lib/artwork.ts). */
+.home-hero {
+  padding-block: var(--at-spacing-2xl);
+  background: var(--at-black);
+  color: var(--at-white);
+}
+
+.home-hero-shell {
+  display: grid;
+  gap: var(--at-spacing-2xl);
+  align-items: start;
+}
+
+@media (min-width: 60rem) {
+  .home-hero-shell {
+    grid-template-columns: 7fr 5fr;
+  }
+}
+
+.home-hero h1 {
+  margin: 0 0 var(--at-spacing-md);
+  color: var(--at-white);
+  font-size: var(--at-font-size-h1);
+  line-height: var(--at-line-height-heading);
+}
+
+.home-hero-description {
+  max-width: 60ch;
+  margin: 0 0 var(--at-spacing-lg);
+  color: var(--at-white);
+}
+
+/* The record's byline, not an overline: the course code and term, read
+   after the title rather than announced above it. */
 .home-kicker {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--at-spacing-sm) var(--at-spacing-md);
-  margin: 0 0 var(--at-spacing-lg);
+  margin: 0 0 var(--at-spacing-md);
   padding-block-end: var(--at-spacing-sm);
-  border-block-end: 1px solid var(--at-divider);
+  border-block-end: 1px solid color-mix(in srgb, var(--at-white) 30%, transparent);
 }
 
 .home-kicker-code {
-  color: var(--at-text);
+  color: var(--at-white);
   font-weight: 700;
   font-size: var(--at-font-size-sm);
   text-transform: uppercase;
@@ -26,7 +89,7 @@
 }
 
 .home-kicker-meta {
-  color: var(--at-text-secondary);
+  color: color-mix(in srgb, var(--at-white) 75%, transparent);
   font-size: var(--at-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -62,7 +125,7 @@
 
 .home-facts dd {
   margin: var(--at-spacing-xs) 0 0;
-  color: var(--at-text-secondary);
+  color: color-mix(in srgb, var(--at-white) 75%, transparent);
   font-size: var(--at-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
@@ -79,7 +142,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin: 0 0 var(--at-spacing-lg);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -87,17 +150,38 @@
 .course-tags li {
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  color: var(--at-text-secondary);
-  background: var(--at-bg-alt);
+  color: var(--at-white);
+  background: color-mix(in srgb, var(--at-white) 15%, transparent);
   font-size: 0.9rem;
 }
 
-/* "Wrong in Public" is two short words the theme's default 20ch cap lets sit
-   on one line at both marked widths; capping it to 11ch forces a break, and
-   text-wrap: balance (already set by the theme) chooses the more even split,
-   "Wrong in" / "Public", over the alternative "Wrong" / "in Public". */
-.at-hero-title {
-  max-inline-size: 11ch;
+/* The complete artwork, shown whole rather than cover-cropped: the theme's
+   own .at-hero-image is `position: absolute; object-fit: cover`, declared
+   inside the theme's @layer at.components — this rule is unlayered, so it
+   wins regardless of specificity (the same mechanism the old, now-removed
+   .at-hero-title override relied on). */
+.home-hero-artifact {
+  margin: 0;
+}
+
+.home-hero-artifact .at-hero-image {
+  position: static;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.home-hero-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-sm) var(--at-spacing-lg);
+  margin-block-start: var(--at-spacing-sm);
+  color: color-mix(in srgb, var(--at-white) 75%, transparent);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* One error, four operations: the same connected-chain structure the
@@ -106,7 +190,7 @@
    chain's default, unmodified connector (solid, the border token) rather
    than any of the three verification classes. */
 .operations {
-  margin-block: var(--at-spacing-xl) 0;
+  margin-block: 0;
 }
 
 .operations .chain {
@@ -181,9 +265,7 @@
    ways — a table and a plot of the same dated records — so they sit inside
    one ruled block instead of reading as two unrelated sections. */
 .evidence-record {
-  margin-block: var(--at-spacing-xl) 0;
-  padding-block-start: var(--at-spacing-lg);
-  border-block-start: 1px solid var(--at-divider);
+  margin-block: 0;
 }
 
 .evidence-record h2:not(:first-child) {

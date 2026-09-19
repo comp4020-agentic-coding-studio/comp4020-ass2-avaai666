@@ -1,18 +1,18 @@
 ---
 import { getEntry } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
 import { withBase } from "astro-theme-university/url";
 import heroImage from "../assets/images/hero-home.avif";
 import CorpusTimeline from "../components/CorpusTimeline.astro";
+import HomeHero from "../components/HomeHero.astro";
 import Semester from "../components/Semester.astro";
 import SemesterNav from "../components/SemesterNav.astro";
 import { courseMeta } from "../course-config";
+import HomeLayout from "../layouts/HomeLayout.astro";
 import { heroImageAlt } from "../lib/artwork";
 import { printedLang } from "../lib/specimens";
 import { VERIFICATION_LEVELS } from "../lib/verification";
 import { siteConfig } from "../site-config";
-import "../styles/layout.css";
 import "../styles/specimen.css";
 import "../styles/assessment.css";
 import "../styles/home.css";
@@ -48,207 +48,203 @@ const specimens = await getPublishedCollection("specimens");
 const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
 ---
 
-<ContentLayout
-  title={courseMeta.title}
-  description={courseMeta.description}
-  heroImage={heroImage}
-  heroImageAlt={heroImageAlt}
-  {...siteConfig}
->
-  <section class="home-opening" aria-label="Course record">
-    <p class="home-kicker">
-      <span class="home-kicker-code">{courseMeta.code}</span>
-      <span class="home-kicker-meta">
-        {levelLabel} · {courseMeta.session} {courseMeta.year}
-      </span>
-    </p>
+<HomeLayout title={courseMeta.title} description={courseMeta.description} {...siteConfig}>
+  <HomeHero
+    slot="hero"
+    code={courseMeta.code}
+    levelLabel={levelLabel}
+    session={courseMeta.session}
+    year={courseMeta.year}
+    title={courseMeta.title}
+    description={courseMeta.description}
+    tags={courseMeta.tags}
+    benchesCount={benches.length}
+    specimensCount={specimens.length}
+    verificationLevelsCount={VERIFICATION_LEVELS.length}
+    firstSpecimenHref={withBase(`/specimens/${FEATURED_SPECIMEN_IDS[0]}/`)}
+    heroImage={heroImage}
+    heroImageAlt={heroImageAlt}
+  />
 
-    <p class="home-cta-row">
-      <a class="at-button" href={withBase(`/specimens/${FEATURED_SPECIMEN_IDS[0]}/`)}>
-        Inspect a specimen
-      </a>
-      <a class="at-button at-button--outline" href="#semester">Read the semester</a>
-    </p>
-
-    <dl class="home-facts">
-      <dt>{benches.length}</dt>
-      <dd>Benches</dd>
-      <dt>{specimens.length}</dt>
-      <dd>Recorded specimens</dd>
-      <dt>{VERIFICATION_LEVELS.length}</dt>
-      <dd>Verification levels</dd>
-    </dl>
-
-    <ul class="course-tags" aria-label="Course tags">
-      {courseMeta.tags.map((tag) => <li>{tag}</li>)}
-    </ul>
-  </section>
-
-  <section class="operations" aria-labelledby="operations-heading">
-    <h2 id="operations-heading">One error, four operations</h2>
-    <ol class="chain">
-      <li class="chain-item">
-        <p class="chain-caption">Inspect</p>
-        <p class="chain-text">Record what was printed.</p>
-      </li>
-      <li class="chain-item">
-        <p class="chain-caption">Trace</p>
-        <p class="chain-text">Establish where it came from.</p>
-      </li>
-      <li class="chain-item">
-        <p class="chain-caption">Reconstruct</p>
-        <p class="chain-text">Model the process that produced it.</p>
-      </li>
-      <li class="chain-item">
-        <p class="chain-caption">Argue</p>
-        <p class="chain-text">Make a claim specific enough to be wrong.</p>
-      </li>
-    </ol>
-  </section>
-
-  <section class="home-specimens">
-    <h2>Three of the seven</h2>
-    <p>
-      Every artefact on this site is recorded with where it came from, when, and
-      how far the record can be trusted. These three are the shape of the
-      corpus: a workflow, a dictionary, and a word in a room where being wrong
-      mattered.
-    </p>
-    <ul class="specimen-register">
-      {featuredSpecimens.map((specimen) => (
-        <li class="specimen-record">
-          <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
-            {specimen.data.printed}
-          </p>
-          <p class="specimen-record-heading">
-            <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
-            <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
-              {specimen.data.verification}
-            </span>
-          </p>
-          <p class="specimen-record-languages">
-            {specimen.data.languages} · {specimen.data.sourceDate}
-          </p>
-          <p>{specimen.id === "gan-the-merged-character" ? (<>Simplification merged two characters into one. A lookup then chose between that character's senses by which was commoner, and a restaurant printed the answer on its menu — <em>Fuck the duck until exploded</em>.</>) : (FEATURED_SPECIMEN_LINES[specimen.id])}</p>
-        </li>
-      ))}
-    </ul>
-  </section>
-
-  {
-    specimenLog && reconstruction && exhibit && benchContribution && (
-      <section aria-labelledby="ladder-heading">
-        <h2 id="ladder-heading">What you will be able to do</h2>
-        <ol class="ladder-steps">
-          <li class="ladder-step">
-            <p>
-              By week twelve you can record an artefact so that a stranger can re-check
-              it, and say plainly when you cannot source one. That is what the{" "}
-              <a href={withBase(`/assessments/${specimenLog.id}/`)}>specimen log</a> is
-              marked on.
-            </p>
-            <div class="ladder-weight">
-              <div class="weight-bar" role="img" aria-label={`${specimenLog.data.weight} of 100`}>
-                <span style={`width: ${specimenLog.data.weight}%`} />
-              </div>
-              <p class="ladder-weight-label">
-                {specimenLog.data.weight}% · {specimenLog.data.title}
-              </p>
-            </div>
+  <section class="home-band">
+    <div class="home-shell">
+      <section class="operations" aria-labelledby="operations-heading">
+        <h2 id="operations-heading">One error, four operations</h2>
+        <ol class="chain">
+          <li class="chain-item">
+            <p class="chain-caption">Inspect</p>
+            <p class="chain-text">Record what was printed.</p>
           </li>
-          <li class="ladder-step">
-            <p>
-              You can argue from one error back to the process that produced it,
-              specifically enough to be wrong. That is{" "}
-              <a href={withBase(`/assessments/${reconstruction.id}/`)}>the reconstruction</a>.
-            </p>
-            <div class="ladder-weight">
-              <div
-                class="weight-bar"
-                role="img"
-                aria-label={`${reconstruction.data.weight} of 100`}
-              >
-                <span style={`width: ${reconstruction.data.weight}%`} />
-              </div>
-              <p class="ladder-weight-label">
-                {reconstruction.data.weight}% · {reconstruction.data.title}
-              </p>
-            </div>
+          <li class="chain-item">
+            <p class="chain-caption">Trace</p>
+            <p class="chain-text">Establish where it came from.</p>
           </li>
-          <li class="ladder-step">
-            <p>
-              You can put a corpus in front of someone who was not in the room and
-              document what you left out of it. That is{" "}
-              <a href={withBase(`/assessments/${exhibit.id}/`)}>the exhibit</a>.
-            </p>
-            <div class="ladder-weight">
-              <div class="weight-bar" role="img" aria-label={`${exhibit.data.weight} of 100`}>
-                <span style={`width: ${exhibit.data.weight}%`} />
-              </div>
-              <p class="ladder-weight-label">
-                {exhibit.data.weight}% · {exhibit.data.title}
-              </p>
-            </div>
+          <li class="chain-item">
+            <p class="chain-caption">Reconstruct</p>
+            <p class="chain-text">Model the process that produced it.</p>
           </li>
-          <li class="ladder-step">
-            <p>
-              The fourth mark is{" "}
-              <a href={withBase(`/assessments/${benchContribution.id}/`)}>the room itself</a>,
-              and it is the one you cannot do alone.
-            </p>
-            <div class="ladder-weight">
-              <div
-                class="weight-bar"
-                role="img"
-                aria-label={`${benchContribution.data.weight} of 100`}
-              >
-                <span style={`width: ${benchContribution.data.weight}%`} />
-              </div>
-              <p class="ladder-weight-label">
-                {benchContribution.data.weight}% · {benchContribution.data.title}
-              </p>
-            </div>
+          <li class="chain-item">
+            <p class="chain-caption">Argue</p>
+            <p class="chain-text">Make a claim specific enough to be wrong.</p>
           </li>
         </ol>
       </section>
-    )
-  }
 
-  <h2>What you will do</h2>
-  <p>
-    Every week you bring one artefact — a menu, a sign, a subtitle, a manual —
-    that claims to say something in a language it does not speak. You record
-    where it came from and when. Then you work backwards from the error to the
-    process that produced it: a dictionary entry, a grammar rule, a phrase
-    table, a network, or a workflow that could not tell a translation request
-    from an email.
-  </p>
-  <p>
-    By week twelve you have a catalogued corpus and one argument you can defend
-    about a system you never had access to.
-  </p>
+      <section class="home-specimens">
+        <h2>Three of the seven</h2>
+        <p>
+          Every artefact on this site is recorded with where it came from, when, and
+          how far the record can be trusted. These three are the shape of the
+          corpus: a workflow, a dictionary, and a word in a room where being wrong
+          mattered.
+        </p>
+        <ul class="specimen-register">
+          {featuredSpecimens.map((specimen) => (
+            <li class="specimen-record">
+              <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
+                {specimen.data.printed}
+              </p>
+              <p class="specimen-record-heading">
+                <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
+                <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+                  {specimen.data.verification}
+                </span>
+              </p>
+              <p class="specimen-record-languages">
+                {specimen.data.languages} · {specimen.data.sourceDate}
+              </p>
+              <p>{specimen.id === "gan-the-merged-character" ? (<>Simplification merged two characters into one. A lookup then chose between that character's senses by which was commoner, and a restaurant printed the answer on its menu — <em>Fuck the duck until exploded</em>.</>) : (FEATURED_SPECIMEN_LINES[specimen.id])}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  </section>
 
-  <div class="evidence-record" id="semester">
-    <h2>The semester</h2>
-    <Semester />
-    <SemesterNav />
+  <section class="home-band">
+    <div class="home-shell">
+      {
+        specimenLog && reconstruction && exhibit && benchContribution && (
+          <section aria-labelledby="ladder-heading">
+            <h2 id="ladder-heading">What you will be able to do</h2>
+            <ol class="ladder-steps">
+              <li class="ladder-step">
+                <p>
+                  By week twelve you can record an artefact so that a stranger can re-check
+                  it, and say plainly when you cannot source one. That is what the{" "}
+                  <a href={withBase(`/assessments/${specimenLog.id}/`)}>specimen log</a> is
+                  marked on.
+                </p>
+                <div class="ladder-weight">
+                  <div class="weight-bar" role="img" aria-label={`${specimenLog.data.weight} of 100`}>
+                    <span style={`width: ${specimenLog.data.weight}%`} />
+                  </div>
+                  <p class="ladder-weight-label">
+                    {specimenLog.data.weight}% · {specimenLog.data.title}
+                  </p>
+                </div>
+              </li>
+              <li class="ladder-step">
+                <p>
+                  You can argue from one error back to the process that produced it,
+                  specifically enough to be wrong. That is{" "}
+                  <a href={withBase(`/assessments/${reconstruction.id}/`)}>the reconstruction</a>.
+                </p>
+                <div class="ladder-weight">
+                  <div
+                    class="weight-bar"
+                    role="img"
+                    aria-label={`${reconstruction.data.weight} of 100`}
+                  >
+                    <span style={`width: ${reconstruction.data.weight}%`} />
+                  </div>
+                  <p class="ladder-weight-label">
+                    {reconstruction.data.weight}% · {reconstruction.data.title}
+                  </p>
+                </div>
+              </li>
+              <li class="ladder-step">
+                <p>
+                  You can put a corpus in front of someone who was not in the room and
+                  document what you left out of it. That is{" "}
+                  <a href={withBase(`/assessments/${exhibit.id}/`)}>the exhibit</a>.
+                </p>
+                <div class="ladder-weight">
+                  <div class="weight-bar" role="img" aria-label={`${exhibit.data.weight} of 100`}>
+                    <span style={`width: ${exhibit.data.weight}%`} />
+                  </div>
+                  <p class="ladder-weight-label">
+                    {exhibit.data.weight}% · {exhibit.data.title}
+                  </p>
+                </div>
+              </li>
+              <li class="ladder-step">
+                <p>
+                  The fourth mark is{" "}
+                  <a href={withBase(`/assessments/${benchContribution.id}/`)}>the room itself</a>,
+                  and it is the one you cannot do alone.
+                </p>
+                <div class="ladder-weight">
+                  <div
+                    class="weight-bar"
+                    role="img"
+                    aria-label={`${benchContribution.data.weight} of 100`}
+                  >
+                    <span style={`width: ${benchContribution.data.weight}%`} />
+                  </div>
+                  <p class="ladder-weight-label">
+                    {benchContribution.data.weight}% · {benchContribution.data.title}
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </section>
+        )
+      }
 
-    <h2>The corpus in time</h2>
-    <CorpusTimeline />
-  </div>
+      <h2>What you will do</h2>
+      <p>
+        Every week you bring one artefact — a menu, a sign, a subtitle, a manual —
+        that claims to say something in a language it does not speak. You record
+        where it came from and when. Then you work backwards from the error to the
+        process that produced it: a dictionary entry, a grammar rule, a phrase
+        table, a network, or a workflow that could not tell a translation request
+        from an email.
+      </p>
+      <p>
+        By week twelve you have a catalogued corpus and one argument you can defend
+        about a system you never had access to.
+      </p>
+    </div>
+  </section>
 
-  <h2>Who it is for</h2>
-  <p>
-    Postgraduate students who read a second language well enough to tell a bad
-    translation from an unfamiliar one. You do not need to build translation
-    systems and you will not be asked to. You do need to be willing to
-    say <em>I cannot source this</em> in front of other people.
-  </p>
+  <section class="home-band home-band--tint" id="semester">
+    <div class="home-shell evidence-record">
+      <h2>The semester</h2>
+      <Semester />
+      <SemesterNav />
 
-  <h2>What this course does not do</h2>
-  <p>
-    It does not teach you to translate. It does not rank languages by
-    difficulty. It does not treat a mistranslation as a joke about the person
-    who made it: the machine is the subject, not the speaker.
-  </p>
-</ContentLayout>
+      <h2>The corpus in time</h2>
+      <CorpusTimeline />
+    </div>
+  </section>
+
+  <section class="home-band">
+    <div class="home-shell">
+      <h2>Who it is for</h2>
+      <p>
+        Postgraduate students who read a second language well enough to tell a bad
+        translation from an unfamiliar one. You do not need to build translation
+        systems and you will not be asked to. You do need to be willing to
+        say <em>I cannot source this</em> in front of other people.
+      </p>
+
+      <h2>What this course does not do</h2>
+      <p>
+        It does not teach you to translate. It does not rank languages by
+        difficulty. It does not treat a mistranslation as a joke about the person
+        who made it: the machine is the subject, not the speaker.
+      </p>
+    </div>
+  </section>
+</HomeLayout>

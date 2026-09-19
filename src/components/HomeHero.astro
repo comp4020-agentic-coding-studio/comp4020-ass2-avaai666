@@ -1,0 +1,84 @@
+---
+// The home page's own hero: BaseLayout's plain slot="hero", not the theme's
+// <Hero> (title + cover-cropped image). See CLAUDE.md, "Platform routing,
+// measured", and src/layouts/HomeLayout.astro. Every value here is a prop
+// computed in index.astro from real collection/config data — this component
+// invents nothing, it only lays the values out.
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
+interface Props {
+  code: string;
+  levelLabel: string;
+  session: string;
+  year: number;
+  title: string;
+  description: string;
+  tags: string[];
+  benchesCount: number;
+  specimensCount: number;
+  verificationLevelsCount: number;
+  firstSpecimenHref: string;
+  heroImage: ImageMetadata;
+  heroImageAlt: string;
+}
+
+const {
+  code,
+  levelLabel,
+  session,
+  year,
+  title,
+  description,
+  tags,
+  benchesCount,
+  specimensCount,
+  verificationLevelsCount,
+  firstSpecimenHref,
+  heroImage,
+  heroImageAlt,
+} = Astro.props;
+---
+
+<section class="home-hero" aria-label="Course record">
+  <div class="home-hero-shell home-shell">
+    <div class="home-hero-text">
+      <p class="home-kicker">
+        <span class="home-kicker-code">{code}</span>
+        <span class="home-kicker-meta">{levelLabel} · {session} {year}</span>
+      </p>
+
+      <h1>{title}</h1>
+
+      <p class="home-hero-description">{description}</p>
+
+      <p class="home-cta-row">
+        <a class="at-button" href={firstSpecimenHref}>Inspect a specimen</a>
+        <a class="at-button at-button--outline" href="#semester">Read the semester</a>
+      </p>
+
+      <dl class="home-facts">
+        <dt>{benchesCount}</dt>
+        <dd>Benches</dd>
+        <dt>{specimensCount}</dt>
+        <dd>Recorded specimens</dd>
+        <dt>{verificationLevelsCount}</dt>
+        <dd>Verification levels</dd>
+      </dl>
+
+      <ul class="course-tags" aria-label="Course tags">
+        {tags.map((tag) => <li>{tag}</li>)}
+      </ul>
+    </div>
+
+    <figure class="home-hero-artifact">
+      <Image class="at-hero-image" src={heroImage} alt={heroImageAlt} />
+      <figcaption class="home-hero-legend">
+        <span>Source text</span>
+        <span>Translation</span>
+        <span>Visible seam</span>
+        <span>Missing counterpart</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
