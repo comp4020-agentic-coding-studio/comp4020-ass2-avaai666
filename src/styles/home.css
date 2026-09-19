@@ -64,11 +64,14 @@
 /* Two columns at desktop width — course identity/proposition on the left,
    one concrete case file on the right — collapsing to source order (record
    line, title, proposition, case file, action) on narrow screens per the
-   brief's required 390px reading order. max-height keeps the split within
-   the brief's ~520-560px cap so the next section is visible before the
-   bottom of a 1080px viewport; it is a cap on the split only, not on the
-   heading/description within it, which size themselves and can exceed it
-   safely since nothing here clips overflow. */
+   brief's required 390px reading order. The 8fr/4fr split (was 7fr/5fr)
+   gives the case file only as much width as its now-shorter content (title,
+   badge, one printed line, provenance) needs, leaving the heading column
+   more room; height is left to natural sizing — a fixed max-height on a
+   grid whose children have the default overflow: visible does not clip
+   them, it only caps the track itself while content keeps rendering past
+   it, so the previous 35rem cap was never doing what its old comment
+   claimed. */
 .home-hero-shell {
   display: grid;
   gap: var(--at-spacing-xl);
@@ -77,9 +80,7 @@
 
 @media (min-width: 60rem) {
   .home-hero-shell {
-    grid-template-columns: 7fr 5fr;
-    gap: var(--at-spacing-2xl);
-    max-height: 35rem;
+    grid-template-columns: 8fr 4fr;
   }
 }
 
@@ -94,14 +95,16 @@
   letter-spacing: 0.08em;
 }
 
-/* 5.5-7rem at wide desktop, one line where the 7-column left side has room
-   for it, narrowing on its own at smaller widths — the range is the
-   brief's, not independently measured (no renderer is available; see
-   CLAUDE.md rule 16). --at-font-size-h1 (2.5rem, tokens.css) is too small
-   for this hierarchy, so this sets its own size rather than reusing it. */
+/* Caps at 5.5rem (was 7rem) rather than the wide-viewport end of the old
+   clamp, so "Wrong in Public" (14 characters) has room to stay on one line
+   in the 8-column left side at 1920px without independent measurement (no
+   renderer is available; see CLAUDE.md rule 16) — 7rem * 14ch was already
+   wider than an 8fr column comfortably holds at that viewport. --at-font-
+   size-h1 (2.5rem, tokens.css) is too small for this hierarchy, so this
+   sets its own size rather than reusing it. */
 .home-hero h1 {
   margin: 0 0 var(--at-spacing-md);
-  font-size: clamp(2.75rem, 1.5rem + 5vw, 7rem);
+  font-size: clamp(2.75rem, 1.5rem + 3.5vw, 5.5rem);
   line-height: 1.02;
 }
 
@@ -162,57 +165,15 @@
   margin: 0 0 var(--at-spacing-md);
   padding-inline-start: var(--at-spacing-md);
   border-inline-start: 0.35rem solid var(--at-accent);
+  color: var(--at-white);
   font-size: calc(var(--at-font-size-base) * 1.15);
   font-weight: 600;
 }
 
 .home-case-provenance {
-  margin: 0 0 var(--at-spacing-lg);
-  color: color-mix(in srgb, var(--at-white) 70%, transparent);
-  font-size: var(--at-font-size-xs);
-}
-
-.home-case-chain {
-  display: flex;
-  flex-direction: column;
-  gap: var(--at-spacing-sm);
-  margin: 0 0 var(--at-spacing-lg);
-  padding: 0;
-  list-style: none;
-  border-block-start: 1px solid color-mix(in srgb, var(--at-white) 30%, transparent);
-}
-
-.home-case-chain-item {
-  padding-block-start: var(--at-spacing-sm);
-}
-
-.home-case-chain-caption {
   margin: 0;
   color: color-mix(in srgb, var(--at-white) 70%, transparent);
   font-size: var(--at-font-size-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.home-case-chain-text {
-  margin: var(--at-spacing-xs) 0 0;
-}
-
-.home-case-open {
-  margin: 0;
-  font-weight: 600;
-}
-
-.home-case-open a {
-  display: inline-block;
-  padding-block: 0.625rem;
-}
-
-.home-case-open a,
-.home-case-printed,
-.home-case-chain-text {
-  color: var(--at-white);
 }
 
 /* Four quiet record fields, not cards or pills: one ruled strip immediately

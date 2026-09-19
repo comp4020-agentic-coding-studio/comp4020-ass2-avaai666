@@ -55,25 +55,6 @@ const { data } = caseSpecimen;
       <p class="home-case-provenance">
         {data.source} · {data.sourceDate}
       </p>
-
-      <ol class="home-case-chain">
-        <li class="home-case-chain-item">
-          <p class="home-case-chain-caption">Input</p>
-          <p class="home-case-chain-text">{data.input ?? "Not recorded"}</p>
-        </li>
-        <li class="home-case-chain-item">
-          <p class="home-case-chain-caption">Workflow</p>
-          <p class="home-case-chain-text">{data.mechanism}</p>
-        </li>
-        <li class="home-case-chain-item">
-          <p class="home-case-chain-caption">Printed result</p>
-          <p class="home-case-chain-text">{data.printed}</p>
-        </li>
-      </ol>
-
-      <p class="home-case-open">
-        <a href={firstSpecimenHref}>Open the case file →</a>
-      </p>
     </aside>
   </div>
 </section>
