@@ -1,15 +1,15 @@
 ---
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import SpecimensGrid from "../../components/SpecimensGrid.astro";
 import { siteConfig } from "../../site-config";
 import { VERIFICATION_LEVELS, verificationLegendNotes } from "../../lib/verification";
-import "../../styles/layout.css";
 import "../../styles/specimen.css";
 ---
 
-<ContentLayout
+<CourseRecordLayout
   title="Specimens"
   description="Every artefact this course argues from, with the provenance that makes it usable as evidence."
+  kicker="SPECIMENS"
   {...siteConfig}
 >
   <p>
@@ -30,4 +30,4 @@ import "../../styles/specimen.css";
     }
   </dl>
   <SpecimensGrid />
-</ContentLayout>
+</CourseRecordLayout>

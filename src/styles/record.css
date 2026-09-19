@@ -1,0 +1,64 @@
+/* CourseRecordLayout's header. Loaded by every lecture, bench, assessment
+   and specimen detail page, and by IndexLayout (assessments/lectures/
+   people/policies indexes) and the sessions/specimens index routes — see
+   CourseRecordLayout.astro's own comment for why the header renders in the
+   `hero` slot rather than inside <main>. */
+
+/* A direct child of body's own grid needs an explicit column, the same way
+   the theme's .at-hero and .at-nav do (components.css) — with none, an
+   unclassed grid child collapses into the implicit first track instead of
+   spanning the viewport. */
+.record-header {
+  grid-column: full;
+  background: var(--at-bg-alt);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.record-shell {
+  max-width: 1440px;
+  margin-inline: auto;
+  /* .at-nav + .at-main's own top-padding fix (layout.css) only matches a
+     <main> that is nav's literal next sibling — a page using this header
+     puts the header there instead, so this rule is this layout's own
+     equivalent, not a duplicate of that one. */
+  padding-block: var(--at-spacing-lg) var(--at-spacing-xl);
+  padding-inline: clamp(var(--at-spacing-lg), 5vw, var(--at-spacing-2xl));
+}
+
+.record-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--at-spacing-sm) var(--at-spacing-md);
+  margin: 0 0 var(--at-spacing-sm);
+}
+
+.record-kicker-label {
+  color: var(--at-accent);
+  font-weight: 700;
+  font-size: var(--at-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.record-kicker-meta {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.record-header h1 {
+  margin: 0 0 var(--at-spacing-sm);
+}
+
+.record-description {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--at-text-secondary);
+}
+
+.record-verification {
+  margin: var(--at-spacing-sm) 0 0;
+}

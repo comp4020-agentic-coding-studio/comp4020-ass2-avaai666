@@ -4,12 +4,11 @@ import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import SpecList from "astro-course-university/components/SpecList.astro";
 import Callout from "astro-theme-university/components/Callout.astro";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import AssessmentBenches from "../../components/AssessmentBenches.astro";
 import MarkingModel from "../../components/MarkingModel.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, siteConfig } from "../../site-config";
-import "../../styles/layout.css";
 
 export async function getStaticPaths() {
   const assessments = await getPublishedCollection("assessments");
@@ -21,11 +20,14 @@ export async function getStaticPaths() {
 
 const { assessment } = Astro.props;
 const { Content } = await render(assessment);
+const metadata = `ASSESSMENT · ${assessment.data.weight}% · DUE ${formatCourseDate(assessment.data.due)}`;
 ---
 
-<ContentLayout
+<CourseRecordLayout
   title={assessment.data.title}
   description={assessment.data.description}
+  kicker="ASSESSMENT"
+  metadata={metadata}
   {...siteConfig}
 >
   {
@@ -38,7 +40,6 @@ const { Content } = await render(assessment);
     )
   }
   <AssessmentBenches assessment={assessment} />
-  <p><strong>Due:</strong> {formatCourseDate(assessment.data.due)} · <strong>Weight:</strong> {assessment.data.weight}%</p>
   <Content />
   <SpecList spec={assessment.data.spec}>
     The brief poses the problem and leaves room for a response. The spec is the
@@ -47,4 +48,4 @@ const { Content } = await render(assessment);
   </SpecList>
   {assessment.data.marking && <MarkingModel marking={assessment.data.marking} />}
   <RelatedContent entry={assessment} collections={graphCollections} />
-</ContentLayout>
+</CourseRecordLayout>

@@ -1,0 +1,58 @@
+---
+// The shared header for every course record: a lecture, a bench, an
+// assessment, a specimen, and the flatter pages (policies, the four
+// IndexLayout indexes) that read as one kind of object too. Uses BaseLayout
+// directly, the same way HomeLayout does — see CLAUDE.md, "Platform routing,
+// measured" — so the header renders through the `hero` slot and the theme's
+// own <Hero>/ContentLayout's `.lead` never fires. spec/course-record-layout.test.ts
+// is the check: a <header class="record-header">, that header's own
+// type-specific metadata line, and record.css loaded by every page that uses
+// this layout.
+import BaseLayout, { type BaseLayoutProps } from "astro-theme-university/layouts/BaseLayout.astro";
+import "../styles/layout.css";
+import "../styles/record.css";
+
+export interface CourseRecordLayoutProps extends Omit<BaseLayoutProps, "description"> {
+  /** Content collections type entry descriptions as `string | null`, same as
+   *  the theme's own ContentLayoutProps — normalised to `undefined` below
+   *  before reaching BaseLayout, which only accepts `string | undefined`. */
+  description?: string | null;
+  /** Content-type label shown above the title, e.g. "LECTURE", "SPECIMEN". */
+  kicker: string;
+  /** The record's own facts, already formatted by the caller from real entry
+   *  data — week, weight, due date, verification level. This layout renders
+   *  the string as-is; it does not compute or invent any of it. */
+  metadata?: string;
+  /** When set, renders that specimen's verification badge in the header. */
+  verification?: "primary" | "secondary" | "apocryphal";
+}
+
+type Props = CourseRecordLayoutProps;
+
+const { kicker, metadata, verification, ...baseProps } = Astro.props;
+const { title, description } = baseProps;
+---
+
+<BaseLayout {...baseProps} description={description ?? undefined}>
+  <header class="record-header" slot="hero">
+    <div class="record-shell">
+      <p class="record-kicker">
+        <span class="record-kicker-label">{kicker}</span>
+        {metadata && <span class="record-kicker-meta">{metadata}</span>}
+      </p>
+
+      <h1>{title}</h1>
+
+      {description && <p class="record-description">{description}</p>}
+
+      {
+        verification && (
+          <p class="record-verification">
+            <span class={`verification-badge verification-badge--${verification}`}>{verification}</span>
+          </p>
+        )
+      }
+    </div>
+  </header>
+  <slot />
+</BaseLayout>

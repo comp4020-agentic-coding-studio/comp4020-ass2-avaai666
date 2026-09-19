@@ -3,13 +3,12 @@ import { render } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
 import SpecList from "astro-course-university/components/SpecList.astro";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
 import ThisWeek from "../../components/ThisWeek.astro";
 import WeekStrip from "../../components/WeekStrip.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, sessionLabels, siteConfig } from "../../site-config";
-import "../../styles/layout.css";
 import "../../styles/session.css";
 import "../../styles/specimen.css";
 
@@ -20,16 +19,18 @@ export async function getStaticPaths() {
 
 const { session } = Astro.props;
 const { Content } = await render(session);
+const metadata = `${sessionLabels.singular.toUpperCase()} · WEEK ${session.data.week} · ${formatCourseDate(session.data.date)}`;
 ---
 
-<ContentLayout
+<CourseRecordLayout
   title={`Week ${session.data.week} ${sessionLabels.singular}: ${session.data.title}`}
   description={session.data.description}
+  kicker={sessionLabels.singular.toUpperCase()}
+  metadata={metadata}
   {...siteConfig}
 >
   <WeekStrip current={session.data.week} kind="sessions" />
   <ThisWeek week={session.data.week} self="sessions" />
-  <p><strong>{formatCourseDate(session.data.date)}</strong></p>
   <p class="specimen-provenance-caption">Bench</p>
   <dl class="specimen-provenance">
     <dt>Material</dt>
@@ -48,4 +49,4 @@ const { Content } = await render(session);
   </SpecList>
   <TeachingTeam teachers={session.data.teachers} />
   <RelatedContent entry={session} collections={graphCollections} />
-</ContentLayout>
+</CourseRecordLayout>

@@ -1,13 +1,13 @@
 ---
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import SessionsGrid from "../../components/SessionsGrid.astro";
 import { sessionLabels, siteConfig } from "../../site-config";
-import "../../styles/layout.css";
 ---
 
-<ContentLayout
+<CourseRecordLayout
   title={sessionLabels.plural}
   description={`The twelve-week teaching schedule: what happens in each ${sessionLabels.singular.toLowerCase()}, what to prepare, and what leaves the room.`}
+  kicker={sessionLabels.plural.toUpperCase()}
   {...siteConfig}
 >
   <p>
@@ -18,4 +18,4 @@ import "../../styles/layout.css";
     nothing on it is a seminar.
   </p>
   <SessionsGrid />
-</ContentLayout>
+</CourseRecordLayout>

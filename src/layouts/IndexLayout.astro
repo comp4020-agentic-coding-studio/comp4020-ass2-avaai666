@@ -1,11 +1,15 @@
 ---
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "./CourseRecordLayout.astro";
 import { siteConfig } from "../site-config";
-import "../styles/layout.css";
 
 const { frontmatter } = Astro.props;
 ---
 
-<ContentLayout title={frontmatter.title} description={frontmatter.description} {...siteConfig}>
+<CourseRecordLayout
+  title={frontmatter.title}
+  description={frontmatter.description}
+  kicker={frontmatter.title.toUpperCase()}
+  {...siteConfig}
+>
   <slot />
-</ContentLayout>
+</CourseRecordLayout>

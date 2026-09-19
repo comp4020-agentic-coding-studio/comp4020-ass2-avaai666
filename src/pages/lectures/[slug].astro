@@ -2,13 +2,12 @@
 import { render } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import TeachingTeam from "../../components/TeachingTeam.astro";
 import ThisWeek from "../../components/ThisWeek.astro";
 import WeekStrip from "../../components/WeekStrip.astro";
 import { formatCourseDate } from "../../lib/dates";
 import { graphCollections, siteConfig } from "../../site-config";
-import "../../styles/layout.css";
 
 export async function getStaticPaths() {
   const lectures = await getPublishedCollection("lectures");
@@ -18,12 +17,18 @@ export async function getStaticPaths() {
 const { lecture } = Astro.props;
 const { Content } = await render(lecture);
 const title = `Week ${lecture.data.week}: ${lecture.data.title}`;
+const metadata = `LECTURE · WEEK ${lecture.data.week} · ${formatCourseDate(lecture.data.date)}`;
 ---
 
-<ContentLayout title={title} description={lecture.data.description} {...siteConfig}>
+<CourseRecordLayout
+  title={title}
+  description={lecture.data.description}
+  kicker="LECTURE"
+  metadata={metadata}
+  {...siteConfig}
+>
   <WeekStrip current={lecture.data.week} kind="lectures" />
   <ThisWeek week={lecture.data.week} self="lectures" />
-  <p><strong>{formatCourseDate(lecture.data.date)}</strong></p>
   <Content />
   {
     lecture.data.readings?.length ? (
@@ -44,4 +49,4 @@ const title = `Week ${lecture.data.week}: ${lecture.data.title}`;
   }
   <TeachingTeam teachers={lecture.data.teachers} />
   <RelatedContent entry={lecture} collections={graphCollections} />
-</ContentLayout>
+</CourseRecordLayout>

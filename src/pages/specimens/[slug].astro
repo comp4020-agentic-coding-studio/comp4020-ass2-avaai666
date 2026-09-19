@@ -2,11 +2,10 @@
 import { render } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import RelatedContent from "astro-course-university/components/RelatedContent.astro";
-import ContentLayout from "astro-theme-university/layouts/ContentLayout.astro";
+import CourseRecordLayout from "../../layouts/CourseRecordLayout.astro";
 import ReconstructionChain from "../../components/ReconstructionChain.astro";
 import { graphCollections, siteConfig } from "../../site-config";
 import { verificationNotes } from "../../lib/verification";
-import "../../styles/layout.css";
 import "../../styles/specimen.css";
 
 export async function getStaticPaths() {
@@ -18,11 +17,15 @@ const { specimen } = Astro.props;
 const { Content } = await render(specimen);
 
 const verificationNote = verificationNotes[specimen.data.verification];
+const metadata = `SPECIMEN · ${specimen.data.verification.toUpperCase()} · ${specimen.data.languages} · ${specimen.data.sourceDate}`;
 ---
 
-<ContentLayout
+<CourseRecordLayout
   title={specimen.data.title}
   description={specimen.data.description}
+  kicker="SPECIMEN"
+  metadata={metadata}
+  verification={specimen.data.verification}
   {...siteConfig}
 >
   <p class="specimen-provenance-caption">Provenance</p>
@@ -59,4 +62,4 @@ const verificationNote = verificationNotes[specimen.data.verification];
   <Content />
 
   <RelatedContent entry={specimen} collections={graphCollections} />
-</ContentLayout>
+</CourseRecordLayout>
