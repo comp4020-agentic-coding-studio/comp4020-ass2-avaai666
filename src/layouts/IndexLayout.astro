@@ -8,7 +8,7 @@ const { frontmatter } = Astro.props;
 <CourseRecordLayout
   title={frontmatter.title}
   description={frontmatter.description}
-  kicker={frontmatter.title.toUpperCase()}
+  kicker={frontmatter.kicker ?? "COURSE INDEX"}
   {...siteConfig}
 >
   <slot />

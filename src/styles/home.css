@@ -50,40 +50,6 @@
   background: var(--at-bg-alt);
 }
 
-/* The nav, home page only: the theme's .at-nav-inner sits on the same
-   ~48rem "content" subgrid track as the old narrow hero (components.css,
-   .at-nav-inner { grid-column: content }), which is too narrow to hold the
-   full-width logo lockup, every nav link and the search control on one row
-   at desktop widths — they wrap to a second row, doubling the nav's height
-   past the theme's own --at-nav-height (6.5rem) token. Widening the track
-   to `full` and re-centring it with a max-width, the same technique
-   .home-shell already uses below, gives the row enough width to stay
-   single-line without touching the theme's Nav.astro or its script. */
-body:has(main.home-page) .at-nav-inner {
-  grid-column: full;
-  width: 100%;
-  max-width: 1440px;
-  margin-inline: auto;
-  padding-inline: clamp(var(--at-spacing-lg), 5vw, var(--at-spacing-2xl));
-}
-
-/* .at-nav-brand's desktop transform pulls the logo left by exactly the old
-   narrow track's own content-inset, to bisect the crest at the track's left
-   edge (astro-theme-slop/slop.css's --at-logo-offset-x). That inset is gone
-   once the track above reads `full`, so the same transform would now pull
-   the logo past this page's own padding instead of aligning to it. */
-body:has(main.home-page) .at-nav-brand {
-  transform: none;
-}
-
-/* The theme's full-height gold rule (base.css's body::after) marks the old
-   narrow content track's left edge. It has nothing to mark once that track
-   is gone from the nav, and the brief asks that no such rule pass through
-   the opening's title or controls at all. */
-body:has(main.home-page)::after {
-  display: none;
-}
-
 /* The hero itself: the page's ordinary background. --at-bg/--at-text are
    themselves warm-toned (astro-theme-slop/slop.css sets --at-primary to a
    gold, and the theme derives --at-bg/--at-text from it via oklch relative

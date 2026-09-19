@@ -49,8 +49,20 @@
   letter-spacing: 0.06em;
 }
 
+/* The theme's global h1 rule (base.css) sets color: var(--at-heading), and
+   tokens.css defines --at-heading as var(--at-primary) — the same value
+   .record-kicker-label above reads via --at-accent (also var(--at-primary)).
+   With no override, the title renders in the identical gold as the kicker
+   above it and reads as a second label rather than the page's own heading.
+   The max-width/clamp() pair caps a long lecture or specimen title at a
+   readable measure without a fixed height, so nothing here clips. */
 .record-header h1 {
+  max-width: 22ch;
   margin: 0 0 var(--at-spacing-sm);
+  color: var(--at-text);
+  font-size: clamp(2.25rem, 2rem + 1.5vw, 3.5rem);
+  line-height: 1.05;
+  text-wrap: balance;
 }
 
 .record-description {
@@ -61,4 +73,15 @@
 
 .record-verification {
   margin: var(--at-spacing-sm) 0 0;
+}
+
+/* At narrow widths the kicker row wraps and the h1 above sizes down (its own
+   clamp()), so the header no longer needs the wider desktop padding to read
+   comfortably — this brings an ordinary index header (kicker + short title,
+   no description) down from --at-spacing-lg/xl (24px/32px) plus content to a
+   tighter band, without touching the h1's own sizing or clipping anything. */
+@media (max-width: 30rem) {
+  .record-shell {
+    padding-block: var(--at-spacing-md) var(--at-spacing-lg);
+  }
 }
