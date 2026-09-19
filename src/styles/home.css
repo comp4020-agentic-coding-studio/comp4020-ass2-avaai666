@@ -50,177 +50,275 @@
   background: var(--at-bg-alt);
 }
 
-/* The hero itself: a dark field fixed to --at-black regardless of the
-   light/dark toggle, matching the evidence-bench artwork it stands next to
-   (hero-home.avif is also a dark field — see src/lib/artwork.ts).
-   grid-column: full is required because HomeHero is slotted into
-   BaseLayout's hero slot (see HomeLayout.astro), which makes it a direct
-   child of <body>, not of <main> — so .at-main.home-page's own grid-column
-   never reaches it, and the theme's body > * { grid-column: content; }
-   traps it in the ~864px content column instead. */
+/* The nav, home page only: the theme's .at-nav-inner sits on the same
+   ~48rem "content" subgrid track as the old narrow hero (components.css,
+   .at-nav-inner { grid-column: content }), which is too narrow to hold the
+   full-width logo lockup, every nav link and the search control on one row
+   at desktop widths — they wrap to a second row, doubling the nav's height
+   past the theme's own --at-nav-height (6.5rem) token. Widening the track
+   to `full` and re-centring it with a max-width, the same technique
+   .home-shell already uses below, gives the row enough width to stay
+   single-line without touching the theme's Nav.astro or its script. */
+body:has(main.home-page) .at-nav-inner {
+  grid-column: full;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(var(--at-spacing-lg), 5vw, var(--at-spacing-2xl));
+}
+
+/* .at-nav-brand's desktop transform pulls the logo left by exactly the old
+   narrow track's own content-inset, to bisect the crest at the track's left
+   edge (astro-theme-slop/slop.css's --at-logo-offset-x). That inset is gone
+   once the track above reads `full`, so the same transform would now pull
+   the logo past this page's own padding instead of aligning to it. */
+body:has(main.home-page) .at-nav-brand {
+  transform: none;
+}
+
+/* The theme's full-height gold rule (base.css's body::after) marks the old
+   narrow content track's left edge. It has nothing to mark once that track
+   is gone from the nav, and the brief asks that no such rule pass through
+   the opening's title or controls at all. */
+body:has(main.home-page)::after {
+  display: none;
+}
+
+/* The hero itself: the page's ordinary background. --at-bg/--at-text are
+   themselves warm-toned (astro-theme-slop/slop.css sets --at-primary to a
+   gold, and the theme derives --at-bg/--at-text from it via oklch relative
+   colour) — this is the "warm paper field, black ink" the brief asks for,
+   with no new tokens, simply by no longer overriding it to black/white the
+   way the rejected opening did. */
 .home-hero {
   grid-column: full;
   padding-block: var(--at-spacing-2xl);
-  background: var(--at-black);
-  color: var(--at-white);
 }
 
-/* Below the split, .home-hero-heading/.home-hero-artifact/.home-hero-body
-   get no explicit placement, so they stack in source order: title, then the
-   complete artwork, then the description/actions/facts/tags — the artwork
-   would otherwise render below a full screen of text on a phone, per the
-   measured 390x844 inspection. Source order is also screen-reader order;
-   the grid-template-areas below only change the visual position at 60rem+. */
+/* Two columns at desktop width — course identity/proposition on the left,
+   one concrete case file on the right — collapsing to source order (record
+   line, title, proposition, case file, action) on narrow screens per the
+   brief's required 390px reading order. max-height keeps the split within
+   the brief's ~520-560px cap so the next section is visible before the
+   bottom of a 1080px viewport; it is a cap on the split only, not on the
+   heading/description within it, which size themselves and can exceed it
+   safely since nothing here clips overflow. */
 .home-hero-shell {
   display: grid;
-  gap: var(--at-spacing-2xl);
+  gap: var(--at-spacing-xl);
   align-items: start;
 }
 
 @media (min-width: 60rem) {
   .home-hero-shell {
     grid-template-columns: 7fr 5fr;
-    grid-template-areas:
-      "heading artifact"
-      "body artifact";
-  }
-
-  .home-hero-heading {
-    grid-area: heading;
-  }
-
-  .home-hero-artifact {
-    grid-area: artifact;
-  }
-
-  .home-hero-body {
-    grid-area: body;
+    gap: var(--at-spacing-2xl);
+    max-height: 35rem;
   }
 }
 
+/* The record line: SLOP8217 / POSTGRADUATE / SEMESTER 1 2027, read before
+   the title rather than as a badge above it. */
+.home-record-line {
+  margin: 0 0 var(--at-spacing-md);
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* 5.5-7rem at wide desktop, one line where the 7-column left side has room
+   for it, narrowing on its own at smaller widths — the range is the
+   brief's, not independently measured (no renderer is available; see
+   CLAUDE.md rule 16). --at-font-size-h1 (2.5rem, tokens.css) is too small
+   for this hierarchy, so this sets its own size rather than reusing it. */
 .home-hero h1 {
   margin: 0 0 var(--at-spacing-md);
-  color: var(--at-white);
-  font-size: var(--at-font-size-h1);
-  line-height: var(--at-line-height-heading);
+  font-size: clamp(2.75rem, 1.5rem + 5vw, 7rem);
+  line-height: 1.02;
 }
 
+/* ~46-52 characters per line, the brief's own range; 48ch is its midpoint. */
 .home-hero-description {
-  max-width: 60ch;
+  max-width: 48ch;
   margin: 0 0 var(--at-spacing-lg);
+}
+
+/* One text-style action, not a button: the brief explicitly removes the
+   two large CTA buttons from the hero. padding-block on the link (not the
+   paragraph) gives it a >=44px tap target — 1rem line height at 1.6
+   (--at-line-height) is 25.6px, plus 0.625rem top and bottom is 45.6px —
+   without making it read as a button. */
+.home-hero-action {
+  margin: 0;
+  font-weight: 600;
+}
+
+.home-hero-action a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}
+
+/* The case file: a dark ink field within the otherwise light hero, styled
+   as an evidence object rather than a card — square corners (no
+   --at-border-radius), thin rules, small uppercase labels, one gold
+   annotation (the record number). --at-black/--at-white are the same pair
+   the old, now-removed .home-hero background/text rule used, kept here
+   because this is the one element the brief still asks to read as a dark
+   field. */
+.home-case-file {
+  padding: var(--at-spacing-lg);
+  border: 1px solid var(--at-black);
+  background: var(--at-black);
   color: var(--at-white);
 }
 
-/* The record's byline, not an overline: the course code and term, read
-   after the title rather than announced above it. */
-.home-kicker {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--at-spacing-sm) var(--at-spacing-md);
-  margin: 0 0 var(--at-spacing-md);
-  padding-block-end: var(--at-spacing-sm);
-  border-block-end: 1px solid color-mix(in srgb, var(--at-white) 30%, transparent);
-}
-
-.home-kicker-code {
-  color: var(--at-white);
+.home-case-record {
+  margin: 0 0 var(--at-spacing-sm);
+  color: var(--at-accent);
+  font-size: var(--at-font-size-xs);
   font-weight: 700;
-  font-size: var(--at-font-size-sm);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
-.home-kicker-meta {
-  color: color-mix(in srgb, var(--at-white) 75%, transparent);
+.home-case-heading {
+  margin: 0 0 var(--at-spacing-sm);
+  font-size: var(--at-font-size-h4, 1.15rem);
+}
+
+.home-case-heading a {
+  color: var(--at-white);
+}
+
+.home-case-printed {
+  margin: 0 0 var(--at-spacing-md);
+  padding-inline-start: var(--at-spacing-md);
+  border-inline-start: 0.35rem solid var(--at-accent);
+  font-size: calc(var(--at-font-size-base) * 1.15);
+  font-weight: 600;
+}
+
+.home-case-provenance {
+  margin: 0 0 var(--at-spacing-lg);
+  color: color-mix(in srgb, var(--at-white) 70%, transparent);
+  font-size: var(--at-font-size-xs);
+}
+
+.home-case-chain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--at-spacing-sm);
+  margin: 0 0 var(--at-spacing-lg);
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid color-mix(in srgb, var(--at-white) 30%, transparent);
+}
+
+.home-case-chain-item {
+  padding-block-start: var(--at-spacing-sm);
+}
+
+.home-case-chain-caption {
+  margin: 0;
+  color: color-mix(in srgb, var(--at-white) 70%, transparent);
   font-size: var(--at-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-.home-cta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--at-spacing-md);
-  margin: 0 0 var(--at-spacing-lg);
+.home-case-chain-text {
+  margin: var(--at-spacing-xs) 0 0;
 }
 
-/* Three facts, not four fields: a plain two-row grid rather than the
-   9rem-label dl used everywhere else, because there is no label column
-   here, only a number and its unit, read as one pair per column. */
-.home-facts {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: auto auto;
-  justify-content: start;
-  column-gap: var(--at-spacing-xl);
-  margin: 0 0 var(--at-spacing-lg);
-}
-
-.home-facts dt {
+.home-case-open {
   margin: 0;
+  font-weight: 600;
+}
+
+.home-case-open a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}
+
+.home-case-open a,
+.home-case-printed,
+.home-case-chain-text {
+  color: var(--at-white);
+}
+
+/* Four quiet record fields, not cards or pills: one ruled strip immediately
+   below the hero, sized to the brief's 80-110px desktop range. Carries
+   .home-band too (markup) so it inherits that class's full-width grid
+   placement from the rule above without a second, near-duplicate override
+   — this rule then wins the padding-block property on the strength of
+   source order, same specificity, one class each. Measured from the token
+   values below (tokens.css): padding-block 2 * 1rem = 32px, plus the
+   value/label pair at font-size-h4 (1.0625rem) over font-size-xs (0.75rem)
+   with an --at-spacing-xs (0.25rem) gap between them ≈ 36px, plus the tags
+   line's --at-spacing-sm (0.5rem) margin and its own font-size-xs line ≈
+   21px — total ≈ 89px, inside the range. */
+.home-metadata-strip {
+  padding-block: var(--at-spacing-md);
+  border-block: 1px solid var(--at-divider);
+}
+
+.home-metadata-strip-inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--at-spacing-md);
+}
+
+@media (max-width: 30rem) {
+  .home-metadata-strip-inner {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: var(--at-spacing-lg);
+  }
+}
+
+.home-metadata-field {
+  margin: 0;
+  padding-inline-start: var(--at-spacing-md);
+  border-inline-start: 1px solid var(--at-divider);
+}
+
+.home-metadata-field:first-child {
+  padding-inline-start: 0;
+  border-inline-start: none;
+}
+
+@media (max-width: 30rem) {
+  .home-metadata-field {
+    border-inline-start: none;
+    padding-inline-start: 0;
+  }
+}
+
+.home-metadata-value {
+  display: block;
   color: var(--at-accent);
-  font-size: var(--at-font-size-h3, 1.5rem);
+  font-size: var(--at-font-size-h4, 1.15rem);
   font-weight: 700;
   line-height: 1;
 }
 
-.home-facts dd {
-  margin: var(--at-spacing-xs) 0 0;
-  color: color-mix(in srgb, var(--at-white) 75%, transparent);
+.home-metadata-label {
+  display: block;
+  margin-block-start: var(--at-spacing-xs);
+  color: var(--at-text-secondary);
   font-size: var(--at-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
-@media (max-width: 30rem) {
-  .home-facts {
-    column-gap: var(--at-spacing-lg);
-  }
-}
-
-.course-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.course-tags li {
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  color: var(--at-white);
-  background: color-mix(in srgb, var(--at-white) 15%, transparent);
-  font-size: 0.9rem;
-}
-
-/* The complete artwork, shown whole rather than cover-cropped: the theme's
-   own .at-hero-image is `position: absolute; object-fit: cover`, declared
-   inside the theme's @layer at.components — this rule is unlayered, so it
-   wins regardless of specificity (the same mechanism the old, now-removed
-   .at-hero-title override relied on). */
-.home-hero-artifact {
-  margin: 0;
-}
-
-.home-hero-artifact .at-hero-image {
-  position: static;
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.home-hero-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--at-spacing-sm) var(--at-spacing-lg);
-  margin-block-start: var(--at-spacing-sm);
-  color: color-mix(in srgb, var(--at-white) 75%, transparent);
+/* The course tags, read as one plain classification line rather than
+   pills — the brief's explicit instruction for this strip. */
+.home-metadata-tags {
+  margin: var(--at-spacing-sm) 0 0;
+  color: var(--at-text-secondary);
   font-size: var(--at-font-size-xs);
   font-weight: 600;
   text-transform: uppercase;

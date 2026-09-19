@@ -2,7 +2,6 @@
 import { getEntry } from "astro:content";
 import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
-import heroImage from "../assets/images/hero-home.avif";
 import CorpusTimeline from "../components/CorpusTimeline.astro";
 import EvidenceWorkbench from "../components/EvidenceWorkbench.astro";
 import HomeHero from "../components/HomeHero.astro";
@@ -10,8 +9,6 @@ import Semester from "../components/Semester.astro";
 import SemesterNav from "../components/SemesterNav.astro";
 import { courseMeta } from "../course-config";
 import HomeLayout from "../layouts/HomeLayout.astro";
-import { heroImageAlt } from "../lib/artwork";
-import { VERIFICATION_LEVELS } from "../lib/verification";
 import { siteConfig } from "../site-config";
 import "../styles/specimen.css";
 import "../styles/assessment.css";
@@ -43,11 +40,15 @@ const reconstruction = await getEntry("assessments", "the-reconstruction");
 const exhibit = await getEntry("assessments", "the-exhibit");
 const benchContribution = await getEntry("assessments", "bench-contribution");
 
-// The three facts in the opening: read from the collections and the
-// verification scheme themselves, not restated as numbers, so the claim
-// cannot drift out of sync with the data behind it.
+// The metadata strip's counts: read from the collections themselves, not
+// restated as numbers, so the claim cannot drift out of sync with the data
+// behind it. Weeks and benches share one source — curriculum.test.ts holds
+// the course to exactly one bench per week — described as two facts because
+// a reader asks "how long is this" and "how much of it is graded work"
+// separately.
 const benches = await getPublishedCollection("sessions");
 const specimens = await getPublishedCollection("specimens");
+const assessments = await getPublishedCollection("assessments");
 
 // SLOP course codes put the level in the code's first digit; 6 and 8 are
 // ANU's postgraduate levels (see the LEVELS comment in course-config.ts).
@@ -63,14 +64,33 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
     year={courseMeta.year}
     title={courseMeta.title}
     description={courseMeta.description}
-    tags={courseMeta.tags}
-    benchesCount={benches.length}
-    specimensCount={specimens.length}
-    verificationLevelsCount={VERIFICATION_LEVELS.length}
     firstSpecimenHref={withBase(`/specimens/${FEATURED_SPECIMEN_IDS[0]}/`)}
-    heroImage={heroImage}
-    heroImageAlt={heroImageAlt}
+    caseSpecimen={featuredSpecimens[0]}
   />
+
+  <section class="home-band home-metadata-strip" aria-label="Course record summary">
+    <div class="home-shell">
+      <div class="home-metadata-strip-inner">
+        <p class="home-metadata-field">
+          <span class="home-metadata-value">{benches.length}</span>
+          <span class="home-metadata-label">Weeks</span>
+        </p>
+        <p class="home-metadata-field">
+          <span class="home-metadata-value">{benches.length}</span>
+          <span class="home-metadata-label">Benches</span>
+        </p>
+        <p class="home-metadata-field">
+          <span class="home-metadata-value">{specimens.length}</span>
+          <span class="home-metadata-label">Recorded specimens</span>
+        </p>
+        <p class="home-metadata-field">
+          <span class="home-metadata-value">{assessments.length}</span>
+          <span class="home-metadata-label">Assessments</span>
+        </p>
+      </div>
+      <p class="home-metadata-tags">{courseMeta.tags.join(" / ")}</p>
+    </div>
+  </section>
 
   <section class="home-band">
     <div class="home-shell">
