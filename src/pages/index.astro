@@ -14,6 +14,7 @@ import { VERIFICATION_LEVELS } from "../lib/verification";
 import { siteConfig } from "../site-config";
 import "../styles/layout.css";
 import "../styles/specimen.css";
+import "../styles/assessment.css";
 import "../styles/home.css";
 
 // Order is the order these read on the page: a workflow, a dictionary,
@@ -34,6 +35,7 @@ const featuredSpecimens = (
 const specimenLog = await getEntry("assessments", "specimen-log");
 const reconstruction = await getEntry("assessments", "the-reconstruction");
 const exhibit = await getEntry("assessments", "the-exhibit");
+const benchContribution = await getEntry("assessments", "bench-contribution");
 
 // The three facts in the opening: read from the collections and the
 // verification scheme themselves, not restated as numbers, so the claim
@@ -134,14 +136,81 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
   </section>
 
   {
-    specimenLog && reconstruction && exhibit && (
-      <>
-        <h2>What you will be able to do</h2>
-        <p>By week twelve you can record an artefact so that a stranger can re-check it, and say plainly when you cannot source one. That is what the <a href={withBase(`/assessments/${specimenLog.id}/`)}>specimen log</a> is marked on.</p>
-        <p>You can argue from one error back to the process that produced it, specifically enough to be wrong. That is <a href={withBase(`/assessments/${reconstruction.id}/`)}>the reconstruction</a>.</p>
-        <p>You can put a corpus in front of someone who was not in the room and document what you left out of it. That is <a href={withBase(`/assessments/${exhibit.id}/`)}>the exhibit</a>.</p>
-        <p>The fourth mark is the room itself, and it is the one you cannot do alone.</p>
-      </>
+    specimenLog && reconstruction && exhibit && benchContribution && (
+      <section aria-labelledby="ladder-heading">
+        <h2 id="ladder-heading">What you will be able to do</h2>
+        <ol class="ladder-steps">
+          <li class="ladder-step">
+            <p>
+              By week twelve you can record an artefact so that a stranger can re-check
+              it, and say plainly when you cannot source one. That is what the{" "}
+              <a href={withBase(`/assessments/${specimenLog.id}/`)}>specimen log</a> is
+              marked on.
+            </p>
+            <div class="ladder-weight">
+              <div class="weight-bar" role="img" aria-label={`${specimenLog.data.weight} of 100`}>
+                <span style={`width: ${specimenLog.data.weight}%`} />
+              </div>
+              <p class="ladder-weight-label">
+                {specimenLog.data.weight}% · {specimenLog.data.title}
+              </p>
+            </div>
+          </li>
+          <li class="ladder-step">
+            <p>
+              You can argue from one error back to the process that produced it,
+              specifically enough to be wrong. That is{" "}
+              <a href={withBase(`/assessments/${reconstruction.id}/`)}>the reconstruction</a>.
+            </p>
+            <div class="ladder-weight">
+              <div
+                class="weight-bar"
+                role="img"
+                aria-label={`${reconstruction.data.weight} of 100`}
+              >
+                <span style={`width: ${reconstruction.data.weight}%`} />
+              </div>
+              <p class="ladder-weight-label">
+                {reconstruction.data.weight}% · {reconstruction.data.title}
+              </p>
+            </div>
+          </li>
+          <li class="ladder-step">
+            <p>
+              You can put a corpus in front of someone who was not in the room and
+              document what you left out of it. That is{" "}
+              <a href={withBase(`/assessments/${exhibit.id}/`)}>the exhibit</a>.
+            </p>
+            <div class="ladder-weight">
+              <div class="weight-bar" role="img" aria-label={`${exhibit.data.weight} of 100`}>
+                <span style={`width: ${exhibit.data.weight}%`} />
+              </div>
+              <p class="ladder-weight-label">
+                {exhibit.data.weight}% · {exhibit.data.title}
+              </p>
+            </div>
+          </li>
+          <li class="ladder-step">
+            <p>
+              The fourth mark is{" "}
+              <a href={withBase(`/assessments/${benchContribution.id}/`)}>the room itself</a>,
+              and it is the one you cannot do alone.
+            </p>
+            <div class="ladder-weight">
+              <div
+                class="weight-bar"
+                role="img"
+                aria-label={`${benchContribution.data.weight} of 100`}
+              >
+                <span style={`width: ${benchContribution.data.weight}%`} />
+              </div>
+              <p class="ladder-weight-label">
+                {benchContribution.data.weight}% · {benchContribution.data.title}
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
     )
   }
 
