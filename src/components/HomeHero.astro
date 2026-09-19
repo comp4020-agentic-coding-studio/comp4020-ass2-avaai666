@@ -42,14 +42,26 @@ const {
 
 <section class="home-hero" aria-label="Course record">
   <div class="home-hero-shell home-shell">
-    <div class="home-hero-text">
+    <div class="home-hero-heading">
       <p class="home-kicker">
         <span class="home-kicker-code">{code}</span>
         <span class="home-kicker-meta">{levelLabel} · {session} {year}</span>
       </p>
 
       <h1>{title}</h1>
+    </div>
 
+    <figure class="home-hero-artifact">
+      <Image class="at-hero-image" src={heroImage} alt={heroImageAlt} />
+      <figcaption class="home-hero-legend">
+        <span>Source text</span>
+        <span>Translation</span>
+        <span>Visible seam</span>
+        <span>Missing counterpart</span>
+      </figcaption>
+    </figure>
+
+    <div class="home-hero-body">
       <p class="home-hero-description">{description}</p>
 
       <p class="home-cta-row">
@@ -70,15 +82,5 @@ const {
         {tags.map((tag) => <li>{tag}</li>)}
       </ul>
     </div>
-
-    <figure class="home-hero-artifact">
-      <Image class="at-hero-image" src={heroImage} alt={heroImageAlt} />
-      <figcaption class="home-hero-legend">
-        <span>Source text</span>
-        <span>Translation</span>
-        <span>Visible seam</span>
-        <span>Missing counterpart</span>
-      </figcaption>
-    </figure>
   </div>
 </section>

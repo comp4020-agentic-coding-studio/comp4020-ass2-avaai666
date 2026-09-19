@@ -6,10 +6,26 @@
    specifically to escape the theme's own content-width cap
    (.at-main { grid-column: inset-start / content-end }, ~48rem) — every
    section on this page needs the full viewport to draw its own band, and
-   uses .home-shell (below) for the actual reading measure inside that band. */
+   uses .home-shell (below) for the actual reading measure inside that band.
+   padding-block: 0 removes the theme's own .at-main { padding-block:
+   var(--at-spacing-xl) }, which otherwise survives this override (it never
+   touched padding) and opens an unwanted gap above the hero and between
+   the hero and the first band. */
 .at-main.home-page {
   grid-column: full;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  padding-block: 0;
+}
+
+/* The theme's .at-main > * { grid-column: content; } still fires on every
+   direct child of <main> — including each .home-band section — because
+   .at-main.home-page above only replaced .at-main's own grid-template-columns,
+   never that child rule. Left alone, every band is placed on the narrow
+   "content" line inside the new single-column grid instead of filling it. */
+.at-main.home-page > .home-band {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
 }
 
 .home-shell {
@@ -36,13 +52,25 @@
 
 /* The hero itself: a dark field fixed to --at-black regardless of the
    light/dark toggle, matching the evidence-bench artwork it stands next to
-   (hero-home.avif is also a dark field — see src/lib/artwork.ts). */
+   (hero-home.avif is also a dark field — see src/lib/artwork.ts).
+   grid-column: full is required because HomeHero is slotted into
+   BaseLayout's hero slot (see HomeLayout.astro), which makes it a direct
+   child of <body>, not of <main> — so .at-main.home-page's own grid-column
+   never reaches it, and the theme's body > * { grid-column: content; }
+   traps it in the ~864px content column instead. */
 .home-hero {
+  grid-column: full;
   padding-block: var(--at-spacing-2xl);
   background: var(--at-black);
   color: var(--at-white);
 }
 
+/* Below the split, .home-hero-heading/.home-hero-artifact/.home-hero-body
+   get no explicit placement, so they stack in source order: title, then the
+   complete artwork, then the description/actions/facts/tags — the artwork
+   would otherwise render below a full screen of text on a phone, per the
+   measured 390x844 inspection. Source order is also screen-reader order;
+   the grid-template-areas below only change the visual position at 60rem+. */
 .home-hero-shell {
   display: grid;
   gap: var(--at-spacing-2xl);
@@ -52,6 +80,21 @@
 @media (min-width: 60rem) {
   .home-hero-shell {
     grid-template-columns: 7fr 5fr;
+    grid-template-areas:
+      "heading artifact"
+      "body artifact";
+  }
+
+  .home-hero-heading {
+    grid-area: heading;
+  }
+
+  .home-hero-artifact {
+    grid-area: artifact;
+  }
+
+  .home-hero-body {
+    grid-area: body;
   }
 }
 
