@@ -7,7 +7,7 @@ intends. The build already owns compilation, accessibility (axe), internal
 links, content refs, deck compilation and the generated API; nothing below
 repeats that.
 
-Read the files in this order and you have the course's shape. Twenty-one
+Read the files in this order and you have the course's shape. Twenty-two
 files; the first ten are about the course, the rest about whether the page
 — or the slide — shows what the data says.
 
@@ -33,6 +33,7 @@ files; the first ten are about the course, the rest about whether the page
 | `reconstruction-chain.test.ts` | Every specimen page renders one chain of exactly three items — input, mechanism, printed — carrying that specimen's own verification level as a class. Each item's text equals the field it names, an input the chain states also appears in the page's prose outside it, and the connector between items is drawn in the border token rather than the 12%-alpha hairline that was invisible on the dark theme. |
 | `evidence-workbench.test.ts` | The home page's specimen interaction is one tab/panel pair per featured specimen, no more and no fewer; every tab's `aria-controls` and its panel's `aria-labelledby` name each other; every panel carries that specimen's own printed line, verification level and mechanism verbatim and links to that specimen's own page; and no panel is hidden before any script runs, so the interaction is already readable with JavaScript off. |
 | `semester-visibility.test.ts` | Exactly one of the semester table and the phone navigation is visible at each marking width, resolved through the cascade the way a browser does rather than by finding the selector. |
+| `course-record-layout.test.ts` | A lecture, a bench, an assessment, a specimen and the policies page all render a shared `record-header` element; each one's header states its own type-specific metadata — week, weight, due date or verification level — verbatim; and every one of them loads the stylesheet that styles that header. |
 | `external-links.test.ts` | Nothing inside `<main>` links to a URL that `spec/fixtures/verified-links.json` does not record, and every URL that file records is linked from at least one page. Each lecture's Further reading list renders exactly the readings its frontmatter declares, title and href included, and a lecture declaring none has no such section. This is CLAUDE.md rule 5 made checkable: the fixture is the record of which pages someone opened, and a link may not appear on the site before its URL appears there. |
 
 ## How a check earns its place
