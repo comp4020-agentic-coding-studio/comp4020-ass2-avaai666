@@ -97,6 +97,25 @@ function extractAtRuleBlocks(css: string, atRule: RegExp): string[] {
 
 const PRINT_RULE = /@media\s+print\b/;
 const REDUCED_MOTION_RULE = /@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/;
+// A minifier may rewrite "(min-width: 40rem)" as the equivalent range syntax
+// "(width>=40rem)" — see timeline-visibility.test.ts's own comment for the
+// same normalisation on max-width. Both must resolve to the same condition.
+const DESKTOP_NAV_RULE = /@media\s*\(\s*(?:min-width:\s*40rem|width\s*>=\s*40rem)\s*\)/;
+
+// Six representative built pages: a hand-written index route (home), an
+// IndexLayout-rendered index (lectures), a lecture, a specimen, an
+// assessment and the policies page — one of each layout path documented in
+// CLAUDE.md's "Platform routing, measured". Paths, not slugs: if a route
+// moves, this list needs updating, same as pagesWithNav above needs no such
+// list because it scans every built page instead.
+const REPRESENTATIVE_PAGE_PATHS = [
+  "index.html",
+  "lectures/index.html",
+  "lectures/week-05/index.html",
+  "specimens/swansea-out-of-office/index.html",
+  "assessments/the-reconstruction/index.html",
+  "policies/index.html",
+];
 
 describe("layout styling", () => {
   it("finds at least one built page carrying the site navigation", () => {
@@ -231,6 +250,146 @@ describe("layout styling", () => {
         blocks,
         `${page.path}'s prefers-reduced-motion rules do not disable ::view-transition-old(*)/::view-transition-new(*)`,
       ).toMatch(/::view-transition-old\(\*\)\s*,\s*::view-transition-new\(\*\)\s*\{[^}]*animation:\s*none/);
+    }
+  });
+});
+
+// Phase 3 (commit a57385b) fixed the nav and the decorative body rule on the
+// home page only, by scoping every selector to `body:has(main.home-page)`.
+// Browser measurement showed the consequence: home page nav is 1905×117
+// with a 1440px-wide .at-nav-inner, every other page's nav is still
+// 1905×162 with an 864px-wide .at-nav-inner — two different nav shells on
+// one site. This block protects CSS delivery and selector scope only: it
+// checks that one unscoped rule reaches every representative route, and
+// that no page still loads the home-page-scoped selector. It does not, and
+// cannot, prove the rendered result looks right — that still needs a human
+// looking at a browser (CLAUDE.md rule 16).
+describe("site shell (one nav, one record header, no home-page scoping)", () => {
+  const representativePages = REPRESENTATIVE_PAGE_PATHS.map((rel) => {
+    const path = resolve(DIST, rel);
+    return { path, exists: existsSync(path) };
+  }).filter((page): page is { path: string; exists: true } => page.exists as true);
+
+  it("finds every representative page under dist/", () => {
+    for (const rel of REPRESENTATIVE_PAGE_PATHS) {
+      expect(existsSync(resolve(DIST, rel)), `${rel} was not found under dist/ — update REPRESENTATIVE_PAGE_PATHS`).toBe(
+        true,
+      );
+    }
+  });
+
+  const pages = representativePages.map((page) => ({ path: page.path, html: readFileSync(page.path, "utf8") }));
+
+  // Turns red by: reverting to `body:has(main.home-page) .at-nav-inner`, or
+  // deleting the wide rule so only the theme's own narrow
+  // `.at-nav-inner { grid-column: content }` remains.
+  it("gives every representative page one unscoped, wide .at-nav-inner rule", () => {
+    for (const page of pages) {
+      const css = cssLoadedBy(page.html, page.path);
+      expect(
+        css,
+        `${page.path}'s loaded CSS has no unscoped .at-nav-inner rule with grid-column: full`,
+      ).toMatch(/\.at-nav-inner\s*\{[^}]*grid-column:\s*full\b[^}]*\}/);
+    }
+  });
+
+  // The exact regression this block exists to catch: Phase 3's fix reached
+  // only the home page because every selector below was scoped to
+  // `body:has(main.home-page)`.
+  //
+  // Turns red by: re-adding `body:has(main.home-page) .at-nav-inner` (or any
+  // other `body:has(...)` prefix) to the wide nav-inner rule.
+  it("does not scope the wide .at-nav-inner rule to the home page", () => {
+    for (const page of pages) {
+      const css = cssLoadedBy(page.html, page.path);
+      expect(
+        css,
+        `${page.path} still loads a homepage-scoped selector like body:has(main.home-page) .at-nav-inner`,
+      ).not.toMatch(/body:has\([^)]*\)\s*\.at-nav-inner/);
+    }
+  });
+
+  // Turns red by: leaving the nav's padding-block at the theme's default
+  // (--at-spacing-xl) at desktop width, or moving this override outside a
+  // min-width media query so it also changes the mobile row.
+  it("gives every representative page a desktop-only nav padding override", () => {
+    for (const page of pages) {
+      const css = cssLoadedBy(page.html, page.path);
+      const blocks = extractAtRuleBlocks(css, DESKTOP_NAV_RULE).join("\n");
+      expect(blocks.length, `${page.path}'s loaded CSS has no @media (min-width: 40rem) block`).toBeGreaterThan(0);
+      expect(
+        blocks,
+        `${page.path}'s desktop nav media block does not set .at-nav-inner's padding-block to --at-spacing-lg`,
+      ).toMatch(/\.at-nav-inner\s*\{[^}]*padding-block:\s*var\(--at-spacing-lg\)[^}]*\}/);
+    }
+  });
+
+  // Turns red by: reverting to `body:has(main.home-page) .at-nav-brand`, or
+  // deleting the unscoped reset so the theme's desktop transform (which
+  // assumes the narrow nav track this rule replaces) survives.
+  it("resets .at-nav-brand's transform on every representative page, unscoped", () => {
+    for (const page of pages) {
+      const css = cssLoadedBy(page.html, page.path);
+      expect(css, `${page.path}'s loaded CSS has no unscoped .at-nav-brand { transform: none }`).toMatch(
+        /\.at-nav-brand\s*\{[^}]*transform:\s*none[^}]*\}/,
+      );
+      expect(
+        css,
+        `${page.path} still loads a homepage-scoped selector like body:has(main.home-page) .at-nav-brand`,
+      ).not.toMatch(/body:has\([^)]*\)\s*\.at-nav-brand/);
+    }
+  });
+
+  // The theme's full-height gold body::after rule marks the edge of its own
+  // narrow content track; every local component border and evidence rule
+  // already draws this site's structure, so the rule has nothing left to
+  // mark and, on every route this fix does not reach, still cuts through
+  // unrelated content. A minifier writes ::after as :after — see the
+  // print-block test above for the same normalisation.
+  //
+  // Turns red by: reverting to `body:has(main.home-page)::after`, or
+  // deleting the unscoped rule so body::after prints again on every other
+  // route at desktop width.
+  it("disables the decorative body::after rule on every representative page, unscoped", () => {
+    for (const page of pages) {
+      const css = cssLoadedBy(page.html, page.path);
+      expect(css, `${page.path}'s loaded CSS has no unscoped body::after { display: none }`).toMatch(
+        /\bbody:{1,2}after\s*\{[^}]*display:\s*none[^}]*\}/,
+      );
+      expect(
+        css,
+        `${page.path} still loads a homepage-scoped selector like body:has(main.home-page)::after`,
+      ).not.toMatch(/body:has\([^)]*\):{1,2}after/);
+    }
+  });
+
+  // .record-header h1 currently has no max-width, font-size or color of its
+  // own — it inherits the theme's global h1 rule, including
+  // color: var(--at-heading), the same accent gold as .record-kicker-label,
+  // so the title reads as a second gold label rather than the page's own
+  // heading. Long titles at narrow widths also wrap past 200px with no
+  // width cap and the theme's 1.25 heading line-height.
+  //
+  // Excludes the home page: it renders through HomeLayout/HomeHero, never
+  // CourseRecordLayout, so it has no .record-header element and never loads
+  // record.css — asserting this rule against it would either always fail by
+  // construction or force an unused stylesheet import just to satisfy the
+  // test, neither of which this check is for.
+  //
+  // Turns red by: removing max-width, the clamp()-based font-size, or the
+  // color: var(--at-text) override from .record-header h1.
+  it("gives .record-header h1 a compact, responsive, ordinary-colour rule on every representative page that has one", () => {
+    for (const page of pages.filter((p) => p.path !== resolve(DIST, "index.html"))) {
+      const css = cssLoadedBy(page.html, page.path);
+      expect(css, `${page.path}'s .record-header h1 has no max-width cap`).toMatch(
+        /\.record-header\s+h1\s*\{[^}]*max-width:\s*22ch[^}]*\}/,
+      );
+      expect(css, `${page.path}'s .record-header h1 has no clamp()-based font-size`).toMatch(
+        /\.record-header\s+h1\s*\{[^}]*font-size:\s*clamp\([^}]*\}/,
+      );
+      expect(css, `${page.path}'s .record-header h1 does not set color: var(--at-text)`).toMatch(
+        /\.record-header\s+h1\s*\{[^}]*color:\s*var\(--at-text\)[^}]*\}/,
+      );
     }
   });
 });
