@@ -1,0 +1,191 @@
+/* The home page only: every selector below is safe to keep generic (.chain,
+   .weight-bar, .specimen-register) because this file is imported nowhere
+   else, so nothing here reaches another page's use of the same classes. */
+
+/* ContentLayout renders the hero (title) and then its own .lead description
+   paragraph before any content from this page's default slot, so the course
+   code and term cannot appear above the title — there is no slot that early.
+   This masthead line is the next thing after the description instead: the
+   record's byline, not an overline. */
+.home-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--at-spacing-sm) var(--at-spacing-md);
+  margin: 0 0 var(--at-spacing-lg);
+  padding-block-end: var(--at-spacing-sm);
+  border-block-end: 1px solid var(--at-divider);
+}
+
+.home-kicker-code {
+  color: var(--at-text);
+  font-weight: 700;
+  font-size: var(--at-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.home-kicker-meta {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.home-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-md);
+  margin: 0 0 var(--at-spacing-lg);
+}
+
+/* Three facts, not four fields: a plain two-row grid rather than the
+   9rem-label dl used everywhere else, because there is no label column
+   here, only a number and its unit, read as one pair per column. */
+.home-facts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  justify-content: start;
+  column-gap: var(--at-spacing-xl);
+  margin: 0 0 var(--at-spacing-lg);
+}
+
+.home-facts dt {
+  margin: 0;
+  color: var(--at-accent);
+  font-size: var(--at-font-size-h3, 1.5rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.home-facts dd {
+  margin: var(--at-spacing-xs) 0 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 30rem) {
+  .home-facts {
+    column-gap: var(--at-spacing-lg);
+  }
+}
+
+.course-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 var(--at-spacing-lg);
+  padding: 0;
+  list-style: none;
+}
+
+.course-tags li {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  color: var(--at-text-secondary);
+  background: var(--at-bg-alt);
+  font-size: 0.9rem;
+}
+
+/* "Wrong in Public" is two short words the theme's default 20ch cap lets sit
+   on one line at both marked widths; capping it to 11ch forces a break, and
+   text-wrap: balance (already set by the theme) chooses the more even split,
+   "Wrong in" / "Public", over the alternative "Wrong" / "in Public". */
+.at-hero-title {
+  max-inline-size: 11ch;
+}
+
+/* One error, four operations: the same connected-chain structure the
+   specimen page uses for input/mechanism/printed, reused for a process that
+   has no specimen and no verification level of its own — so it keeps the
+   chain's default, unmodified connector (solid, the border token) rather
+   than any of the three verification classes. */
+.operations {
+  margin-block: var(--at-spacing-xl) 0;
+}
+
+.operations .chain {
+  margin-block-start: var(--at-spacing-md);
+}
+
+/* Three of the seven: the printed line is already the visual entry point
+   (specimen.css's accent rule), this just gives it a little more room to
+   read as the largest thing on the page after the hero. */
+.home-specimens .specimen-printed {
+  font-size: calc(var(--at-font-size-base) * 1.65);
+}
+
+.home-specimens .specimen-register {
+  margin-block-start: var(--at-spacing-md);
+}
+
+/* The assessment ladder: four rungs on one rail, each an existing outcome
+   sentence with the real assessment it is marked on immediately underneath
+   it. The rail is solid because every rung names a real, published
+   assessment — nothing here is uncertain the way an apocryphal specimen is. */
+.ladder-steps {
+  margin: var(--at-spacing-md) 0 0;
+  padding: 0;
+  list-style: none;
+  border-inline-start: 2px solid var(--at-border);
+}
+
+.ladder-step {
+  position: relative;
+  padding: 0 0 var(--at-spacing-lg) var(--at-spacing-lg);
+}
+
+.ladder-step:last-child {
+  padding-block-end: 0;
+}
+
+.ladder-step::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -0.3rem;
+  top: 0.4em;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--at-accent);
+}
+
+.ladder-weight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--at-spacing-sm);
+  margin-block-start: var(--at-spacing-xs);
+}
+
+.ladder-weight .weight-bar {
+  flex: 1 1 6rem;
+  min-width: 4rem;
+}
+
+.ladder-weight-label {
+  margin: 0;
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* The semester and the corpus timeline are the same evidence system read two
+   ways — a table and a plot of the same dated records — so they sit inside
+   one ruled block instead of reading as two unrelated sections. */
+.evidence-record {
+  margin-block: var(--at-spacing-xl) 0;
+  padding-block-start: var(--at-spacing-lg);
+  border-block-start: 1px solid var(--at-divider);
+}
+
+.evidence-record h2:not(:first-child) {
+  margin-block-start: var(--at-spacing-xl);
+}
