@@ -208,6 +208,116 @@
   margin-block-start: var(--at-spacing-md);
 }
 
+/* EvidenceWorkbench: a record list on one side, the selected record's case
+   file on the other. All three case files are in the DOM and visible by
+   default — the tab script (in the component) only starts hiding the other
+   two once it has run, so a no-JS reader gets all three stacked in order. */
+.evidence-workbench {
+  display: grid;
+  gap: var(--at-spacing-lg);
+  margin-block-start: var(--at-spacing-md);
+}
+
+@media (min-width: 50rem) {
+  .evidence-workbench {
+    grid-template-columns: minmax(14rem, 18rem) 1fr;
+    align-items: start;
+  }
+}
+
+.evidence-workbench-tabs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--at-spacing-sm);
+}
+
+@media (min-width: 50rem) {
+  .evidence-workbench-tabs {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    position: sticky;
+    top: var(--at-spacing-lg);
+  }
+}
+
+.evidence-workbench-tabs button[role="tab"] {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.15em;
+  padding: var(--at-spacing-sm) var(--at-spacing-md);
+  border: 1px solid var(--at-border);
+  border-inline-start: 3px solid var(--at-border);
+  background: var(--at-bg);
+  color: var(--at-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.evidence-workbench-tabs button[aria-selected="true"] {
+  border-inline-start-color: var(--at-accent);
+  background: var(--at-bg-alt);
+}
+
+.evidence-workbench-tab-title {
+  font-weight: 600;
+}
+
+.evidence-workbench-tab-note {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.evidence-workbench-panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--at-spacing-lg);
+}
+
+.evidence-case {
+  padding-block-start: var(--at-spacing-md);
+  border-block-start: 1px solid var(--at-divider);
+}
+
+.evidence-workbench-panels .evidence-case:first-child {
+  padding-block-start: 0;
+  border-block-start: none;
+}
+
+.evidence-case-fields {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: var(--at-spacing-xs) var(--at-spacing-md);
+  margin: var(--at-spacing-md) 0;
+}
+
+.evidence-case-fields dt {
+  color: var(--at-text-secondary);
+  font-size: var(--at-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.evidence-case-fields dd {
+  margin: 0;
+}
+
+@media (max-width: 30rem) {
+  .evidence-case-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.evidence-case-open {
+  margin: 0;
+}
+
 /* The assessment ladder: four rungs on one rail, each an existing outcome
    sentence with the real assessment it is marked on immediately underneath
    it. The rail is solid because every rung names a real, published

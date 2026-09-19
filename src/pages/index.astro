@@ -4,26 +4,32 @@ import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
 import heroImage from "../assets/images/hero-home.avif";
 import CorpusTimeline from "../components/CorpusTimeline.astro";
+import EvidenceWorkbench from "../components/EvidenceWorkbench.astro";
 import HomeHero from "../components/HomeHero.astro";
 import Semester from "../components/Semester.astro";
 import SemesterNav from "../components/SemesterNav.astro";
 import { courseMeta } from "../course-config";
 import HomeLayout from "../layouts/HomeLayout.astro";
 import { heroImageAlt } from "../lib/artwork";
-import { printedLang } from "../lib/specimens";
 import { VERIFICATION_LEVELS } from "../lib/verification";
 import { siteConfig } from "../site-config";
 import "../styles/specimen.css";
 import "../styles/assessment.css";
 import "../styles/home.css";
 
-// Order is the order these read on the page: a workflow, a dictionary,
-// a word in a room — the "Three of the seven" register below.
+// Order is the order these read in the workbench: a workflow, a dictionary,
+// a word in a room.
 const FEATURED_SPECIMEN_IDS = ["swansea-out-of-office", "gan-the-merged-character", "intoxicado"];
 
+// One uniform data shape per specimen, read by EvidenceWorkbench's mechanism
+// field alongside the specimen's own schema-level `mechanism` — the schema
+// field is a plain fact ("character merger under simplification"), this is
+// the fuller, curated account of how that fact produced this specimen.
 const FEATURED_SPECIMEN_LINES: Record<string, string> = {
   "swansea-out-of-office":
     "The English was emailed away for translation and the reply that came back was printed on the sign. The Welsh half says the translator is out of the office. No translation system was involved at any point.",
+  "gan-the-merged-character":
+    "Simplification merged two characters into one. A lookup then chose between that character's senses by which was commoner, and a restaurant printed the answer on its menu.",
   intoxicado:
     "One Spanish word was read as the English word it resembles, in a room with no interpreter and no time.",
 };
@@ -96,27 +102,9 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
           Every artefact on this site is recorded with where it came from, when, and
           how far the record can be trusted. These three are the shape of the
           corpus: a workflow, a dictionary, and a word in a room where being wrong
-          mattered.
+          mattered. Select a record to open its case file.
         </p>
-        <ul class="specimen-register">
-          {featuredSpecimens.map((specimen) => (
-            <li class="specimen-record">
-              <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
-                {specimen.data.printed}
-              </p>
-              <p class="specimen-record-heading">
-                <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
-                <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
-                  {specimen.data.verification}
-                </span>
-              </p>
-              <p class="specimen-record-languages">
-                {specimen.data.languages} · {specimen.data.sourceDate}
-              </p>
-              <p>{specimen.id === "gan-the-merged-character" ? (<>Simplification merged two characters into one. A lookup then chose between that character's senses by which was commoner, and a restaurant printed the answer on its menu — <em>Fuck the duck until exploded</em>.</>) : (FEATURED_SPECIMEN_LINES[specimen.id])}</p>
-            </li>
-          ))}
-        </ul>
+        <EvidenceWorkbench specimens={featuredSpecimens} lines={FEATURED_SPECIMEN_LINES} />
       </section>
     </div>
   </section>

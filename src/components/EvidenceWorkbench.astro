@@ -1,0 +1,135 @@
+---
+// The home page's "select a specimen, inspect the system behind it"
+// interaction. Structural contract fixed by spec/evidence-workbench.test.ts:
+// one <button role="tab"> per specimen, one <article class="evidence-case">
+// per specimen, tied together by matching id/aria-controls/aria-labelledby;
+// every panel carries that specimen's printed line, verification level and
+// mechanism verbatim, plus a link to its own page. All three panels render
+// visible in the server HTML — nothing is hidden until the enhancement
+// script below runs, so the record reads without JavaScript.
+// The panel is <article>, not a role="tabpanel" div: axe's aria-allowed-role
+// rule rejects role="tabpanel" on <article> (tried, confirmed — it is not in
+// the ARIA-in-HTML allowed-roles list for that element), so the relationship
+// to its tab is carried by aria-labelledby alone, without the tabpanel role.
+// page-claims.test.ts separately requires the home page to render >=3
+// .specimen-record-heading elements, one .verification-badge--* per heading,
+// and the literal substring "specimen-register" — this component keeps all
+// three true (one heading+badge per panel, "specimen-register" in the
+// wrapping element's class list).
+import type { CollectionEntry } from "astro:content";
+import { withBase } from "astro-theme-university/url";
+import { printedLang } from "../lib/specimens";
+import { verificationNotes } from "../lib/verification";
+
+interface Props {
+  specimens: CollectionEntry<"specimens">[];
+  lines: Record<string, string>;
+}
+
+const { specimens, lines } = Astro.props;
+---
+
+<div class="evidence-workbench specimen-register">
+  <div class="evidence-workbench-tabs" role="tablist" aria-label="Featured specimens">
+    {
+      specimens.map((specimen, index) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${specimen.id}`}
+          aria-controls={`panel-${specimen.id}`}
+          aria-selected={index === 0 ? "true" : "false"}
+          data-tab={specimen.id}
+        >
+          <span class="evidence-workbench-tab-title">{specimen.data.title}</span>
+          <span class="evidence-workbench-tab-note">{specimen.data.verification}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="evidence-workbench-panels">
+    {
+      specimens.map((specimen, index) => (
+        <article
+          class="evidence-case"
+          id={`panel-${specimen.id}`}
+          aria-labelledby={`tab-${specimen.id}`}
+          data-panel={specimen.id}
+          data-active={index === 0 ? "true" : "false"}
+        >
+          <p class="specimen-printed" lang={printedLang(specimen.data.languages)}>
+            {specimen.data.printed}
+          </p>
+          <p class="specimen-record-heading">
+            <a href={withBase(`/specimens/${specimen.id}/`)}>{specimen.data.title}</a>
+            <span class={`verification-badge verification-badge--${specimen.data.verification}`}>
+              {specimen.data.verification}
+            </span>
+          </p>
+
+          <dl class="evidence-case-fields">
+            <dt>Provenance</dt>
+            <dd>
+              {specimen.data.source} · {specimen.data.sourceDate}
+            </dd>
+
+            <dt>Verification</dt>
+            <dd>{verificationNotes[specimen.data.verification]}</dd>
+
+            <dt>Mechanism</dt>
+            <dd>
+              {specimen.data.mechanism}
+              {lines[specimen.id] && <> {lines[specimen.id]}</>}
+            </dd>
+          </dl>
+
+          <p class="evidence-case-open">
+            <a class="at-button at-button--outline at-button--small" href={withBase(`/specimens/${specimen.id}/`)}>
+              Open case file
+            </a>
+          </p>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // Progressive enhancement only: the markup above already renders every
+  // panel, so a reader with JavaScript off sees all three case files in
+  // full. With JavaScript, this turns the same markup into a real tab
+  // widget — one panel visible at a time, arrow-key operation across tabs —
+  // without a framework or a network request.
+  const workbenches = document.querySelectorAll<HTMLElement>(".evidence-workbench");
+
+  for (const workbench of workbenches) {
+    const tabs = [...workbench.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...workbench.querySelectorAll<HTMLElement>(".evidence-case")];
+    if (tabs.length === 0) continue;
+
+    const activate = (tab: HTMLButtonElement, focus: boolean) => {
+      for (const t of tabs) t.setAttribute("aria-selected", String(t === tab));
+      for (const panel of panels) {
+        const isActive = panel.id === tab.getAttribute("aria-controls");
+        panel.dataset.active = String(isActive);
+        panel.hidden = !isActive;
+      }
+      if (focus) tab.focus();
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => activate(tab, false));
+      tab.addEventListener("keydown", (event) => {
+        const direction = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+        if (direction === 0) return;
+        event.preventDefault();
+        const next = tabs[(index + direction + tabs.length) % tabs.length];
+        activate(next, true);
+      });
+    });
+
+    const initial = tabs.find((tab) => tab.getAttribute("aria-selected") === "true") ?? tabs[0];
+    activate(initial, false);
+  }
+</script>
