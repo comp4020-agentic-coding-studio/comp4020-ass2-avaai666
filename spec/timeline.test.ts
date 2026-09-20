@@ -108,6 +108,22 @@ describe("corpus timeline", () => {
     }
   });
 
+  // CorpusTimeline.astro reads both the marked year and the lecture it
+  // belongs to from whichever lecture's frontmatter carries
+  // `turningPointYear`. If a second lecture ever got that field, the
+  // component's `.find()` would silently pick whichever comes first in the
+  // collection — the same class of bug this whole file exists to catch,
+  // just moved one field over. This asserts the count is exactly 1, not
+  // "at least 1".
+  it("carries turningPointYear on exactly one lecture", () => {
+    const withTurningPoint = lectureNodes.filter((node) => node.meta?.turningPointYear !== undefined);
+    expect(
+      withTurningPoint.length,
+      `expected exactly one lecture with turningPointYear, found ${withTurningPoint.length}: ` +
+        (withTurningPoint.map((n) => n.id).join(", ") || "none"),
+    ).toBe(1);
+  });
+
   // The old version of this check asked whether the caption contained ANY
   // lecture title, which week one's title satisfies just as well as week
   // five's — the exact bug this replaces. "The lecture the marked year
