@@ -37,8 +37,10 @@ function ddBlocks(source: string): string[] {
   return [...source.matchAll(/<dd>[\s\S]*?<\/dd>/g)].map((m) => m[0]);
 }
 
-function blockForTitle(title: string): string | undefined {
-  return ddBlocks(html).find((dd) => dd.includes(title));
+function blockForTitle(title: string): string {
+  const matches = ddBlocks(html).filter((dd) => dd.includes(title));
+  expect(matches.length, `expected exactly one <dd> containing "${title}", found ${matches.length}`).toBe(1);
+  return matches[0];
 }
 
 function weightBarOf(block: string): string | undefined {
@@ -64,8 +66,7 @@ describe("assessment weight bars (assessments index)", () => {
     // reading by array index instead of by row), or hard-coding a width.
     for (const node of assessments) {
       const block = blockForTitle(node.title);
-      expect(block, `no row found for ${node.id}`).toBeDefined();
-      const bar = weightBarOf(block!);
+      const bar = weightBarOf(block);
       expect(bar, `${node.id}'s row has no weight-bar`).toBeDefined();
       const width = fillWidthOf(bar!);
       expect(width, `${node.id}'s weight-bar has no inner fill width`).toBeDefined();
