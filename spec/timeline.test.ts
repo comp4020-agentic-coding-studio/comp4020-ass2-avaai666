@@ -108,15 +108,43 @@ describe("corpus timeline", () => {
     }
   });
 
-  it("puts the week five lecture title in the caption, not the drawing", () => {
+  // The old version of this check asked whether the caption contained ANY
+  // lecture title, which week one's title satisfies just as well as week
+  // five's — the exact bug this replaces. "The lecture the marked year
+  // belongs to" is not a name we get to assert by fiat in the test either;
+  // it has to come from data. The one piece of data that currently ties a
+  // year to a lecture, independent of the `slides` field the component
+  // misuses, is that week five's own body is the only lecture body that
+  // mentions the marked year at all.
+  it("puts the title of the lecture whose body argues about the marked year in the caption, not just any lecture", () => {
     const captionMatch = figureHtml.match(/<figcaption>[\s\S]*?<\/figcaption>/);
     expect(captionMatch, "no <figcaption> found in the timeline figure").not.toBeNull();
     const captionText = decodeEntities((captionMatch?.[0] ?? "").replace(/<[^>]+>/g, " "));
-    const lectureTitles = lectureNodes.map((node) => node.title);
+
+    const markedYearMatch = captionText.match(/marked line is (\d{4})/);
+    expect(markedYearMatch, "caption does not state which year is marked").not.toBeNull();
+    const markedYear = markedYearMatch![1];
+
+    const lectureBodies = lectureNodes.map((node) => {
+      const slug = node.id.replace(/^lectures\//, "");
+      const file = JSON.parse(
+        readFileSync(resolve(`dist/api/lectures/${slug}.json`), "utf8"),
+      ) as { body: string };
+      return { id: node.id, title: node.title, body: file.body };
+    });
+    const yearPattern = new RegExp(`\\b${markedYear}\\b`);
+    const lecturesAboutThatYear = lectureBodies.filter((lecture) => yearPattern.test(lecture.body));
     expect(
-      lectureTitles.some((title) => captionText.includes(title)),
-      "figcaption does not include any lecture title from the API",
-    ).toBe(true);
+      lecturesAboutThatYear.length,
+      `expected exactly one lecture body to mention ${markedYear}, found: ` +
+        (lecturesAboutThatYear.map((l) => l.id).join(", ") || "none"),
+    ).toBe(1);
+
+    const theLecture = lecturesAboutThatYear[0];
+    expect(
+      captionText,
+      `figcaption should name "${theLecture.title}" (${theLecture.id}, the lecture whose body argues about ${markedYear}), not some other lecture`,
+    ).toContain(theLecture.title);
   });
 
   // The drawing carries labels only; long prose belongs in the caption,
