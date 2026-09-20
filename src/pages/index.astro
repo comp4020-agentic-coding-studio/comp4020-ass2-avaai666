@@ -9,6 +9,7 @@ import Semester from "../components/Semester.astro";
 import SemesterNav from "../components/SemesterNav.astro";
 import { courseMeta } from "../course-config";
 import HomeLayout from "../layouts/HomeLayout.astro";
+import { capitalizedNumberWord } from "../lib/numbers";
 import { siteConfig } from "../site-config";
 import "../styles/specimen.css";
 import "../styles/assessment.css";
@@ -49,6 +50,22 @@ const benchContribution = await getEntry("assessments", "bench-contribution");
 const benches = await getPublishedCollection("sessions");
 const specimens = await getPublishedCollection("specimens");
 const assessments = await getPublishedCollection("assessments");
+
+// The policies page's own provenance claim (src/pages/policies/index.mdx),
+// restated here with every numeral computed from the specimens collection
+// instead of typed by hand — spec/page-claims.test.ts checks the counts sum
+// to the total.
+const verificationCounts = {
+  primary: specimens.filter((specimen) => specimen.data.verification === "primary").length,
+  secondary: specimens.filter((specimen) => specimen.data.verification === "secondary").length,
+  apocryphal: specimens.filter((specimen) => specimen.data.verification === "apocryphal").length,
+};
+const provenanceSentence =
+  `${capitalizedNumberWord(specimens.length)} specimens are on record here. ` +
+  `${capitalizedNumberWord(verificationCounts.primary)} has a photograph of the artefact itself. ` +
+  `${capitalizedNumberWord(verificationCounts.secondary)} were reported and reproduced without one. ` +
+  `${capitalizedNumberWord(verificationCounts.apocryphal)} are probably not true at all, and establishing ` +
+  `that is the work rather than a failure of it.`;
 
 // SLOP course codes put the level in the code's first digit; 6 and 8 are
 // ANU's postgraduate levels (see the LEVELS comment in course-config.ts).
@@ -125,6 +142,7 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
           mattered. Select a record to open its case file.
         </p>
         <EvidenceWorkbench specimens={featuredSpecimens} lines={FEATURED_SPECIMEN_LINES} />
+        <p>{provenanceSentence}</p>
       </section>
     </div>
   </section>
