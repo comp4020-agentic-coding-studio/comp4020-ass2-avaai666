@@ -74,6 +74,7 @@ interface ApiNode {
   id: string;
   type: string;
   related?: string[];
+  meta?: Record<string, unknown>;
 }
 
 interface CourseApi {
@@ -86,6 +87,20 @@ const referencingNodes = api.nodes.filter((node) => node.type === "sessions" || 
 const referencedSpecimenIds = new Set(
   referencingNodes.flatMap((node) => (node.related ?? []).filter((ref) => ref.startsWith("specimens/"))),
 );
+
+const homeText = extractText(homeHtml);
+const specimenNodes = api.nodes.filter((node) => node.type === "specimens");
+
+// Capitalized number words, independent of any source-side helper — this
+// file checks the page's own claim against the collection, not against
+// whatever word-list the implementation happens to use.
+const NUMBER_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+function numberWord(n: number): string {
+  if (n < 0 || n >= NUMBER_WORDS.length) {
+    throw new Error(`numberWord: ${n} is outside the range this test's word list covers`);
+  }
+  return NUMBER_WORDS[n];
+}
 
 describe("page claims", () => {
   it("does not tell the reader every bench is the same operation", () => {
@@ -137,6 +152,35 @@ describe("page claims", () => {
     for (const id of specimenIds) {
       expect(referencedSpecimenIds.has(id), `${id} is not referenced by any session or lecture`).toBe(true);
     }
+  });
+
+  // The policies page's apocryphal-provenance claim, moved to the home page
+  // with every numeral computed from the specimens collection rather than
+  // typed by hand. Turns red by: changing a specimen's verification level
+  // without updating the prose (impossible, since the prose is computed), or
+  // by the sentence going stale/hardcoded so it no longer matches a changed
+  // collection.
+  it("states the specimen count and verification breakdown, computed from the collection", () => {
+    const counts = { primary: 0, secondary: 0, apocryphal: 0 };
+    for (const node of specimenNodes) {
+      const level = node.meta?.verification as keyof typeof counts;
+      expect(level in counts, `${node.id} has an unrecognised verification level: ${String(level)}`).toBe(true);
+      counts[level] += 1;
+    }
+    const total = specimenNodes.length;
+    expect(
+      counts.primary + counts.secondary + counts.apocryphal,
+      "verification counts do not sum to the total specimen count",
+    ).toBe(total);
+
+    const sentence =
+      `${numberWord(total)} specimens are on record here. ` +
+      `${numberWord(counts.primary)} has a photograph of the artefact itself. ` +
+      `${numberWord(counts.secondary)} were reported and reproduced without one. ` +
+      `${numberWord(counts.apocryphal)} are probably not true at all, and establishing ` +
+      `that is the work rather than a failure of it.`;
+
+    expect(homeText, "home page does not state the computed provenance breakdown sentence").toContain(sentence);
   });
 
   it("only cites specimens that exist", () => {
