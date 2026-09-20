@@ -70,6 +70,21 @@ const provenanceSentence =
 // SLOP course codes put the level in the code's first digit; 6 and 8 are
 // ANU's postgraduate levels (see the LEVELS comment in course-config.ts).
 const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
+
+// The benches (weeks) each assessment is actually made at: every session
+// whose own `related` field points back at that assessment, not a
+// hand-maintained list — spec/page-claims.test.ts checks both sides against
+// the API.
+function benchWeeksFor(assessmentId: string): number[] {
+  return benches
+    .filter((bench) => bench.data.related.includes(`assessments/${assessmentId}`))
+    .map((bench) => bench.data.week)
+    .sort((a, b) => a - b);
+}
+
+function weeksLabel(weeks: number[]): string {
+  return `${weeks.length === 1 ? "Week" : "Weeks"} ${weeks.join(", ")}`;
+}
 ---
 
 <HomeLayout title={courseMeta.title} description={courseMeta.description} {...siteConfig}>
@@ -166,7 +181,8 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
                     <span style={`width: ${specimenLog.data.weight}%`} />
                   </div>
                   <p class="ladder-weight-label">
-                    {specimenLog.data.weight}% · {specimenLog.data.title}
+                    {specimenLog.data.weight}% · {specimenLog.data.title} ·{" "}
+                    {weeksLabel(benchWeeksFor(specimenLog.id))}
                   </p>
                 </div>
               </li>
@@ -185,7 +201,8 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
                     <span style={`width: ${reconstruction.data.weight}%`} />
                   </div>
                   <p class="ladder-weight-label">
-                    {reconstruction.data.weight}% · {reconstruction.data.title}
+                    {reconstruction.data.weight}% · {reconstruction.data.title} ·{" "}
+                    {weeksLabel(benchWeeksFor(reconstruction.id))}
                   </p>
                 </div>
               </li>
@@ -200,7 +217,8 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
                     <span style={`width: ${exhibit.data.weight}%`} />
                   </div>
                   <p class="ladder-weight-label">
-                    {exhibit.data.weight}% · {exhibit.data.title}
+                    {exhibit.data.weight}% · {exhibit.data.title} ·{" "}
+                    {weeksLabel(benchWeeksFor(exhibit.id))}
                   </p>
                 </div>
               </li>
@@ -219,7 +237,8 @@ const levelLabel = courseMeta.level >= 6 ? "Postgraduate" : "Undergraduate";
                     <span style={`width: ${benchContribution.data.weight}%`} />
                   </div>
                   <p class="ladder-weight-label">
-                    {benchContribution.data.weight}% · {benchContribution.data.title}
+                    {benchContribution.data.weight}% · {benchContribution.data.title} ·{" "}
+                    {weeksLabel(benchWeeksFor(benchContribution.id))}
                   </p>
                 </div>
               </li>
