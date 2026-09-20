@@ -14,11 +14,14 @@ printed: I am not in the office at the moment. Send any work to be translated.
 ---
 
 A council in Swansea needed a bilingual sign prohibiting heavy goods vehicles
-from a residential road. The English was written, the text was emailed for
-translation, a reply came back, and the reply was printed on the sign and
-installed.
+from a residential road. The English side read:
 
-The Welsh on the road said, in substance:
+<blockquote data-specimen>
+  <p>No entry for heavy goods vehicles. Residential site only.</p>
+</blockquote>
+
+The text was emailed for translation, a reply came back, and the reply was
+printed on the sign and installed. The Welsh on the road said, in substance:
 
 <blockquote data-specimen>
   <p>I am not in the office at the moment. Send any work to be translated.</p>
