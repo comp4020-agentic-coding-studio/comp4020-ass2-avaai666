@@ -11,6 +11,7 @@ interface ApiNode {
   id: string;
   type: string;
   title: string;
+  related?: string[];
   meta?: Record<string, unknown>;
 }
 
@@ -130,6 +131,25 @@ const decks: Deck[] = lecturesWithDecks.map((lecture) => {
   };
 });
 
+// The specimen this deck's own lecture is about — the scope a title-less
+// specimen slide (chukou-export, the-vodka-and-the-meat) falls back to below,
+// since neither names itself in specimen-line the way every other one does.
+function relatedSpecimensOf(deck: Deck): ApiNode[] {
+  return (deck.lecture.related ?? [])
+    .filter((ref) => ref.startsWith("specimens/"))
+    .map((ref) => specimens.find((node) => node.id === ref))
+    .filter((node): node is ApiNode => Boolean(node));
+}
+
+// A specimen slide's own name for itself: specimen-line's text with the
+// verification badge stripped out. Empty for the two slides that carry no
+// name at all (chukou-export, the-vodka-and-the-meat).
+function specimenLineTitle(inner: string): string {
+  const match = inner.match(/<p\s+class="specimen-line">([\s\S]*?)<\/p>/);
+  if (!match) return "";
+  return visibleText(match[1]!.replace(/<span\b[^>]*\bverification-badge\b[^>]*>[\s\S]*?<\/span>/g, ""));
+}
+
 describe("deck legibility", () => {
   // Guards every loop below: with no decks in dist/ each `for` runs zero
   // times and this file would pass while saying nothing.
@@ -235,16 +255,15 @@ describe("deck legibility", () => {
   });
 
   // A specimen slide quotes an artefact, so the line on the wall has to be the
-  // line in the record — not a retyping of it. Turns red by: changing a word
-  // inside a `.printed` element, or its specimen's `printed:` frontmatter,
-  // without changing the other.
-  it("prints, on every specimen slide, a line that equals a specimen's printed field", () => {
-    const printed = new Set(
-      specimens.map((node) => normalise(String(node.meta?.printed ?? ""))).filter(Boolean),
-    );
-    expect(printed.size, "the API carries no specimen printed lines").toBeGreaterThan(0);
-
+  // line in the record — not a retyping of it, and not just any specimen's
+  // line. Scoped to the specimen the slide names in specimen-line, or — for
+  // the two slides that name none — to the specimens its own lecture cites.
+  // Turns red by: changing a word inside a `.printed` element or its
+  // specimen's `printed:` frontmatter without changing the other, or by a
+  // slide printing a line that belongs to some other, unrelated specimen.
+  it("prints, on every specimen slide, a line that equals the specimen it names", () => {
     for (const deck of decks) {
+      const related = relatedSpecimensOf(deck);
       for (const slide of deck.slides.filter((s) => s.classes.includes("specimen"))) {
         const lines = [
           ...slide.inner.matchAll(/<(\w+)\b[^>]*\bclass="[^"]*\bprinted\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/g),
@@ -253,11 +272,29 @@ describe("deck legibility", () => {
           lines.length,
           `${deck.name} slide ${slide.index} is a specimen slide with no .printed element`,
         ).toBeGreaterThan(0);
-        for (const line of lines) {
+
+        const title = specimenLineTitle(slide.inner);
+        let candidates: ApiNode[];
+        if (title) {
+          candidates = specimens.filter((node) => normalise(node.title) === title);
           expect(
-            printed.has(line),
-            `${deck.name} slide ${slide.index} prints "${line}", which is not any specimen's printed line`,
-          ).toBe(true);
+            candidates.length,
+            `${deck.name} slide ${slide.index} names "${title}", which matches ${candidates.length} specimens, expected exactly 1`,
+          ).toBe(1);
+        } else {
+          candidates = related;
+          expect(
+            candidates.length,
+            `${deck.name} slide ${slide.index} names no specimen, and ${deck.lecture.id} cites none to fall back on`,
+          ).toBeGreaterThan(0);
+        }
+
+        for (const line of lines) {
+          const matches = candidates.filter((node) => normalise(String(node.meta?.printed ?? "")) === line);
+          expect(
+            matches.length,
+            `${deck.name} slide ${slide.index} prints "${line}", which matches ${matches.length} of the specimen(s) it could be quoting (${candidates.map((c) => c.id).join(", ")})`,
+          ).toBe(1);
         }
       }
     }
