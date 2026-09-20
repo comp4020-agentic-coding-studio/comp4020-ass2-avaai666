@@ -133,6 +133,13 @@ describe("this-week block: the printed line for each specimen", () => {
         for (const ref of refs) {
           const specimen = specimenNodes.find((n) => n.id === ref)!;
           const printed = String(specimen.meta?.printed).trim();
+          // This, plus the length check above, proves a bijection between
+          // refs and printedLines only because every specimen's printed
+          // field is assumed pairwise distinct from every other's. Nothing
+          // enforces that. If two of this week's specimens ever shared a
+          // printed field, .toContain would pass for both refs against the
+          // same rendered line, and a genuinely missing or duplicated line
+          // would go uncaught even though the count still matched.
           expect(
             printedLines,
             `${node.id}'s this-week block is missing the printed line for ${ref}`,

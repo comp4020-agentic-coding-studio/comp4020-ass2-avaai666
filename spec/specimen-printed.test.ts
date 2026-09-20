@@ -93,6 +93,13 @@ describe("printed field: the Specimens index", () => {
     expect(cells.length).toBe(specimenNodes.length);
 
     for (const node of specimenNodes) {
+      // This, plus the length check above, proves a bijection between
+      // specimenNodes and cells only because every specimen's printed field
+      // is assumed pairwise distinct from every other's. Nothing enforces
+      // that. If two specimens ever shared a printed field, .toContain would
+      // pass for both against the same rendered cell, and a genuinely
+      // missing or duplicated cell would go uncaught even though the count
+      // still matched.
       expect(
         cells,
         `${node.id}'s printed line is missing from the Specimens index`,
@@ -113,6 +120,13 @@ describe("printed field: the home page's three featured records", () => {
 
     for (const id of featured) {
       const node = specimenNodes.find((n) => n.id === `specimens/${id}`)!;
+      // This, plus the length check above, proves a bijection between
+      // featured and cells only because the three featured specimens'
+      // printed fields are assumed pairwise distinct from one another.
+      // Nothing enforces that. If two of them ever shared a printed field,
+      // .toContain would pass for both against the same rendered cell, and a
+      // genuinely missing or duplicated cell would go uncaught even though
+      // the count still matched.
       expect(cells, `${id}'s printed line is missing from the home page`).toContain(
         (node.meta?.printed as string).trim(),
       );
