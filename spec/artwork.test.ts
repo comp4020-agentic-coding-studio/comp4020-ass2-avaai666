@@ -65,4 +65,26 @@ describe("home hero case file", () => {
     );
     expect(raw, "case file is missing the specimen's real title").toContain(firstFeatured.title);
   });
+
+  // CASE 01 used to show only the printed side, which is a translation
+  // artefact with no visible source: a reader cannot tell what it is a
+  // mistranslation OF. The first featured specimen's own frontmatter carries
+  // both `input` and `printed`; this checks the case file states both, as
+  // two distinct strings, not one string doing double duty. Turns red by
+  // rendering only one of the two, or by rendering the same string twice.
+  it("states both the input and the printed side of the first featured specimen's own data", () => {
+    const match = homeHtml.match(/<aside\b[^>]*\bclass="[^"]*\bhome-case-file\b[^"]*"[^>]*>[\s\S]*?<\/aside>/);
+    expect(match, "no aside.home-case-file element found on the built home page").not.toBeNull();
+    const raw = match![0];
+
+    const input = firstFeatured.meta!.input as string | undefined;
+    const printed = firstFeatured.meta!.printed as string;
+    expect(input, `specimens/${FEATURED_SLUGS[0]} has no input field to check against`).toBeTruthy();
+    expect(input, "input and printed are the same string in the data — not a useful fixture for this check").not.toBe(
+      printed,
+    );
+
+    expect(raw, "case file does not state the specimen's input text").toContain(input);
+    expect(raw, "case file does not state the specimen's printed text").toContain(printed);
+  });
 });
