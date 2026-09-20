@@ -93,6 +93,10 @@ export const collections = {
           .string()
           .regex(/^\/decks\/[a-z0-9-]+\/$/)
           .optional(),
+        // The year this lecture's own argument turns on — not "has a deck",
+        // which every lecture does. Exactly one lecture may carry this;
+        // spec/timeline.test.ts asserts that count against the built API.
+        turningPointYear: z.number().int().optional(),
         // Sources a lecture names but cannot link from its prose. Every url
         // here must also be recorded in spec/fixtures/verified-links.json,
         // which spec/external-links.test.ts enforces against the built page:

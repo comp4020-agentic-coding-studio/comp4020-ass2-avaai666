@@ -3,21 +3,24 @@ import { getPublishedCollection } from "astro-course-university/content";
 import { withBase } from "astro-theme-university/url";
 import "../styles/timeline.css";
 
-// Week 5's slides are the one deck this course has, and they open on
-// "# 2016" (src/decks/week-05.deck.mdx) — the lecture's own body reads
-// "what changed in 2016, in one diagram." 2016 is therefore not invented:
-// it is the year that deck already argues, given directly by the task that
-// asked for this line. What is NOT hardcoded is which lecture that is: the
-// only current way to find "the lecture with a deck" from data alone is the
-// `slides` field on the lectures collection, so that is what is read here.
-const MARKED_YEAR = 2016;
-
+// Every lecture has a deck now, so `slides` no longer picks out a single
+// lecture — it used to, back when week 5 was the only one with a deck, and
+// that coincidence is how this used to work. The year and the lecture it
+// belongs to are one fact, not two inferred from unrelated fields: both are
+// read here from `turningPointYear`, which exactly one lecture's own
+// frontmatter carries (spec/timeline.test.ts checks that count).
 const specimens = await getPublishedCollection("specimens");
 const lectures = await getPublishedCollection("lectures");
-const deckLecture = lectures.find((lecture) => lecture.data.slides);
-const markedLineSentence = deckLecture
-  ? `The marked line is ${MARKED_YEAR}, where week five's lecture — ${deckLecture.data.title} — puts the change.`
-  : `The marked line is ${MARKED_YEAR}.`;
+const turningPointLectures = lectures.filter((lecture) => lecture.data.turningPointYear !== undefined);
+if (turningPointLectures.length !== 1) {
+  throw new Error(
+    `CorpusTimeline: expected exactly one lecture with turningPointYear, found ${turningPointLectures.length}` +
+      (turningPointLectures.length > 0 ? ` (${turningPointLectures.map((l) => l.id).join(", ")})` : ""),
+  );
+}
+const turningPointLecture = turningPointLectures[0];
+const MARKED_YEAR = turningPointLecture.data.turningPointYear as number;
+const markedLineSentence = `The marked line is ${MARKED_YEAR}, where week ${turningPointLecture.data.week}'s lecture — ${turningPointLecture.data.title} — puts the change.`;
 
 function yearOf(sourceDate: string): number {
   return Number(sourceDate.slice(0, 4));
@@ -124,7 +127,7 @@ const descriptionText =
   sortedSpecimens
     .map((specimen) => `${specimen.data.title} (${yearOf(specimen.data.sourceDate)}, ${specimen.data.verification})`)
     .join("; ") +
-  `. One marked line at ${MARKED_YEAR}${deckLecture ? `, labelled "${deckLecture.data.title}"` : ""}.`;
+  `. One marked line at ${MARKED_YEAR}, labelled "${turningPointLecture.data.title}".`;
 ---
 
 <figure class="corpus-timeline">
@@ -193,7 +196,8 @@ const descriptionText =
   <figcaption>
     <p>
       {sortedSpecimens.length} specimens, {axisMinYear}–{latestSpecimenYear}. {markedLineSentence} Nothing in this
-      corpus is more recent than the change week five describes. That is the finding, not a gap in the collection.
+      corpus is more recent than the change week {turningPointLecture.data.week} describes. That is the finding, not
+      a gap in the collection.
     </p>
   </figcaption>
 </figure>

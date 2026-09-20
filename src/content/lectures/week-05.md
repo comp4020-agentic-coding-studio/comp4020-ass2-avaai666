@@ -8,6 +8,7 @@ date: 2027-03-22
 teachers:
   - aurel-marchetti
 slides: /decks/week-05/
+turningPointYear: 2016
 related:
   - sessions/05-starve-it
 readings:
