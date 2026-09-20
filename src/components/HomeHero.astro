@@ -5,7 +5,7 @@
 // computed in index.astro from real collection/config data — this component
 // invents nothing, it only lays the values out.
 import type { CollectionEntry } from "astro:content";
-import { printedLang } from "../lib/specimens";
+import { inputLang, printedLang } from "../lib/specimens";
 
 interface Props {
   code: string;
@@ -50,6 +50,18 @@ const { data } = caseSpecimen;
         </span>
       </p>
 
+      {
+        data.input && (
+          <>
+            <p class="home-case-record">Input</p>
+            <p class="home-case-printed" lang={inputLang(data.languages)}>
+              {data.input}
+            </p>
+          </>
+        )
+      }
+
+      <p class="home-case-record">Printed</p>
       <p class="home-case-printed" lang={printedLang(data.languages)}>{data.printed}</p>
 
       <p class="home-case-provenance">

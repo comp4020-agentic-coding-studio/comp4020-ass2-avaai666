@@ -8,6 +8,7 @@ sourceDate: "2008-10"
 sourceUrl: http://news.bbc.co.uk/2/hi/uk_news/wales/7702913.stm
 verification: primary
 languages: English → Welsh
+input: No entry for heavy goods vehicles. Residential site only.
 mechanism: A workflow with no translator in it; an inbox mistaken for a translation service
 printed: I am not in the office at the moment. Send any work to be translated.
 ---
