@@ -102,6 +102,13 @@ function numberWord(n: number): string {
   return NUMBER_WORDS[n];
 }
 
+const assessmentNodes = api.nodes.filter((node) => node.type === "assessments");
+const sessionNodes = api.nodes.filter((node) => node.type === "sessions");
+
+function ladderStepBlocks(html: string): string[] {
+  return [...html.matchAll(/<li class="ladder-step">[\s\S]*?<\/li>/g)].map((m) => m[0]);
+}
+
 describe("page claims", () => {
   it("does not tell the reader every bench is the same operation", () => {
     expect(sessionsIndexText).not.toMatch(/the same operation/i);
@@ -181,6 +188,50 @@ describe("page claims", () => {
       `that is the work rather than a failure of it.`;
 
     expect(homeText, "home page does not state the computed provenance breakdown sentence").toContain(sentence);
+  });
+
+  // Each assessment's ladder step, resolved by its own link to its own
+  // assessment page (not by title substring — see spec/README.md's note on
+  // assessment-weights.test.ts's blockForTitle for why that shape is risky),
+  // must name exactly the set of session weeks whose own related field
+  // points back at that assessment. Turns red by: showing no weeks, showing
+  // the wrong assessment's weeks, or dropping a week that does reference it.
+  it("shows each assessment's own set of benches, computed from the sessions collection", () => {
+    const blocks = ladderStepBlocks(homeHtml);
+    for (const assessment of assessmentNodes) {
+      const slug = assessment.id.replace(/^assessments\//, "");
+      const matches = blocks.filter((block) => block.includes(`/assessments/${slug}/`));
+      expect(
+        matches.length,
+        `expected exactly one ladder step linking to ${assessment.id}, found ${matches.length}`,
+      ).toBe(1);
+      const block = matches[0];
+
+      const expectedWeeks = sessionNodes
+        .filter((session) => (session.related ?? []).includes(assessment.id))
+        .map((session) => Number(session.meta?.week))
+        .sort((a, b) => a - b);
+      expect(
+        expectedWeeks.length,
+        `${assessment.id} is not referenced by any session's related field — fixture cannot check anything`,
+      ).toBeGreaterThan(0);
+
+      const blockText = extractText(block);
+      const weeksLabelMatch = blockText.match(/\bWeeks?\s+([\d,\s]+?)(?=\.|$|[A-Za-z])/);
+      expect(
+        weeksLabelMatch,
+        `${assessment.id}: ladder step has no "Week"/"Weeks" label to read benches from`,
+      ).not.toBeNull();
+      const renderedWeeks = (weeksLabelMatch?.[1] ?? "")
+        .split(",")
+        .map((s) => Number(s.trim()))
+        .filter((n) => !Number.isNaN(n))
+        .sort((a, b) => a - b);
+      expect(
+        renderedWeeks,
+        `${assessment.id}: expected exactly weeks [${expectedWeeks.join(", ")}] in its ladder step`,
+      ).toEqual(expectedWeeks);
+    }
   });
 
   it("only cites specimens that exist", () => {
