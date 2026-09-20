@@ -60,6 +60,17 @@ function tabs(html: string): Tab[] {
   });
 }
 
+// Scoped, uniqueness-checked lookup — the id-substring match below is only
+// safe when exactly one element's id contains the slug; if a second element
+// ever collided (e.g. a duplicated specimen, or one slug that is a substring
+// of another), silently taking the first match would report on the wrong
+// element without ever failing.
+function findByIdContaining<T extends { id: string }>(items: T[], slug: string, what: string): T {
+  const matches = items.filter((item) => item.id.includes(slug));
+  expect(matches.length, `expected exactly one ${what} for ${slug}, found ${matches.length}`).toBe(1);
+  return matches[0];
+}
+
 // Panels are rendered as <article>, and nothing inside a panel is itself an
 // <article>, so a lazy match up to the next </article> cannot close early on
 // a nested element the way it could for a generic <div>.
@@ -126,9 +137,8 @@ describe("evidence workbench (home page)", () => {
     // substituting a different specimen's data into the wrong panel.
     const allPanels = panels(homeHtml);
     for (const { slug, node } of featured) {
-      const panel = allPanels.find((p) => p.id.includes(slug));
-      expect(panel, `no panel found for ${slug}`).toBeDefined();
-      const { raw } = panel!;
+      const panel = findByIdContaining(allPanels, slug, "panel");
+      const { raw } = panel;
       expect(raw, `${slug}'s panel is missing its printed text`).toContain(String(node.meta!.printed));
       expect(raw, `${slug}'s panel is missing its mechanism text`).toContain(String(node.meta!.mechanism));
       const verification = String(node.meta!.verification);
@@ -145,9 +155,8 @@ describe("evidence workbench (home page)", () => {
     // specimen index instead of the specimen's own page.
     const allPanels = panels(homeHtml);
     for (const { slug } of featured) {
-      const panel = allPanels.find((p) => p.id.includes(slug));
-      expect(panel, `no panel found for ${slug}`).toBeDefined();
-      expect(panel!.raw).toMatch(new RegExp(`href="[^"]*/specimens/${slug}/"`));
+      const panel = findByIdContaining(allPanels, slug, "panel");
+      expect(panel.raw).toMatch(new RegExp(`href="[^"]*/specimens/${slug}/"`));
     }
   });
 
